@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Binary Reactor: Sonic Edition</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+        body { text-align: center; font-family: 'Orbitron', sans-serif; background: #050508; color: #58a6ff; margin: 0; padding: 20px; overflow: hidden; }
+        .stats { font-size: 16px; margin-bottom: 20px; display: flex; justify-content: center; gap: 40px; background: #161b22; padding: 15px; border-radius: 10px; width: fit-content; margin: 0 auto 20px; border: 1px solid #30363d; }
+        #reactor-canvas { background: transparent; display: block; margin: 0 auto; z-index: 10; position: relative; }
+        #addition-grid { display: grid; grid-template-columns: repeat(9, 60px); gap: 10px; justify-content: center; margin: 20px auto; background: rgba(15, 15, 20, 0.9); padding: 30px; border-radius: 12px; border: 2px solid #30363d; width: max-content; transition: opacity 0.8s; }
+        .cell { width: 60px; height: 60px; border: 1px solid #30363d; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: bold; border-radius: 4px; }
+        .num { background: #1c2128; color: #ffffff; }
+        .sum { background: #0d1117; color: #aff5b4; border: 2px solid #58a6ff; }
+        .carry { background: #0d1117; color: #ffca28; border: 1px dashed #ffca28; font-size: 18px; }
+        .active { border: 3px solid #f0883e !important; box-shadow: 0 0 15px #f0883e; background: #262c36; }
+        .line { grid-column: 1 / span 9; height: 3px; background: #58a6ff; margin: 5px 0; }
+        #msg { height: 30px; font-weight: bold; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
+    </style>
+</head>
+<body>
+
+    <div class="stats">
+        <div>CORE STABILITY: <span id="integrity">100</span>%</div>
+        <div>SCORE: <span id="score">0</span></div>
+    </div>
+
+    <canvas id="reactor-canvas" width="800" height="250"></canvas>
+    <div id="msg">CLICK SCREEN TO START AUDIO</div>
+
+    <div id="addition-grid"></div>
+
+<script>
+    let score = 0, coreGrowth = 0, isExploding = false, explosionAlpha = 0;
+    let activeRow = 3, activeCol = 8, n1 = [], n2 = [], bitWidth = 4, particles = [];
+    
+    const rCanvas = document.getElementById('reactor-canvas');
+    const rCtx = rCanvas.getContext('2d');
+
+    // --- AUDIO SYSTEM ---
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    const audioCtx = new AudioContext();
+
+    function playSound(freq, type, duration, vol = 0.1) {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(); osc.stop(audioCtx.currentTime + duration);
+    }
+
+    function playBoom() {
+        const bufferSize = audioCtx.sampleRate * 2;
+        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+        const noise = audioCtx.createBufferSource();
+        noise.buffer = buffer;
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(1000, audioCtx.currentTime);
+        filter.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 1.5);
+        const gain = audioCtx.createGain();
+        gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+        gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 1.5);
+        noise.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
+        noise.start();
+    }
+
+    // --- GAME LOGIC ---
+    function initGame() {
+        score = 0; coreGrowth = 0; isExploding = false; explosionAlpha = 0; particles = [];
+        document.getElementById('addition-grid').style.opacity = "1";
+        document.getElementById('score').innerText = "0";
+        generateProblem();
+        renderGrid();
+    }
+
+    function generateProblem() {
+        const max = Math.pow(2, bitWidth) - 1;
+        n1 = Math.floor(Math.random() * max).toString(2).padStart(8, '0').split('');
+        n2 = Math.floor(Math.random() * max).toString(2).padStart(8, '0').split('');
+        activeCol = 8; activeRow = 3;
+    }
+
+    function renderGrid() {
+        const grid = document.getElementById('addition-grid');
+        grid.innerHTML = '';
+        for(let i=0; i<9; i++) grid.innerHTML += `<div class="cell num">${i===0?'0':n1[i-1]}</div>`;
+        for(let i=0; i<9; i++) grid.innerHTML += `<div class="cell num">${i===0?'0':n2[i-1]}</div>`;
+        grid.innerHTML += '<div class="line"></div>';
+        for(let i=0; i<9; i++) grid.innerHTML += `<div class="cell sum" id="s-${i}" onclick="setActive(3, i)"></div>`;
+        for(let i=0; i<9; i++) grid.innerHTML += `<div class="cell carry" id="c-${i}" onclick="setActive(4, i)"></div>`;
+        updateActiveVisual();
+    }
+
+    let lastPulse = 0;
+    function animateReactor() {
+        rCtx.clearRect(0, 0, rCanvas.width, rCanvas.height);
+        if (!isExploding) {
+            coreGrowth += 0.07;
+            let currentSize = 40 + coreGrowth;
+            let danger = Math.min(1, coreGrowth / 180);
+            
+            // Techy Pulse Alarm
+            if (danger > 0.7 && Date.now() - lastPulse > (400 - (danger * 200))) {
+                playSound(150 + (danger * 100), 'square', 0.1, 0.05);
+                lastPulse = Date.now();
+            }
+
+            let grad = rCtx.createRadialGradient(400, 125, 0, 400, 125, currentSize + 40);
+            grad.addColorStop(0, danger > 0.8 ? `rgb(255, 50, 50)` : `rgb(${100 + danger * 155}, ${200 - danger * 100}, 255)`);
+            grad.addColorStop(1, 'transparent');
+            rCtx.fillStyle = grad;
+            rCtx.beginPath(); rCtx.arc(400, 125, currentSize + 40, 0, Math.PI * 2); rCtx.fill();
+            document.getElementById('integrity').innerText = Math.max(0, Math.floor(100 - (coreGrowth / 1.8)));
+            if (coreGrowth > 180) { playBoom(); triggerExplosion(); }
+        } else {
+            coreGrowth += 35;
+            rCtx.fillStyle = `rgba(255, 255, 255, ${explosionAlpha})`;
+            rCtx.fillRect(0, 0, rCanvas.width, rCanvas.height);
+            explosionAlpha += 0.02;
+            particles.forEach(p => { p.x += p.vx; p.y += p.vy; rCtx.fillStyle = p.color; rCtx.beginPath(); rCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2); rCtx.fill(); });
+            if (explosionAlpha >= 1.2) initGame();
+        }
+        requestAnimationFrame(animateReactor);
+    }
+
+    function triggerExplosion() {
+        isExploding = true;
+        document.getElementById('addition-grid').style.opacity = "0";
+        for (let i = 0; i < 200; i++) particles.push({ x: 400, y: 125, vx: (Math.random() - 0.5) * 30, vy: (Math.random() - 0.5) * 30, size: Math.random() * 5 + 2, color: Math.random() > 0.5 ? '#f44' : '#fff' });
+    }
+
+    function setActive(r, c) { activeRow = r; activeCol = c; updateActiveVisual(); }
+    function updateActiveVisual() {
+        document.querySelectorAll('.cell').forEach(el => el.classList.remove('active'));
+        const target = document.getElementById(`${activeRow === 3 ? 's' : 'c'}-${activeCol}`);
+        if (target) target.classList.add('active');
+    }
+
+    window.addEventListener('keydown', (e) => {
+        if (isExploding) return;
+        if(e.key === '0' || e.key === '1') {
+            playSound(800 + (Math.random() * 100), 'sine', 0.05);
+            document.getElementById(`${activeRow === 3 ? 's' : 'c'}-${activeCol}`).innerText = e.key;
+            if (activeCol > 0) activeCol--; else if (activeCol === 0 && activeRow === 3) verifyAnswer();
+        }
+        if(e.key === 'Backspace') {
+            playSound(300, 'sine', 0.05);
+            document.getElementById(`${activeRow === 3 ? 's' : 'c'}-${activeCol}`).innerText = "";
+            if (activeCol < 8) activeCol++;
+        }
+        updateActiveVisual();
+    });
+
+    function verifyAnswer() {
+        let carry = 0, isCorrect = true;
+        for(let i=8; i>=0; i--) {
+            let b1 = i === 0 ? 0 : parseInt(n1[i-1]), b2 = i === 0 ? 0 : parseInt(n2[i-1]);
+            let userSum = document.getElementById(`s-${i}`).innerText || "0";
+            if(userSum != (b1 + b2 + carry) % 2) isCorrect = false;
+            carry = (b1 + b2 + carry) >= 2 ? 1 : 0;
+        }
+        if(isCorrect) {
+            playSound(500, 'sine', 0.1); setTimeout(()=>playSound(700, 'sine', 0.1), 50); setTimeout(()=>playSound(900, 'sine', 0.2), 100);
+            score += 100; coreGrowth = Math.max(0, coreGrowth - 70);
+            document.getElementById('score').innerText = score;
+            document.getElementById('msg').innerText = "STABILIZED";
+            document.getElementById('msg').style.color = "#aff5b4";
+            if(score >= 400) bitWidth = 8;
+            generateProblem(); renderGrid();
+        } else { 
+            playSound(100, 'sawtooth', 0.4, 0.2);
+            coreGrowth += 30; 
+            document.getElementById('msg').innerText = "CALCULATION ERROR";
+            document.getElementById('msg').style.color = "#ffca28";
+            activeCol = 8; 
+        }
+        updateActiveVisual();
+    }
+
+    initGame();
+    animateReactor();
+</script>
+</body>
+</html>15:53 27/01/2026
