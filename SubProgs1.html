@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Python Revision: Sub-programs</title>
+    <style>
+        :root { --py-blue: #3776ab; --py-yellow: #ffd43b; --success: #27ae60; --error: #e74c3c; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        .container { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 100%; max-width: 850px; }
+        h1 { color: #2c3e50; text-align: center; margin: 0; }
+        .stats-bar { display: flex; justify-content: space-around; background: #eee; padding: 10px; border-radius: 8px; margin: 15px 0; font-weight: bold; }
+        #code-list { list-style: none; padding: 10px; border: 2px solid #ddd; border-radius: 8px; min-height: 250px; background: #fafafa; margin: 0; }
+        .draggable-line { background-color: var(--py-blue); color: white; padding: 10px 15px; margin: 5px 0; border-radius: 6px; cursor: grab; font-family: 'Consolas', monospace; white-space: pre; border-left: 6px solid var(--py-yellow); transition: margin-left 0.2s; user-select: none; }
+        .dragging { opacity: 0.5; }
+        .solved .draggable-line { background-color: var(--success) !important; border-left-color: white; cursor: default; }
+        .controls { text-align: center; margin-top: 20px; display: flex; flex-direction: column; gap: 10px; align-items: center; }
+        .btn-group { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+        button { padding: 10px 20px; font-size: 14px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; color: white; }
+        .btn-verify { background: var(--py-blue); }
+        .btn-solve { background: var(--py-yellow); color: #2c3e50; }
+        #message { font-weight: bold; margin-top: 10px; height: 1.2em; }
+        select { padding: 10px; width: 100%; border-radius: 5px; font-size: 14px; border: 2px solid #ddd; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Python Sub-programs Lab</h1>
+        <div class="stats-bar">
+            <span>Completed: <span id="comp-count">0</span> / 25</span>
+            <span>Actions: <span id="action-count">0</span></span>
+        </div>
+        <select id="topicPicker" onchange="setupGame()"></select>
+        <ul id="code-list"></ul>
+        <div class="controls">
+            <div id="message"></div>
+            <div class="btn-group">
+                <button class="btn-verify" onclick="checkResult()">Verify Logic</button>
+                <button class="btn-solve" onclick="showSolution()">Show Solution</button>
+            </div>
+        </div>
+    </div>
+
+<script>
+    const subProgTasks = [
+        {t: "1: Basic Procedure", c:[{x:'def say_hi():', i:0},{x:'print("Hi")', i:1},{x:'say_hi()', i:0}]},
+        {t: "2: Function with Return", c:[{x:'def get_pi():', i:0},{x:'return 3.14', i:1},{x:'print(get_pi())', i:0}]},
+        {t: "3: Single Parameter", c:[{x:'def greet(name):', i:0},{x:'print(f"Hi {name}")', i:1},{x:'greet("Bob")', i:0}]},
+        {t: "4: Multiple Parameters", c:[{x:'def add(a, b):', i:0},{x:'print(a + b)', i:1},{x:'add(5, 10)', i:0}]},
+        {t: "5: Returning a Calculation", c:[{x:'def square(n):', i:0},{x:'return n * n', i:1},{x:'result = square(4)', i:0}]},
+        {t: "6: Void Procedure Call", c:[{x:'def log_error():', i:0},{x:'print("Error!")', i:1},{x:'log_error()', i:0}]},
+        {t: "7: Parameter Multiplication", c:[{x:'def mult(x, y):', i:0},{x:'return x * y', i:1},{x:'ans = mult(2, 3)', i:0}]},
+        {t: "8: Default Parameters", c:[{x:'def greet(n="Guest"):', i:0},{x:'print(n)', i:1},{x:'greet()', i:0}]},
+        {t: "9: Local Variables", c:[{x:'def my_func():', i:0},{x:'x = 10', i:1},{x:'print(x)', i:1}]},
+        {t: "10: Global Variable Use", c:[{x:'score = 0', i:0},{x:'def inc():', i:0},{x:'global score', i:1},{x:'score += 1', i:1}]},
+        {t: "11: Nested Function Call", c:[{x:'def a(): return 1', i:0},{x:'def b():', i:0},{x:'print(a())', i:1},{x:'b()', i:0}]},
+        {t: "12: List as Parameter", c:[{x:'def show(L):', i:0},{x:'for x in L:', i:1},{x:'print(x)', i:2}]},
+        {t: "13: Multiple Returns", c:[{x:'def check(n):', i:0},{x:'if n > 0:', i:1},{x:'return True', i:2},{x:'return False', i:1}]},
+        {t: "14: Boolean Return", c:[{x:'def is_even(n):', i:0},{x:'return n % 2 == 0', i:1}]},
+        {t: "15: String Manipulation Sub", c:[{x:'def shout(t):', i:0},{x:'return t.upper()', i:1}]},
+        {t: "16: Procedure with Logic", c:[{x:'def check_age(a):', i:0},{x:'if a >= 18:', i:1},{x:'print("Adult")', i:2}]},
+        {t: "17: Calling in a Loop", c:[{x:'def work(): print("X")', i:0},{x:'for i in range(3):', i:0},{x:'work()', i:1}]},
+        {t: "18: Return None", c:[{x:'def do_nothing():', i:0},{x:'return None', i:1}]},
+        {t: "19: Area Function", c:[{x:'def area(w, h):', i:0},{x:'return w * h', i:1}]},
+        {t: "20: Main Procedure Pattern", c:[{x:'def main():', i:0},{x:'print("Start")', i:1},{x:'main()', i:0}]},
+        {t: "21: Parameter Type Hint", c:[{x:'def add(n: int):', i:0},{x:'return n + 1', i:1}]},
+        {t: "22: Formatting Function", c:[{x:'def fmt(v):', i:0},{x:'return f"£{v}"', i:1}]},
+        {t: "23: List Return", c:[{x:'def get_nums():', i:0},{x:'return [1, 2]', i:1}]},
+        {t: "24: Keyword Arguments", c:[{x:'def d(a, b): pass', i:0},{x:'d(b=1, a=2)', i:0}]},
+        {t: "25: Docstring Definition", c:[{x:'def help():', i:0},{x:'"""Info"""', i:1},{x:'print("Hi")', i:1}]}
+    ];
+
+    let actions = 0;
+    let completed = new Set();
+
+    function init() {
+        const picker = document.getElementById('topicPicker');
+        subProgTasks.forEach((task, idx) => {
+            const opt = document.createElement('option');
+            opt.value = idx;
+            opt.textContent = task.t;
+            picker.appendChild(opt);
+        });
+        setupGame();
+    }
+
+    function setupGame() {
+        const list = document.getElementById('code-list');
+        const idx = document.getElementById('topicPicker').value;
+        const task = subProgTasks[idx];
+        list.innerHTML = '';
+        list.classList.remove('solved');
+        document.getElementById('message').innerText = '';
+
+        let lines = [...task.c].sort(() => Math.random() - 0.5);
+        lines.forEach((item) => {
+            const li = document.createElement('li');
+            li.className = 'draggable-line';
+            li.dataset.text = item.x;
+            li.dataset.indent = 0;
+            li.textContent = item.x;
+            li.draggable = true;
+            li.onclick = function() {
+                if (list.classList.contains('solved')) return;
+                let cur = (parseInt(this.dataset.indent) + 1) % 4; 
+                this.dataset.indent = cur;
+                this.style.marginLeft = (cur * 40) + "px";
+                this.textContent = "    ".repeat(cur) + this.dataset.text;
+                actions++; updateStats();
+            };
+            li.ondragstart = () => li.classList.add('dragging');
+            li.ondragend = () => { li.classList.remove('dragging'); actions++; updateStats(); };
+            list.appendChild(li);
+        });
+    }
+
+    document.getElementById('code-list').ondragover = e => {
+        e.preventDefault();
+        const list = document.getElementById('code-list');
+        const dragging = document.querySelector('.dragging');
+        const afterElement = [...list.querySelectorAll('.draggable-line:not(.dragging)')].reduce((closest, child) => {
+            const box = child.getBoundingClientRect();
+            const offset = e.clientY - box.top - box.height / 2;
+            if (offset < 0 && offset > closest.offset) return { offset: offset, element: child };
+            else return closest;
+        }, { offset: Number.NEGATIVE_INFINITY }).element;
+        if (afterElement == null) list.appendChild(dragging);
+        else list.insertBefore(dragging, afterElement);
+    };
+
+    function updateStats() {
+        document.getElementById('action-count').innerText = actions;
+        document.getElementById('comp-count').innerText = completed.size;
+    }
+
+    function checkResult() {
+        const idx = document.getElementById('topicPicker').value;
+        const items = Array.from(document.querySelectorAll('.draggable-line'));
+        const correct = subProgTasks[idx].c;
+        const msg = document.getElementById('message');
+
+        let isCorrect = items.length === correct.length && items.every((el, i) => 
+            el.dataset.text === correct[i].x && parseInt(el.dataset.indent) === correct[i].i
+        );
+
+        if (isCorrect) {
+            document.getElementById('code-list').classList.add('solved');
+            msg.innerText = "✓ Sub-program Logic Correct!";
+            msg.style.color = "var(--success)";
+            completed.add(idx);
+            updateStats();
+        } else {
+            msg.innerText = "✗ Syntax Error";
+            msg.style.color = "var(--error)";
+        }
+    }
+
+    function showSolution() {
+        const idx = document.getElementById('topicPicker').value;
+        const list = document.getElementById('code-list');
+        list.innerHTML = '';
+        subProgTasks[idx].c.forEach(item => {
+            const li = document.createElement('li');
+            li.className = 'draggable-line';
+            li.style.marginLeft = (item.i * 40) + "px";
+            li.textContent = "    ".repeat(item.i) + item.x;
+            list.appendChild(li);
+        });
+        list.classList.add('solved');
+    }
+
+    init();
+</script>
+</body>
+</html>

@@ -1,176 +1,103 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>BINARY BALLOON POP: Final Version</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MrShawComputing | Home</title>
     <style>
-        body { text-align: center; font-family: 'Courier New', monospace; background: #0d1117; color: #58a6ff; margin: 0; padding: 20px; }
-        canvas { background: #161b22; border: 4px solid #30363d; border-radius: 12px; display: block; margin: 10px auto; }
-        .helper-table { margin: 0 auto 15px; border-collapse: collapse; background: #0d1117; }
-        .helper-table td { border: 2px solid #58a6ff; padding: 10px 20px; font-size: 22px; font-weight: bold; color: #adbac7; }
-        input { background: #0d1117; border: 2px solid #58a6ff; color: white; padding: 15px; font-size: 24px; width: 350px; text-align: center; border-radius: 8px; outline: none; transition: background 0.3s; }
-        input.error { background: #4e1a1a; border-color: #ff4444; }
-        .stats { font-size: 18px; margin-bottom: 10px; color: #8b949e; display: flex; justify-content: center; gap: 30px; }
-        #timer { font-size: 30px; font-weight: bold; color: #aff5b4; }
-        #status { height: 25px; color: #ffca28; font-weight: bold; margin-bottom: 10px; }
-        #overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.95); padding: 40px; border-radius: 20px; display: none; border: 2px solid #58a6ff; z-index: 10; }
+        :root {
+            --primary: #2563eb;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --accent: #38bdf8;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            background-color: var(--light);
+            color: var(--dark);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: var(--dark);
+            color: white;
+            padding: 2rem 1rem;
+            text-align: center;
+            border-bottom: 4px solid var(--primary);
+        }
+
+        .hero {
+            max-width: 800px;
+            margin: 3rem auto;
+            text-align: center;
+            padding: 0 1rem;
+        }
+
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            max-width: 1000px;
+            margin: 0 auto 3rem auto;
+            padding: 0 1rem;
+        }
+
+        .nav-button {
+            background: white;
+            border: 2px solid var(--primary);
+            color: var(--dark);
+            padding: 2rem;
+            text-decoration: none;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .nav-button:hover {
+            background-color: var(--primary);
+            color: white;
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(37, 99, 235, 0.3);
+        }
+
+        footer {
+            margin-top: auto;
+            background: var(--dark);
+            color: white;
+            text-align: center;
+            padding: 1rem;
+        }
     </style>
 </head>
 <body>
 
-    <div id="overlay">
-        <h1 style="color:#ffca28">CHALLENGE COMPLETE</h1>
-        <p id="finalScore" style="font-size: 24px; color: white;"></p>
-        <button onclick="location.reload()" style="padding: 10px 20px; cursor: pointer; background: #58a6ff; border: none; font-weight: bold; color: white;">Restart</button>
-    </div>
+    <header>
+        <h1>MrShawComputing</h1>
+        <p>Welcome, Learners.</p>
+    </header>
 
-    <h1>BINARY BALLOON POP</h1>
+    <section class="hero">
+        <h2>Welcome, Learners</h2>
+        <p>Select a pathway below to begin your journey into Computer Science, Programming, and Digital Literacy.</p>
+    </section>
 
-    <table class="helper-table">
-        <tr><td>128</td><td>64</td><td>32</td><td>16</td><td>8</td><td>4</td><td>2</td><td>1</td></tr>
-    </table>
+    <main class="button-grid">
+        <a href="BalloonBurst.html" class="nav-button">🚀 Binary Balloon Burst</a>
+        <a href="SubProgs1.html" class="nav-button">📚 SubProgs1</a>
+        <a href="SubProgs2.html" class="nav-button">🎥 SubProgs2</a>
+        <a href="SubProgs3.html" class="nav-button">🛠️ SubProgs3</a>
+    </main>
 
-    <div class="stats">
-        <div>TIME: <span id="timer">05:00</span></div>
-        <div>SCORE: <span id="score" style="color:white">0</span></div>
-        <div>STRIKES: <span id="strikes" style="color:#ff4444">0</span></div>
-    </div>
-    <div id="status"></div>
-    
-    <canvas id="gameCanvas" width="800" height="350"></canvas>
-    <input type="text" id="userInput" placeholder="CONVERT & ENTER" autofocus autocomplete="off">
+    <footer>
+        <p>&copy; 2026 MrShawComputing | Built for the future.</p>
+    </footer>
 
-<script>
-    const canvas = document.getElementById('gameCanvas');
-    const ctx = canvas.getContext('2d');
-    const input = document.getElementById('userInput');
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-    let score = 0, totalHits = 0, strikes = 0, timeLeft = 300, gameActive = true;
-    let targets = [], darts = [];
-
-    // --- AUDIO ---
-    function playSfx(freq1, freq2, type = 'sine') {
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = type;
-        osc.frequency.setValueAtTime(freq1, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(freq2, audioCtx.currentTime + 0.15);
-        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-        gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.15);
-        osc.connect(gain); gain.connect(audioCtx.destination);
-        osc.start(); osc.stop(audioCtx.currentTime + 0.15);
-    }
-
-    // --- TIMER ---
-    const timerInterval = setInterval(() => {
-        if (!gameActive) return;
-        timeLeft--;
-        let mins = Math.floor(timeLeft / 60), secs = timeLeft % 60;
-        document.getElementById('timer').innerText = `${mins}:${secs.toString().padStart(2, '0')}`;
-        if (timeLeft <= 0) endGame();
-    }, 1000);
-
-    function endGame() {
-        gameActive = false;
-        document.getElementById('overlay').style.display = 'block';
-        document.getElementById('finalScore').innerText = `Score: ${score} | Hits: ${totalHits}`;
-        input.disabled = true;
-    }
-
-    class Target {
-        constructor(isBonus) { this.isBonus = isBonus; this.reset(); }
-        reset() {
-            // ADAPTATION: Use simple patterns if early game or 3+ strikes
-            let num;
-            if (totalHits < 5 || strikes >= 3) {
-                num = Math.pow(2, Math.floor(Math.random() * 8));
-            } else {
-                num = Math.floor(Math.random() * 255);
-            }
-
-            this.isDenary = Math.random() > 0.5;
-            this.answer = this.isDenary ? num.toString(2).padStart(8, '0') : num.toString();
-            this.display = this.isDenary ? num.toString() : num.toString(2).padStart(8, '0');
-            this.width = this.isBonus ? 120 : 85; 
-            this.height = this.isBonus ? 60 : 85;
-            this.x = -200; this.y = 40 + Math.random() * 180;
-            this.calculateSpeed();
-        }
-        calculateSpeed() {
-            // ADAPTATION: Slow down speed by 50% if student has 3+ strikes
-            let base = this.isBonus ? 0.5 : 0.25;
-            let scaling = (totalHits * 0.02);
-            let penalty = strikes >= 3 ? 0.4 : 1.0;
-            this.speed = (base + scaling) * penalty;
-        }
-        update() { if(gameActive) this.x += this.speed; if(this.x > canvas.width) this.reset(); }
-        draw() {
-            ctx.fillStyle = this.isBonus ? "#f0883e" : "#58a6ff";
-            ctx.beginPath(); ctx.ellipse(this.x+this.width/2, this.y+this.height/2, this.width/2, this.height/2, 0, 0, Math.PI*2); ctx.fill();
-            ctx.fillStyle = this.isBonus ? "black" : "white";
-            ctx.font = "bold 15px Courier New"; ctx.textAlign = "center";
-            ctx.fillText(this.display, this.x+this.width/2, this.y+this.height/2+5);
-        }
-    }
-
-    class Dart {
-        constructor(t) { this.x = canvas.width/2; this.y = canvas.height; this.target = t; this.speed = 12; this.done = false; }
-        update() {
-            let dx = (this.target.x+this.target.width/2)-this.x, dy = (this.target.y+this.target.height/2)-this.y, d = Math.sqrt(dx*dx+dy*dy);
-            if(d < 15) { this.done = true; return; }
-            this.x += (dx/d)*this.speed; this.y += (dy/d)*this.speed;
-        }
-        draw() { ctx.fillStyle = "#aff5b4"; ctx.beginPath(); ctx.arc(this.x, this.y, 6, 0, Math.PI*2); ctx.fill(); }
-    }
-
-    targets.push(new Target(false), new Target(true));
-
-    input.addEventListener('keydown', (e) => {
-        if(e.key === 'Enter' && gameActive) {
-            let hit = false;
-            targets.forEach(t => { 
-                if(input.value.trim() === t.answer) { 
-                    darts.push(new Dart(t)); 
-                    hit = true; 
-                    playSfx(200, 800, 'sawtooth'); 
-                }
-            });
-
-            if(hit) { 
-                strikes = 0; 
-                document.getElementById('status').innerText = "";
-            } else { 
-                strikes++; 
-                input.classList.add('error'); 
-                setTimeout(()=>input.classList.remove('error'), 200);
-                document.getElementById('status').innerText = strikes >= 3 ? "ADAPTIVE SLOW-MODE ACTIVE" : "INCORRECT";
-            }
-            
-            // Apply speed changes immediately
-            targets.forEach(t => t.calculateSpeed());
-            document.getElementById('strikes').innerText = strikes;
-            input.value = "";
-        }
-    });
-
-    function loop() {
-        ctx.clearRect(0,0,canvas.width,canvas.height);
-        targets.forEach(t => { t.update(); t.draw(); });
-        for(let i=darts.length-1; i>=0; i--) {
-            darts[i].update(); darts[i].draw();
-            if(darts[i].done) { 
-                playSfx(150, 50, 'square'); 
-                totalHits++; 
-                score += darts[i].target.isBonus?50:10; 
-                document.getElementById('score').innerText = score; 
-                darts[i].target.reset(); 
-                darts.splice(i,1); 
-            }
-        }
-        requestAnimationFrame(loop);
-    }
-    loop();
-</script>
 </body>
 </html>

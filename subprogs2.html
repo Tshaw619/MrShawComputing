@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Python Editor: Sub-program Revision</title>
+    <style>
+        :root { --py-blue: #3776ab; --py-yellow: #ffd43b; --bg: #1e1e1e; --text: #d4d4d4; }
+        body { font-family: 'Segoe UI', sans-serif; background: #2c3e50; color: white; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        .container { background: #34495e; padding: 25px; border-radius: 12px; width: 95%; max-width: 1000px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
+        
+        /* Left Side: Jumbled Code */
+        .challenge-box { background: #252526; border: 1px solid #444; border-radius: 8px; padding: 15px; }
+        .jumbled-line { font-family: 'Consolas', monospace; color: var(--py-yellow); margin-bottom: 8px; font-size: 14px; }
+        
+        /* Right Side: Editor */
+        .editor-container { position: relative; }
+        textarea { 
+            width: 100%; height: 300px; background: var(--bg); color: var(--text); 
+            font-family: 'Consolas', 'Courier New', monospace; font-size: 14px; 
+            padding: 15px; border-radius: 8px; border: 2px solid #555; outline: none; resize: none;
+            line-height: 1.5; tab-size: 4;
+        }
+        textarea:focus { border-color: var(--py-blue); }
+
+        .controls { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; background: #2c3e50; padding: 10px; border-radius: 8px; }
+        button { padding: 10px 20px; font-weight: bold; cursor: pointer; border-radius: 5px; border: none; }
+        .run-btn { background: #27ae60; color: white; }
+        .reset-btn { background: #e67e22; color: white; }
+        #feedback { margin-top: 15px; font-weight: bold; text-align: center; height: 1.5em; }
+        select { padding: 8px; border-radius: 5px; width: 100%; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1 style="text-align:center; margin-bottom:10px;">Python Sub-program Editor</h1>
+    <p style="text-align:center; color: #bdc3c7;">Type the jumbled code below in the correct order with proper indentation.</p>
+
+    <select id="taskPicker" onchange="loadTask()"></select>
+
+    <div class="grid">
+        <div class="challenge-box">
+            <h3 style="margin-top:0; color:var(--py-yellow);">Jumbled Lines:</h3>
+            <div id="jumbled-display"></div>
+        </div>
+        
+        <div class="editor-container">
+            <h3 style="margin-top:0; color:var(--py-blue);">Your Python Code:</h3>
+            <textarea id="codeEditor" spellcheck="false" placeholder="Type your code here..."></textarea>
+        </div>
+    </div>
+
+    <div class="controls">
+        <div id="feedback"></div>
+        <div>
+            <button class="reset-btn" onclick="resetEditor()">Reset</button>
+            <button class="run-btn" onclick="runCheck()">Run & Verify</button>
+        </div>
+    </div>
+</div>
+
+<script>
+const subProgChallenges = [
+    {t: "Basic Procedure Definition", sol: ["def welcome():", "    print(\"Hello\")", "welcome()"]},
+    {t: "Returning a Value", sol: ["def get_msg():", "    return \"OK\"", "print(get_msg())"]},
+    {t: "Single Parameter Logic", sol: ["def check(n):", "    print(n * 2)", "check(10)"]},
+    {t: "Two-Parameter Addition", sol: ["def add(x, y):", "    return x + y", "print(add(5, 5))"]},
+    {t: "Conditional Return", sol: ["def is_adult(a):", "    if a >= 18:", "        return True", "    return False"]},
+    {t: "Nested Sub-program Call", sol: ["def a():", "    return 5", "def b():", "    print(a())", "b()"]},
+    {t: "Global Score Modifier", sol: ["score = 0", "def win():", "    global score", "    score += 10", "win()"]},
+    {t: "Default Argument Function", sol: ["def greet(n=\"User\"):", "    print(f\"Hi {n}\")", "greet()"]},
+    {t: "Looping Inside Procedure", sol: ["def repeat(m):", "    for i in range(3):", "        print(m)", "repeat(\"Hi\")"]},
+    {t: "List Processor", sol: ["def total(L):", "    s = 0", "    for x in L:", "        s += x", "    return s"]},
+    {t: "Boolean Toggle", sol: ["def flip(b):", "    return not b", "print(flip(True))"]},
+    {t: "Area of Circle", sol: ["import math", "def area(r):", "    return math.pi * r**2", "print(area(5))"]},
+    {t: "Main Execution Pattern", sol: ["def main():", "    print(\"Start\")", "if __name__ == \"__main__\":", "    main()"]},
+    {t: "Recursive Countdown", sol: ["def count(n):", "    if n > 0:", "        print(n)", "        count(n-1)", "count(3)"]},
+    {t: "String Formatter", sol: ["def fmt(val):", "    return f\"{val:.2f}\"", "print(fmt(10.5))"]}
+];
+
+function init() {
+    const picker = document.getElementById('taskPicker');
+    subProgChallenges.forEach((task, idx) => {
+        const opt = document.createElement('option');
+        opt.value = idx;
+        opt.textContent = `Task ${idx + 1}: ${task.t}`;
+        picker.appendChild(opt);
+    });
+    loadTask();
+
+    // Handle Tab key in textarea
+    const editor = document.getElementById('codeEditor');
+    editor.onkeydown = function(e) {
+        if (e.key === 'Tab') {
+            e.preventDefault();
+            var start = this.selectionStart;
+            var end = this.selectionEnd;
+            this.value = this.value.substring(0, start) + "    " + this.value.substring(end);
+            this.selectionStart = this.selectionEnd = start + 4;
+        }
+    };
+}
+
+function loadTask() {
+    const idx = document.getElementById('taskPicker').value;
+    const task = subProgChallenges[idx];
+    const display = document.getElementById('jumbled-display');
+    const editor = document.getElementById('codeEditor');
+    
+    // Clear and Shuffle lines for display
+    display.innerHTML = '';
+    editor.value = '';
+    document.getElementById('feedback').innerText = '';
+
+    let jumbled = [...task.sol].sort(() => Math.random() - 0.5);
+    jumbled.forEach(line => {
+        const div = document.createElement('div');
+        div.className = 'jumbled-line';
+        div.textContent = `• ${line.trim()}`;
+        display.appendChild(div);
+    });
+}
+
+function resetEditor() {
+    document.getElementById('codeEditor').value = '';
+    document.getElementById('feedback').innerText = '';
+}
+
+function runCheck() {
+    const idx = document.getElementById('topicPicker')?.value || document.getElementById('taskPicker').value;
+    const userCode = document.getElementById('codeEditor').value.split('\n');
+    const solution = subProgChallenges[idx].sol;
+    const feedback = document.getElementById('feedback');
+
+    // Remove empty lines from user input
+    const filteredUser = userCode.filter(line => line.trim() !== "");
+
+    if (filteredUser.length === 0) {
+        feedback.innerText = "Editor is empty!";
+        feedback.style.color = "#e67e22";
+        return;
+    }
+
+    let isCorrect = true;
+    if (filteredUser.length !== solution.length) {
+        isCorrect = false;
+    } else {
+        for (let i = 0; i < solution.length; i++) {
+            if (filteredUser[i] !== solution[i]) {
+                isCorrect = false;
+                break;
+            }
+        }
+    }
+
+    if (isCorrect) {
+        feedback.innerText = "✓ Success! Logic and Indentation Correct.";
+        feedback.style.color = "#27ae60";
+    } else {
+        feedback.innerText = "✗ Error: Check your order or indentation (4 spaces).";
+        feedback.style.color = "#e74c3c";
+    }
+}
+
+init();
+</script>
+</body>
+</html>
