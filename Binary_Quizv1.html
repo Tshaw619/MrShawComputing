@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Binary Proficiency Assessment</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background: #0f172a; color: #f1f5f9; margin: 0; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+        #app-container { background: #1e293b; width: 95%; max-width: 900px; padding: 30px; border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); text-align: center; border: 1px solid #334155; }
+        
+        .hidden { display: none; }
+        .btn { padding: 12px 25px; font-size: 16px; cursor: pointer; border: none; border-radius: 8px; transition: 0.2s; margin: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
+        .btn-primary { background: #3b82f6; color: white; }
+        .btn-secondary { background: #64748b; color: white; }
+        .btn-primary:hover { background: #2563eb; transform: translateY(-2px); }
+        
+        /* Stats Header */
+        .stats-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-weight: bold; color: #94a3b8; }
+        #timer { color: #f43f5e; font-size: 22px; }
+        #live-score { color: #10b981; font-size: 22px; }
+
+        #progress-bar { width: 100%; height: 12px; background: #334155; border-radius: 6px; margin-bottom: 25px; overflow: hidden; border: 1px solid #475569; }
+        #progress-fill { height: 100%; background: linear-gradient(90deg, #3b82f6, #60a5fa); width: 0%; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        
+        /* Place Value Ribbon */
+        .place-value-ribbon { display: flex; justify-content: center; gap: 6px; margin-bottom: 25px; }
+        .pv-box { width: 50px; height: 40px; background: #0f172a; border: 1px solid #334155; font-size: 11px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 6px; color: #94a3b8; }
+        .pv-box b { color: #3b82f6; font-size: 15px; }
+
+        .question-text { font-size: 22px; margin-bottom: 25px; font-weight: 600; color: #f8fafc; }
+        
+        /* Addition Grid */
+        .addition-grid { display: grid; grid-template-columns: repeat(9, 55px); gap: 10px; justify-content: center; margin: 20px 0; }
+        .cell { width: 55px; height: 55px; border: 1px solid #475569; display: flex; align-items: center; justify-content: center; font-size: 24px; border-radius: 8px; background: #0f172a; color: #f1f5f9; }
+        .num { background: #1e293b; color: #94a3b8; border-color: #334155; }
+        .sum-input, .carry-input { border: 2px solid #3b82f6; cursor: pointer; }
+        .active { border-color: #f59e0b !important; background: #451a03 !important; box-shadow: 0 0 15px rgba(245, 158, 11, 0.3); }
+        .label-row { grid-column: 1 / span 9; text-align: left; font-size: 12px; color: #64748b; text-transform: uppercase; margin-top: 15px; font-weight: bold; letter-spacing: 1px; }
+        
+        #answer-input { padding: 15px; font-size: 24px; border: 2px solid #3b82f6; border-radius: 12px; width: 250px; text-align: center; background: #0f172a; color: white; outline: none; }
+        #feedback { margin: 20px 0; font-size: 18px; font-weight: bold; min-height: 28px; }
+    </style>
+</head>
+<body>
+
+<div id="app-container">
+    <div id="menu">
+        <h1 style="color: #3b82f6; font-size: 32px;">BINARY ASSESSMENT v2.0</h1>
+        <p style="color: #94a3b8;">Mastering Denary, Binary, and 8-Bit Addition</p>
+        <div style="margin: 40px 0;">
+            <button class="btn btn-secondary" onclick="startApp(true)">Practice Mode</button>
+            <button class="btn btn-primary" onclick="startApp(false)">Start Test</button>
+        </div>
+    </div>
+
+    <div id="test-area" class="hidden">
+        <div class="stats-header">
+            <div id="timer">10:00</div>
+            <div id="live-score">SCORE: 0 / 30</div>
+        </div>
+        
+        <div id="progress-bar"><div id="progress-fill"></div></div>
+        
+        <div class="place-value-ribbon">
+            <div class="pv-box">2<sup>7</sup><b>128</b></div>
+            <div class="pv-box">2<sup>6</sup><b>64</b></div>
+            <div class="pv-box">2<sup>5</sup><b>32</b></div>
+            <div class="pv-box">2<sup>4</sup><b>16</b></div>
+            <div class="pv-box">2<sup>3</sup><b>8</b></div>
+            <div class="pv-box">2<sup>2</sup><b>4</b></div>
+            <div class="pv-box">2<sup>1</sup><b>2</b></div>
+            <div class="pv-box">2<sup>0</sup><b>1</b></div>
+        </div>
+
+        <div id="question-container"></div>
+        <div id="feedback"></div>
+        <button id="next-btn" class="btn btn-primary hidden" onclick="nextQuestion()">Next Question</button>
+    </div>
+
+    <div id="results" class="hidden">
+        <h1 style="color: #10b981;">ASSESSMENT COMPLETE</h1>
+        <div id="final-score-large" style="font-size: 72px; font-weight: bold; color: white; margin: 20px 0;"></div>
+        <p id="time-taken" style="color: #94a3b8; font-size: 20px;"></p>
+        <button class="btn btn-primary" onclick="location.reload()">Restart</button>
+    </div>
+</div>
+
+<script>
+    let questions = [];
+    let currentIdx = 0;
+    let score = 0;
+    let isPractice = false;
+    let timerInterval;
+    let timeLeft = 900;
+    let activeGridPos = { r: 's', c: 8 };
+
+    function startApp(practice) {
+        isPractice = practice;
+        document.getElementById('menu').classList.add('hidden');
+        document.getElementById('test-area').classList.remove('hidden');
+        
+        // Hide score in Test Mode to maintain formality
+        if (!isPractice) {
+            startTimer();
+            document.getElementById('live-score').innerText = "QUESTION: 1 / 30";
+        } else {
+            document.getElementById('timer').innerText = "PRACTICE";
+        }
+        
+        generateTest();
+        showQuestion();
+    }
+
+    function generateTest() {
+        for (let i = 0; i < 30; i++) {
+            let type = i % 3; 
+            let n1 = Math.floor(Math.random() * 255);
+            if (type === 0) {
+                questions.push({ type: 'D2B', q: `Convert ${n1} to 8-bit Binary:`, a: n1.toString(2).padStart(8, '0') });
+            } else if (type === 1) {
+                questions.push({ type: 'B2D', q: `Convert ${n1.toString(2).padStart(8, '0')} to Denary:`, a: n1.toString() });
+            } else {
+                let n2 = Math.floor(Math.random() * 150);
+                questions.push({ type: 'ADD', q: `Add these binary numbers:`, n1: n1, n2: n2 });
+            }
+        }
+    }
+
+    function updateStatsUI() {
+        if(isPractice) {
+            document.getElementById('live-score').innerText = `SCORE: ${score} / 30`;
+        } else {
+            document.getElementById('live-score').innerText = `Q: ${currentIdx + 1} / 30`;
+        }
+        document.getElementById('progress-fill').style.width = `${(currentIdx / 30) * 100}%`;
+    }
+
+    function showQuestion() {
+        const container = document.getElementById('question-container');
+        const q = questions[currentIdx];
+        updateStatsUI();
+        document.getElementById('feedback').innerText = "";
+        
+        if (q.type === 'ADD') {
+            renderAdditionGrid(q, container);
+        } else {
+            container.innerHTML = `
+                <div class="question-text">${q.q}</div>
+                <input type="text" id="answer-input" autofocus autocomplete="off">
+                <br><button class="btn btn-primary" style="margin-top:20px" onclick="checkAnswer()">Submit</button>
+            `;
+            const input = document.getElementById('answer-input');
+            input.focus();
+            input.onkeydown = (e) => { if(e.key === 'Enter') checkAnswer(); };
+        }
+    }
+
+    function renderAdditionGrid(q, container) {
+        const bin1 = q.n1.toString(2).padStart(8, '0');
+        const bin2 = q.n2.toString(2).padStart(8, '0');
+        activeGridPos = { r: 's', c: 8 };
+
+        let html = `<div class="question-text">${q.q}</div><div class="addition-grid">`;
+        for(let i=0; i<9; i++) html += `<div class="cell num">${i===0?'':bin1[i-1] || '0'}</div>`;
+        for(let i=0; i<9; i++) html += `<div class="cell num">${i===0?'':bin2[i-1] || '0'}</div>`;
+        html += `<div class="label-row">Sum (Result)</div>`;
+        for(let i=0; i<9; i++) html += `<div class="cell sum-input" id="s-${i}" onclick="setGridActive('s',${i})"></div>`;
+        html += `<div class="label-row">Carries</div>`;
+        for(let i=0; i<9; i++) html += `<div class="cell carry-input" id="c-${i}" onclick="setGridActive('c',${i})"></div>`;
+        html += `</div><button class="btn btn-primary" onclick="checkAnswer()">Submit Calculation</button>`;
+        
+        container.innerHTML = html;
+        updateGridFocus();
+    }
+
+    function setGridActive(r, c) { activeGridPos = { r, c }; updateGridFocus(); }
+    function updateGridFocus() {
+        document.querySelectorAll('.cell').forEach(c => c.classList.remove('active'));
+        const el = document.getElementById(`${activeGridPos.r}-${activeGridPos.c}`);
+        if(el) el.classList.add('active');
+    }
+
+    window.addEventListener('keydown', (e) => {
+        if (!document.getElementById('s-8')) return;
+        if (e.key === '0' || e.key === '1') {
+            document.getElementById(`${activeGridPos.r}-${activeGridPos.c}`).innerText = e.key;
+            if (activeGridPos.c > 0) activeGridPos.c--;
+            updateGridFocus();
+        }
+        if (e.key === 'ArrowLeft' && activeGridPos.c > 0) activeGridPos.c--;
+        if (e.key === 'ArrowRight' && activeGridPos.c < 8) activeGridPos.c++;
+        if (e.key === 'ArrowUp') activeGridPos.r = 's';
+        if (e.key === 'ArrowDown') activeGridPos.r = 'c';
+        if (e.key === 'Enter') checkAnswer();
+        updateGridFocus();
+    });
+
+    function checkAnswer() {
+        if (!document.getElementById('next-btn').classList.contains('hidden')) return;
+        const q = questions[currentIdx];
+        let userA = "", correctA = "";
+
+        if (q.type === 'ADD') {
+            for(let i=0; i<9; i++) userA += document.getElementById(`s-${i}`).innerText || "0";
+            correctA = (q.n1 + q.n2).toString(2).padStart(9, '0');
+        } else {
+            userA = document.getElementById('answer-input').value.trim();
+            correctA = q.a;
+        }
+
+        if (userA === correctA) {
+            score++;
+            if (isPractice) {
+                document.getElementById('feedback').innerText = "✓ EXCELLENT";
+                document.getElementById('feedback').style.color = "#10b981";
+                document.getElementById('next-btn').classList.remove('hidden');
+            } else {
+                nextQuestion();
+            }
+        } else {
+            if (isPractice) {
+                document.getElementById('feedback').innerText = `✗ INCORRECT. CORRECT: ${correctA}`;
+                document.getElementById('feedback').style.color = "#f43f5e";
+                document.getElementById('next-btn').classList.remove('hidden');
+            } else {
+                nextQuestion();
+            }
+        }
+    }
+
+    function nextQuestion() {
+        currentIdx++;
+        document.getElementById('next-btn').classList.add('hidden');
+        if (currentIdx < 30) showQuestion();
+        else endTest();
+    }
+
+    function startTimer() {
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            let mins = Math.floor(timeLeft / 60);
+            let secs = timeLeft % 60;
+            document.getElementById('timer').innerText = `${mins}:${secs.toString().padStart(2, '0')}`;
+            if (timeLeft <= 0) endTest();
+        }, 1000);
+    }
+
+    function endTest() {
+        clearInterval(timerInterval);
+        document.getElementById('test-area').classList.add('hidden');
+        document.getElementById('results').classList.remove('hidden');
+        document.getElementById('final-score-large').innerText = `${score} / 30`;
+        const timeSpent = 600 - timeLeft;
+        document.getElementById('time-taken').innerText = `TOTAL TIME: ${Math.floor(timeSpent/60)}m ${timeSpent%60}s`;
+    }
+</script>
+</body>
+</html>
