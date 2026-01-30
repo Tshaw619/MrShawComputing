@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>OCR J277 Key Word Master - BLITZ EDITION</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background: #0f172a; color: #f1f5f9; margin: 0; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+        #app-container { background: #1e293b; width: 95%; max-width: 900px; padding: 30px; border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); text-align: center; border: 1px solid #334155; position: relative; }
+        .hidden { display: none; }
+        select, .btn { padding: 12px; border-radius: 8px; border: none; font-size: 16px; margin: 8px; cursor: pointer; transition: 0.2s; }
+        select { background: #334155; color: white; width: 85%; border: 1px solid #475569; }
+        .btn-primary { background: #3b82f6; color: white; font-weight: bold; }
+        .btn-blitz { background: #ef4444; color: white; font-weight: bold; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
+        .btn-mode { background: #64748b; color: white; flex: 1; }
+        .btn-mode.active { background: #3b82f6; box-shadow: 0 0 15px rgba(59, 130, 246, 0.4); }
+        #display-area { background: #0f172a; padding: 30px; border-radius: 12px; margin: 20px 0; min-height: 220px; display: flex; align-items: center; justify-content: center; flex-direction: column; border: 1px solid #334155; }
+        .def-text { font-size: 1.1rem; color: #cbd5e1; line-height: 1.5; max-width: 90%; }
+        .term-text { font-size: 2.2rem; font-weight: bold; color: #3b82f6; margin-bottom: 10px; }
+        #options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; margin-top: 20px; }
+        .option-btn { background: #1e293b; color: white; padding: 15px; border-radius: 8px; border: 1px solid #334155; cursor: pointer; font-size: 0.9rem; }
+        .option-btn:hover { background: #334155; border-color: #3b82f6; }
+        #revision-area { text-align: left; background: #f8fafc; color: #0f172a; padding: 40px; border-radius: 8px; }
+        .rev-item { margin-bottom: 15px; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; }
+        #stats-bar { display: flex; justify-content: space-between; padding: 10px; background: #0f172a; border-radius: 8px; margin-bottom: 15px; font-weight: bold; color: #3b82f6; border: 1px solid #334155; }
+        #timer.warning { color: #ef4444; }
+        @media print { #app-container { box-shadow: none; border: none; width: 100%; } .no-print { display: none; } }
+    </style>
+</head>
+<body>
+
+<div id="app-container">
+    <div id="main-menu">
+        <h1 style="color: #3b82f6; margin-bottom: 5px;">J277 KEY WORD MASTER</h1>
+        <p style="color: #94a3b8; margin-bottom: 25px;">Final Complete & Verified Edition</p>
+        
+        <select id="cat-select">
+            <option value="ALL">--- FULL SYLLABUS RANDOM MIX ---</option>
+            <optgroup label="1.1 Systems Architecture">
+                <option value="1.1.1">1.1.1 Architecture of the CPU</option>
+                <option value="1.1.2">1.1.2 CPU Performance</option>
+                <option value="1.1.3">1.1.3 Embedded Systems</option>
+            </optgroup>
+            <optgroup label="1.2 Memory & Storage">
+                <option value="1.2.1">1.2.1 Primary Storage (Memory)</option>
+                <option value="1.2.2">1.2.2 Secondary Storage</option>
+                <option value="1.2.3">1.2.3 Units</option>
+                <option value="1.2.4">1.2.4 Data Storage</option>
+                <option value="1.2.5">1.2.5 Compression</option>
+            </optgroup>
+            <optgroup label="1.3 Networks">
+                <option value="1.3.1">1.3.1 Topologies & Connection</option>
+                <option value="1.3.2">1.3.2 Protocols & Layers</option>
+            </optgroup>
+            <optgroup label="1.4 & 1.5 Software">
+                <option value="1.4">1.4 Network Security</option>
+                <option value="1.5.1">1.5.1 Operating Systems</option>
+                <option value="1.5.2">1.5.2 Utility Software</option>
+            </optgroup>
+            <optgroup label="1.6 Impacts">
+                <option value="1.6">1.6 Ethical, Legal, Cultural & Env</option>
+            </optgroup>
+            <optgroup label="2.1 Algorithms">
+                <option value="2.1.1">2.1.1 Computational Thinking</option>
+                <option value="2.1.2">2.1.2 Designing Algorithms</option>
+                <option value="2.1.3">2.1.3 Search & Sort</option>
+            </optgroup>
+            <optgroup label="2.2 Programming">
+                <option value="2.2.1">2.2.1 Fundamentals</option>
+                <option value="2.2.2">2.2.2 Data Types</option>
+                <option value="2.2.3">2.2.3 Techniques</option>
+            </optgroup>
+            <optgroup label="2.3 - 2.5 Logic & IDEs">
+                <option value="2.3.1">2.3.1 Defensive Design</option>
+                <option value="2.3.2">2.3.2 Testing</option>
+                <option value="2.4">2.4 Boolean Logic</option>
+                <option value="2.5">2.5 Languages & IDEs</option>
+            </optgroup>
+        </select>
+
+        <div style="display:flex; gap:10px; margin: 20px 0;">
+            <button class="btn btn-mode active" onclick="setMode('multi', this)">Multiple Choice</button>
+            <button class="btn btn-mode" onclick="setMode('flash', this)">Flashcards</button>
+        </div>
+
+        <button class="btn btn-primary" style="width: 85%;" onclick="startQuiz('standard')">START TRAINING</button>
+        <button class="btn btn-blitz" style="width: 85%;" onclick="startQuiz('blitz')">START 10-MINUTE BLITZ</button>
+        <button class="btn" style="background:#10b981; color:white; width: 85%;" onclick="generateRevision()">PRINT REVISION SHEET</button>
+    </div>
+
+    <div id="quiz-area" class="hidden">
+        <div id="stats-bar" class="hidden">
+            <div id="timer-box">Time: <span id="timer">10:00</span></div>
+            <div id="score-box">Score: <span id="score">0</span></div>
+        </div>
+        <div id="display-area"><div id="content-target"></div></div>
+        <div id="feedback" style="height: 30px; font-weight: bold; margin-bottom: 15px; font-size: 1.2rem;"></div>
+        <button id="submit-btn" class="btn btn-primary" onclick="handleFlashAction()">Submit</button>
+        <button class="btn btn-secondary" onclick="exit()">Exit to Menu</button>
+    </div>
+
+    <div id="results-screen" class="hidden">
+        <h2 style="color: #3b82f6; font-size: 2rem;">Blitz Complete!</h2>
+        <div style="font-size: 4rem; margin: 20px 0; font-weight: bold;" id="final-score">0</div>
+        <p id="rank-msg" style="font-size: 1.5rem; color: #94a3b8; margin-bottom: 25px;"></p>
+        <button class="btn btn-primary" onclick="location.reload()">Return to Menu</button>
+    </div>
+
+    <div id="revision-area" class="hidden">
+        <div class="no-print" style="margin-bottom: 20px;">
+            <button class="btn btn-primary" onclick="window.print()">Print to PDF</button>
+            <button class="btn btn-secondary" onclick="exit()">Back to Menu</button>
+        </div>
+        <div id="sheet-content"></div>
+    </div>
+</div>
+
+<script>
+    const glossary = [
+        // 1.1.1 Architecture of the CPU
+        { cat: "1.1.1", term: "Fetch-execute Cycle", def: "Instructions are fetched one by one from main memory, decoded, and then executed by the processor. This cycle repeats until the program is complete." },
+        { cat: "1.1.1", term: "CPU", def: "A chip within the computer which controls the operation of all parts of the computer and decodes then executes program instructions." },
+        { cat: "1.1.1", term: "ALU", def: "The part of the CPU responsible for arithmetic and logical operations." },
+        { cat: "1.1.1", term: "Processor Cache", def: "High speed memory built into the CPU. Instructions are copied to cache memory allowing them to be accessed more quickly and therefore increasing the speed of the CPU." },
+        { cat: "1.1.1", term: "Register", def: "A small area of memory within the CPU where data is stored temporarily to avoid the delay in copying to and from main memory." },
+        { cat: "1.1.1", term: "Von Neumann Architecture", def: "The design on which most computers are based. It defines several registers along with the fetch-execute cycle and how the CPU interacts with main memory." },
+        { cat: "1.1.1", term: "MAR", def: "A register. It contains the address of the instruction currently being read from or written to main memory." },
+        { cat: "1.1.1", term: "MDR", def: "A register. It contains the instruction which has just been copied from main memory." },
+        { cat: "1.1.1", term: "Program Counter", def: "A register. It contains the address of the next instruction to be fetched from memory. It is updated each time a new instruction is fetched to contain the address of the next needed instruction." },
+        { cat: "1.1.1", term: "Accumulator", def: "A register. Stores the result of the last operation." },
+        // 1.1.2 CPU Performance
+        { cat: "1.1.2", term: "Clock Speed", def: "How many instruction cycles the CPU can deal with in a second. Measured in MHz or GHz. Faster is better." },
+        { cat: "1.1.2", term: "Cache Size", def: "The larger the amount of cache the CPU has the more instructions it can store without having to transfer to main memory and therefore the faster it will perform." },
+        { cat: "1.1.2", term: "Cores", def: "Some CPUs have more than one core, each containing its own ALU and registers and therefore capable of carrying out instructions independently." },
+        // 1.1.3 Embedded Systems
+        { cat: "1.1.3", term: "Embedded System", def: "Specialist hardware and software build into a device with a single specific purpose. They are usually found within appliances such as washing machines." },
+        // 1.2.1 Primary Storage
+        { cat: "1.2.1", term: "Primary Storage", def: "Also known as memory. Holds the data, programs and instructions currently in use." },
+        { cat: "1.2.1", term: "RAM", def: "Random Access Memory. Stores programs and data before they are processed by the CPU. Read/write memory, meaning the contents can be changed. The contents are lost when the computer is turned off." },
+        { cat: "1.2.1", term: "ROM", def: "Read Only Memory. Data can be retrieved but not changed and the contents are not lost when the computer is turned off. Used to store programs for embedded system." },
+        { cat: "1.2.1", term: "Volatile Memory", def: "Data stored in volatile memory is lost when the computer is turned off." },
+        { cat: "1.2.1", term: "Non-Volatile Memory", def: "Data stored in non-volatile memory is not lost when the computer is turned off." },
+        { cat: "1.2.1", term: "Virtual Memory", def: "Space on the computer's hard drive used as main memory (RAM). Virtual memory is slower than main memory." },
+        // 1.2.2 Secondary Storage
+        { cat: "1.2.2", term: "Optical Storage", def: "A type of secondary storage which stores data on a spinning plastic or metal disk. Data is read from and written to the disk using a laser." },
+        { cat: "1.2.2", term: "Magnetic Storage", def: "A type of secondary storage which uses magnetic fields to store data. A read/write head reads and writes data from the media." },
+        { cat: "1.2.2", term: "Solid State Storage", def: "A type of secondary storage which uses flash memory to store data. They have no moving parts and are much faster than optical or magnetic storage." },
+        { cat: "1.2.2", term: "HDD", def: "A magnetic storage drive which can store large amounts of data and is often the main method of secondary storage in personal computers." },
+        { cat: "1.2.2", term: "DVD", def: "A high capacity optical storage disk commonly used for video storage. A range of capacities are available up to 17GB." },
+        { cat: "1.2.2", term: "CD", def: "An optical storage disk often used to store music. Capacity is usually around 800mb." },
+        { cat: "1.2.2", term: "SSD", def: "A solid state storage drive which carries out the function of a traditional HDD. They are much faster than HDDs and less easy to damage." },
+        // 1.2.3 Units
+        { cat: "1.2.3", term: "Bit", def: "The smallest unit of storage, containing a binary 1 or 0." },
+        { cat: "1.2.3", term: "Nibble", def: "4 bits (half a byte)." },
+        { cat: "1.2.3", term: "Byte", def: "8 bits." },
+        { cat: "1.2.3", term: "Kilobyte (KB)", def: "1000 bytes." },
+        { cat: "1.2.3", term: "Megabyte (MB)", def: "1000 KB." },
+        { cat: "1.2.3", term: "Gigabyte (GB)", def: "1000 MB." },
+        { cat: "1.2.3", term: "Terabyte (TB)", def: "1000 GB." },
+        { cat: "1.2.3", term: "Petabyte (PB)", def: "1000 TB." },
+        // 1.2.4 Data Storage
+        { cat: "1.2.4", term: "Binary", def: "A number system used by computers. It contains only two symbols, 0 and 1 and is also known as base 2." },
+        { cat: "1.2.4", term: "Denary", def: "The number system most often used by people. It uses the digits 0 to 9 and is also known as base 10 or decimal." },
+        { cat: "1.2.4", term: "Integer", def: "A whole number without a decimal point or fraction." },
+        { cat: "1.2.4", term: "Overflow Error", def: "This happens when not enough space has been allocated to store the results of a calculation." },
+        { cat: "1.2.4", term: "Hexadecimal", def: "A base 16 number system used by computers. It uses the characters 0-9 and A-F." },
+        { cat: "1.2.4", term: "Binary Shift", def: "A process used to preform maths on binary numbers. It involves moving all the digits to the left or right." },
+        { cat: "1.2.4", term: "Character Set", def: "A system for representing characters in binary, each character is assigned a unique binary number." },
+        { cat: "1.2.4", term: "ASCII", def: "American Standard Code for Information Interchange. A 7 bit character set used to represent characters." },
+        { cat: "1.2.4", term: "Unicode", def: "A much larger character set created to overcome the limited characters in ASCII." },
+        { cat: "1.2.4", term: "Pixel", def: "Short for Picture Element. Pictures are divided into a grid, with each square being one pixel which can be a single colour." },
+        { cat: "1.2.4", term: "Metadata", def: "Additional data about a file such as when it was created or camera settings used for photos." },
+        { cat: "1.2.4", term: "Colour Depth", def: "The amount of bits available for colours in an image." },
+        { cat: "1.2.4", term: "Resolution", def: "The number of pixels an image is divided into." },
+        { cat: "1.2.4", term: "Sample Rate", def: "The number of samples taken in one second. Measured in hertz (Hz)." },
+        { cat: "1.2.4", term: "Bit Depth", def: "The number of bits available for each sample." },
+        // 1.2.5 Compression
+        { cat: "1.2.5", term: "Compression", def: "A way of reducing the size of a file. It is often used with photos, music and video files." },
+        { cat: "1.2.5", term: "Lossy Compression", def: "Reduces file size by removing certain data. The original file cannot be restored." },
+        { cat: "1.2.5", term: "Lossless Compression", def: "Reduces file size without losing any data. The original file can be restored." },
+        // 1.3.1 Networks
+        { cat: "1.3.1", term: "Network", def: "Two or more computers connected together for the purposes of sharing data or resources." },
+        { cat: "1.3.1", term: "LAN", def: "Local Area Network. A network which covers a small geographic area such as a single building." },
+        { cat: "1.3.1", term: "WAN", def: "Wide Area Network. A network which covers a large geographic area." },
+        { cat: "1.3.1", term: "Client Server", def: "A network setup where resources or processing are carried out by a central computer." },
+        { cat: "1.3.1", term: "Peer to Peer", def: "A network setup where all computers have an equal status." },
+        { cat: "1.3.1", term: "Wireless Access Point", def: "Uses a wireless radio to allow devices to connect wirelessly to an existing network." },
+        { cat: "1.3.1", term: "Router", def: "A device which connects two or more different networks together." },
+        { cat: "1.3.1", term: "Switch", def: "A device which provides computers and other devices with a wired connection to a network." },
+        { cat: "1.3.1", term: "NIC", def: "Network Interface Card. A component which allows a device to connect to a network." },
+        { cat: "1.3.1", term: "Transmission Media", def: "The physical connection which carries data between network devices." },
+        { cat: "1.3.1", term: "DNS", def: "Domain Name System. A system which links a URL with an IP address." },
+        { cat: "1.3.1", term: "Hosting", def: "The storing of files or other data on a server." },
+        { cat: "1.3.1", term: "The Cloud", def: "A term for accessing storage or other resources remotely across The Internet." },
+        { cat: "1.3.1", term: "Web Server", def: "A server which hosts web sites and pages for users to access." },
+        { cat: "1.3.1", term: "Network Topology", def: "The way in which computers and other network devices are connected together." },
+        { cat: "1.3.1", term: "Star Network", def: "A topology where all devices connect back to a single central point." },
+        { cat: "1.3.1", term: "Mesh Network", def: "A topology where all devices are connected to each other rather than a central point." },
+        { cat: "1.3.1", term: "Bandwidth", def: "The amount of data which can be transferred via a network in any given time." },
+        { cat: "1.3.1", term: "The Internet", def: "A global network connecting millions of computers and other devices." },
+        { cat: "1.3.1", term: "URL", def: "Uniform Resource Locator. A human readable name given to websites." },
+        { cat: "1.3.1", term: "Client", def: "A computer or other device which accesses data from a central server." },
+        // 1.3.2 Protocols
+        { cat: "1.3.2", term: "Ethernet", def: "A physical copper cable used to connect devices on a network." },
+        { cat: "1.3.2", term: "Wi-Fi", def: "A technology which uses wireless signals to connect network devices." },
+        { cat: "1.3.2", term: "Bluetooth", def: "A short range wireless technology. Low range and speeds." },
+        { cat: "1.3.2", term: "Encryption", def: "The process of converting data so that it cannot be easily read without being decrypted." },
+        { cat: "1.3.2", term: "IP Address", def: "A unique address assigned to every computer on a network." },
+        { cat: "1.3.2", term: "IPv4", def: "Addresses made up of four numbers separated by dots, e.g. 232.112.11.1." },
+        { cat: "1.3.2", term: "IPv6", def: "Address made of eight groups of hexadecimal characters." },
+        { cat: "1.3.2", term: "MAC Address", def: "A 12 digit hexadecimal number assigned to a network interface card." },
+        { cat: "1.3.2", term: "Standard", def: "An agreed way of doing something allowing different organisations to work together." },
+        { cat: "1.3.2", term: "Protocol", def: "An agreed set of rules for how network communications should take place." },
+        { cat: "1.3.2", term: "TCP/IP", def: "A group of standards which control how data is sent and received over networks." },
+        { cat: "1.3.2", term: "HTTP", def: "A standard for transferring web pages." },
+        { cat: "1.3.2", term: "HTTPS", def: "A version of the HTTP standard with security added." },
+        { cat: "1.3.2", term: "FTP", def: "File Transfer Protocol. A standard for file transfer over networks." },
+        { cat: "1.3.2", term: "POP", def: "Post Office Protocol. A standard used by email clients to retrieve emails." },
+        { cat: "1.3.2", term: "IMAP", def: "Allows emails to be stored and organised on the mail server." },
+        { cat: "1.3.2", term: "SMTP", def: "Simple Message Transfer Protocol. A standard used for the sending of emails." },
+        // 1.4 Security
+        { cat: "1.4", term: "Malware", def: "Software designed with malicious intent." },
+        { cat: "1.4", term: "Social Engineering", def: "Targeting people using a system instead of technical measures to gain access." },
+        { cat: "1.4", term: "Phishing", def: "Attempting to trick someone into revealing private information by pretending to be trusted." },
+        { cat: "1.4", term: "Brute-force attack", def: "Attempting to guess a password by trying every possible solution." },
+        { cat: "1.4", term: "Denial of Service", def: "Sending more traffic to a system than it can handle, causing it to fail." },
+        { cat: "1.4", term: "Data Interception", def: "Attempting to access data whilst it is being transferred between devices." },
+        { cat: "1.4", term: "SQL Injection", def: "Entering SQL code into an input field to manipulate or delete a database." },
+        { cat: "1.4", term: "Penetration Testing", def: "An authorised hacking attempt used to report finding to the owner." },
+        { cat: "1.4", term: "Anti-Malware Software", def: "Software which attempts to detect, prevent and remove malware." },
+        { cat: "1.4", term: "Firewall", def: "A security device checking traffic against rules to prevent unauthorised access." },
+        { cat: "1.4", term: "User Access Level", def: "Controlling which aspects of a system or network users can access." },
+        { cat: "1.4", term: "Password", def: "A secret word or phrase used alongside a username to control access." },
+        { cat: "1.4", term: "Physical Security", def: "Securing the physical components of a system." },
+        // 1.5 Software
+        { cat: "1.5.1", term: "Operating System", def: "Controls the operation of all aspects of the computer and provides a UI." },
+        { cat: "1.5.1", term: "User Interface", def: "Allows the user to interact with the OS via graphical components." },
+        { cat: "1.5.1", term: "Memory Management", def: "OS function managing memory usage and which applications can access it." },
+        { cat: "1.5.1", term: "Multitasking", def: "The ability for an OS to run more than one task or application at once." },
+        { cat: "1.5.1", term: "Peripheral Management", def: "Ability of an OS to control hardware such as printers or mice." },
+        { cat: "1.5.1", term: "Device Driver", def: "Code providing instructions for how the OS should interact with specific hardware." },
+        { cat: "1.5.1", term: "User Management", def: "OS function managing accounts, passwords, and access rights." },
+        { cat: "1.5.1", term: "File Management", def: "OS function managing files and folders on internal or external storage." },
+        { cat: "1.5.1", term: "Access Rights", def: "Manages the access that different users and applications have." },
+        { cat: "1.5.2", term: "Encryption Software", def: "Software that turns data into code only readable with the correct key." },
+        { cat: "1.5.2", term: "Defragmentation", def: "Software which reorders files on a hard disk to improve performance." },
+        { cat: "1.5.2", term: "Data Compression", def: "Software which compresses data so that it takes up less storage space." },
+        // 1.6 Impacts
+        { cat: "1.6", term: "Ethical", def: "The idea of right and wrong behavior. Doing the right thing regardless of legality." },
+        { cat: "1.6", term: "Legal", def: "Rules laying out forbidden behaviors and punishments." },
+        { cat: "1.6", term: "Cultural", def: "Behaviours and expectations people accept as normal in daily life." },
+        { cat: "1.6", term: "Environmental", def: "Matters relating to taking care of animals, the atmosphere, and the planet." },
+        { cat: "1.6", term: "Privacy", def: "The expectation that personal information like medical history is kept secret." },
+        { cat: "1.6", term: "Data Protection Act", def: "UK law (2018) governing the processing of personal data." },
+        { cat: "1.6", term: "Computer Misuse Act", def: "UK law (1990) making misuse of computer systems illegal." },
+        { cat: "1.6", term: "Copyright Designs and Patents Act", def: "UK law (1998) providing protection for works and materials." },
+        { cat: "1.6", term: "Software License", def: "Agreement between the software maker and user laying out rules." },
+        { cat: "1.6", term: "Open Source Software", def: "Software where the code is available for the public to view or edit." },
+        { cat: "1.6", term: "Proprietary Software", def: "Software where the source code is owned and not available to the public." },
+        // 2.1 Algorithms
+        { cat: "2.1.1", term: "Computational Thinking", def: "Process of thinking about a problem using computational means." },
+        { cat: "2.1.1", term: "Abstraction", def: "Removing irrelevant information from a problem to understand the basic parts." },
+        { cat: "2.1.1", term: "Decomposition", def: "Breaking a problem down into smaller parts to make it easier to solve." },
+        { cat: "2.1.2", term: "Algorithmic Thinking", def: "Process of working out the individual steps needed to solve a problem." },
+        { cat: "2.1.2", term: "Algorithm", def: "A sequence of logical instructions to carry out a particular task." },
+        { cat: "2.1.2", term: "Structure Diagram", def: "A diagram showing graphical steps to solve a problem." },
+        { cat: "2.1.2", term: "Pseudocode", def: "Writing algorithms in a style between full sentences and computer code." },
+        { cat: "2.1.2", term: "Flowchart", def: "Using pictures and shapes to represent the steps a program will take." },
+        { cat: "2.1.2", term: "Trace Table", def: "A table recording variable values at each stage to find errors in code." },
+        { cat: "2.1.3", term: "Binary Search", def: "Searching an ordered list by repeatedly halving the search area." },
+        { cat: "2.1.3", term: "Linear Search", def: "Checking items in a list one at a time until the value is found." },
+        { cat: "2.1.3", term: "Bubble Sort", def: "Sorting by comparing and swapping adjacent items repeatedly." },
+        { cat: "2.1.3", term: "Merge Sort", def: "Sorting by dividing a list until items are separated, then merging." },
+        { cat: "2.1.3", term: "Insertion Sort", def: "Sorting by placing items in the correct position one at a time." },
+        // 2.2 Programming
+        { cat: "2.2.1", term: "Variable", def: "A named value in which data can be stored by a computer program." },
+        { cat: "2.2.1", term: "Constant", def: "A named value which is fixed and cannot be changed." },
+        { cat: "2.2.1", term: "Operator", def: "Operators compare or modify values in computer code." },
+        { cat: "2.2.1", term: "Input", def: "Data or information put into a program from a user or sensor." },
+        { cat: "2.2.1", term: "Output", def: "Data or information the program produces." },
+        { cat: "2.2.1", term: "Assignment", def: "The process of placing a value into a variable." },
+        { cat: "2.2.1", term: "Sequence", def: "Following through a set of steps in a particular order." },
+        { cat: "2.2.1", term: "Selection", def: "Taking different paths through the code depending on a condition." },
+        { cat: "2.2.1", term: "Iteration", def: "Repeating a set of steps several times." },
+        { cat: "2.2.1", term: "Count Controlled Loop", def: "Using a counter to loop through code a certain number of times." },
+        { cat: "2.2.1", term: "Condition Controlled Loop", def: "Repeating code until a certain condition is met." },
+        { cat: "2.2.2", term: "Integer", def: "A whole number without a decimal point or fraction." },
+        { cat: "2.2.2", term: "Real", def: "A number which may include a decimal point." },
+        { cat: "2.2.2", term: "Boolean", def: "A value which can be only TRUE or FALSE." },
+        { cat: "2.2.2", term: "String", def: "A number of characters together, usually to form a word or sentence." },
+        { cat: "2.2.2", term: "Casting", def: "Forcing a value into a certain format, e.g. integer to string." },
+        { cat: "2.2.3", term: "Concatenation", def: "The process of joining two or more strings together." },
+        { cat: "2.2.3", term: "Slicing", def: "The process of splitting a string into two or more parts." },
+        { cat: "2.2.3", term: "SQL", def: "Structured Query Language. Designed for use with databases." },
+        { cat: "2.2.3", term: "Array", def: "A set of data items stored together with a single name." },
+        { cat: "2.2.3", term: "Sub Program", def: "A smaller part of a program which performs a specific task." },
+        { cat: "2.2.3", term: "Function", def: "A sub program which performs a task and always returns a specific value." },
+        { cat: "2.2.3", term: "Procedure", def: "A sub program which performs a specific task but does not always return a value." },
+        // 2.3 - 2.5 Robustness/Logic
+        { cat: "2.3.1", term: "Defensive Design", def: "Designing code with the ability to keep it secure and robust." },
+        { cat: "2.3.1", term: "Authentication", def: "A security mechanism requiring a factor like a password to gain access." },
+        { cat: "2.3.1", term: "Input Validation", def: "Comparing entered data to rules to ensure it is valid." },
+        { cat: "2.3.1", term: "Maintainability", def: "The ability to keep code updated and fix bugs easily." },
+        { cat: "2.3.1", term: "Indentation", def: "Inserting spaces to group lines of code and make it easier to read." },
+        { cat: "2.3.2", term: "Comment", def: "Notes and explanations for people looking at the code; not executed." },
+        { cat: "2.3.2", term: "Iterative Testing", def: "Testing carried out while the program is being developed." },
+        { cat: "2.3.2", term: "Final Testing", def: "Testing carried out at the end of development before release." },
+        { cat: "2.3.2", term: "Syntax Error", def: "Breaks the rules of the language and stops the code from running." },
+        { cat: "2.3.2", term: "Logic Error", def: "Produces an unexpected output even though the code still runs." },
+        { cat: "2.3.2", term: "Normal Data", def: "Data which the program should accept without error." },
+        { cat: "2.3.2", term: "Boundary Data", def: "Data at the extremes of what the program should accept." },
+        { cat: "2.3.2", term: "Erroneous Data", def: "Data which is the wrong type and should be rejected." },
+        { cat: "2.4", term: "AND", def: "Has two inputs and outputs 1 only if both are 1." },
+        { cat: "2.4", term: "OR", def: "Has two inputs; if both are 1 then outputs 1." },
+        { cat: "2.4", term: "NOT", def: "Has a single input and outputs the opposite of that input." },
+        { cat: "2.4", term: "Truth Table", def: "A table showing possible input and output values for a logic gate." },
+        { cat: "2.4", term: "Logic Gate", def: "An operator performing a logical function on input." },
+        { cat: "2.5", term: "High Level Language", def: "A language close to English making it easier to learn." },
+        { cat: "2.5", term: "Low Level Language", def: "A language closer to machine code using less English-like commands." },
+        { cat: "2.5", term: "Translator", def: "Software which converts programming language into machine code." },
+        { cat: "2.5", term: "Compiler", def: "A translator which converts code in one go." },
+        { cat: "2.5", term: "Interpreter", def: "A translator which converts code line by line." },
+        { cat: "2.5", term: "IDE", def: "Integrated Development Environment. Software containing tools for writing code." },
+        { cat: "2.5", term: "Error Diagnostics", def: "Tools to help locate and resolve errors in code." },
+        { cat: "2.5", term: "Runtime Environment", def: "A tool which allows code to run on a system for which it was not designed." }
+    ];
+
+    let quizMode = 'multi';
+    let currentPool = [];
+    let currentItem = null;
+    let score = 0;
+    let isBlitz = false;
+    let timerInterval = null;
+
+    function setMode(m, el) {
+        quizMode = m;
+        document.querySelectorAll('.btn-mode').forEach(b => b.classList.remove('active'));
+        el.classList.add('active');
+    }
+
+    function startQuiz(type) {
+        const cat = document.getElementById('cat-select').value;
+        currentPool = (cat === 'ALL') ? [...glossary] : glossary.filter(i => i.cat === cat);
+        score = 0;
+        document.getElementById('score').innerText = score;
+        document.getElementById('main-menu').classList.add('hidden');
+        document.getElementById('quiz-area').classList.remove('hidden');
+        
+        if(type === 'blitz') {
+            isBlitz = true;
+            quizMode = 'multi'; // Force multiple choice for blitz
+            document.getElementById('stats-bar').classList.remove('hidden');
+            startTimer(600); // 10 Minutes
+        } else {
+            isBlitz = false;
+            document.getElementById('stats-bar').classList.add('hidden');
+        }
+        nextItem();
+    }
+
+    function startTimer(seconds) {
+        let timeLeft = seconds;
+        const display = document.getElementById('timer');
+        timerInterval = setInterval(() => {
+            let mins = Math.floor(timeLeft / 60);
+            let secs = timeLeft % 60;
+            display.innerText = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+            if(timeLeft <= 30) display.classList.add('warning');
+            if(timeLeft <= 0) endBlitz();
+            timeLeft--;
+        }, 1000);
+    }
+
+    function nextItem() {
+        currentItem = currentPool[Math.floor(Math.random() * currentPool.length)];
+        const target = document.getElementById('content-target');
+        const fb = document.getElementById('feedback');
+        fb.innerText = "";
+        
+        if(quizMode === 'multi') {
+            document.getElementById('submit-btn').classList.add('hidden');
+            target.innerHTML = `<div class="def-text">${currentItem.def}</div><div id="options-grid"></div>`;
+            
+            let choices = [currentItem.term];
+            
+            // Logic for getting false answers:
+            // If Blitz mode, only pull from terms in the same category
+            // If Standard mode, pull from any category in the glossary
+            let distractorPool = isBlitz 
+                ? glossary.filter(i => i.cat === currentItem.cat && i.term !== currentItem.term)
+                : glossary.filter(i => i.term !== currentItem.term);
+
+            // Safety check: if the category is too small, fallback to full pool
+            if(isBlitz && distractorPool.length < 3) {
+                distractorPool = glossary.filter(i => i.term !== currentItem.term);
+            }
+
+            while(choices.length < 4) {
+                let r = distractorPool[Math.floor(Math.random() * distractorPool.length)].term;
+                if(!choices.includes(r)) choices.push(r);
+            }
+            
+            choices.sort(() => Math.random() - 0.5).forEach(c => {
+                document.getElementById('options-grid').innerHTML += `<button class="option-btn" onclick="checkChoice('${c}')">${c}</button>`;
+            });
+        } else {
+            document.getElementById('submit-btn').classList.remove('hidden');
+            document.getElementById('submit-btn').innerText = "Show Keyword";
+            target.innerHTML = `<div class="def-text">${currentItem.def}</div>`;
+        }
+    }
+
+    function checkChoice(choice) {
+        const fb = document.getElementById('feedback');
+        if(choice === currentItem.term) {
+            if(isBlitz) score += 10;
+            document.getElementById('score').innerText = score;
+            fb.innerText = "✓ CORRECT"; fb.style.color = "#10b981";
+            setTimeout(nextItem, isBlitz ? 600 : 1200);
+        } else {
+            if(isBlitz) score = Math.max(0, score - 5);
+            document.getElementById('score').innerText = score;
+            fb.innerText = `✗ WRONG - IT WAS: ${currentItem.term.toUpperCase()}`; fb.style.color = "#f43f5e";
+            setTimeout(nextItem, isBlitz ? 1500 : 2500);
+        }
+    }
+
+    function handleFlashAction() {
+        const target = document.getElementById('content-target');
+        const btn = document.getElementById('submit-btn');
+        if(btn.innerText === "Show Keyword") {
+            target.innerHTML = `<div class="term-text">${currentItem.term}</div><div class="def-text">${currentItem.def}</div>`;
+            btn.innerText = "Next Card";
+        } else {
+            nextItem();
+        }
+    }
+
+    function endBlitz() {
+        clearInterval(timerInterval);
+        document.getElementById('quiz-area').classList.add('hidden');
+        document.getElementById('results-screen').classList.remove('hidden');
+        document.getElementById('final-score').innerText = score;
+        
+        let msg = score > 200 ? "Legend! 🏆" : (score > 100 ? "Great Job! ⭐" : "Keep Practicing! 📚");
+        document.getElementById('rank-msg').innerText = msg;
+    }
+
+    function generateRevision() {
+        const cat = document.getElementById('cat-select').value;
+        const list = (cat === 'ALL') ? [...glossary] : glossary.filter(i => i.cat === cat);
+        let title = (cat === 'ALL') ? "Full J277 Glossary Master" : `Unit ${cat} Study Guide`;
+        let html = `<h1 style="color:#0f172a; border-bottom: 2px solid #3b82f6;">${title}</h1>`;
+        list.forEach(i => html += `<div class="rev-item"><strong>${i.term}</strong><br>${i.def}</div>`);
+        document.getElementById('sheet-content').innerHTML = html;
+        document.getElementById('main-menu').classList.add('hidden');
+        document.getElementById('revision-area').classList.remove('hidden');
+    }
+
+    function exit() {
+        clearInterval(timerInterval);
+        document.getElementById('main-menu').classList.remove('hidden');
+        document.getElementById('quiz-area').classList.add('hidden');
+        document.getElementById('revision-area').classList.add('hidden');
+    }
+</script>
+</body>
+</html>
