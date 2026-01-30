@@ -11,6 +11,59 @@
             --light: #f8fafc;
             --accent: #38bdf8;
         }
+        /* Container for the 3 categories */
+.category-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* The Individual Boxes */
+.category-box {
+    background: #ffffff;
+    border-radius: 15px;
+    padding: 25px;
+    width: 300px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    transition: transform 0.2s;
+    border-top: 8px solid #ccc; /* Default border top */
+}
+
+.category-box:hover {
+    transform: translateY(-5px);
+}
+
+/* Specific Border Colors */
+.theory-border { border-top-color: #2563eb; }      /* Blue */
+.programming-border { border-top-color: #10b981; }   /* Green */
+.fun-border { border-top-color: #f59e0b; }           /* Orange/Gold */
+
+/* Links inside the boxes */
+.link-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.sub-link {
+    text-decoration: none;
+    color: #475569;
+    padding: 10px;
+    background: #f1f5f9;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+.sub-link:hover {
+    background: #e2e8f0;
+    color: #1e293b;
+}
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -87,14 +140,45 @@
         <h2>Welcome, Learners</h2>
         <p>Select a pathway below to begin your journey into Computer Science, Programming, and Digital Literacy.</p>
     </section>
+    <div class="category-container">
+    
+    <section class="category-box theory-border">
+        <h3>📚 Computing Theory and Quizzes</h3>
+        <p>Master the fundamentals of hardware, data, and logic.</p>
+        <div class="link-group">
+
+            <a href="GCSE_Key_Terms_Quiz" class="nav-button">👩‍🎓 GCSE Key Terms - multi choice, flashcards, timed Blitz</a>
+            <a href="Binary_Quizv1" class="nav-button">👩‍🎓 Binary Quiz - practice or timed test mode!</a>
+            
+        </div>
+    </section>
+
+    <section class="category-box programming-border">
+        <h3>💻 Programming</h3>
+       
+        <div class="link-group">
+            <a href="SubProgs1.html" class="nav-button">🤖 SubProgs1</a>
+            <a href="subprogs2.html" class="nav-button">🛠️ SubProgs2</a>
+            <a href="subProgs3.html" class="nav-button">👁️ SubProgs3</a>
+            
+        </div>
+    </section>
+
+    <section class="category-box fun-border">
+        <h3>🎮 Fun N Gamez</h3>
+        <p>.</p>
+        <div class="link-group">
+             <a href="BalloonBurst.html" class="nav-button">🚀 Binary Balloon Burst</a>
+            <a href="reactor.html" class="nav-button">☢️ Binary Addition Meltdown</a>
+        </div>
+    </section>
+
+</div>
 
     <main class="button-grid">
-        <a href="BalloonBurst.html" class="nav-button">🚀 Binary Balloon Burst</a>
-        <a href="reactor.html" class="nav-button">☢️ Binary Addition Meltdown</a>
+       
         <a href="Binary_Quizv1" class="nav-button">👩‍🎓 Binary Quiz - practice or timed test mode!</a>
-        <a href="SubProgs1.html" class="nav-button">🤖 SubProgs1</a>
-        <a href="subprogs2.html" class="nav-button">🛠️ SubProgs2</a>
-        <a href="subProgs3.html" class="nav-button">👁️ SubProgs3</a>
+        
         <a href="GCSE_Key_Terms_Quiz.html" class="nav-button">👁️GCSE Full Spec Key Terms Quizzer</a>
         
     </main>
@@ -106,6 +190,7 @@
 </body>
 
 </html>
+
 
 
 
