@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>OCR J277 - Von Neumann Architecture and FDE Sim</title>
+    <style>
+        :root { 
+            --addr-bus: #e17055; --data-bus: #0984e3; --gold: #fdce31;
+            --bg-dark: #1e272e; --panel-white: #ffffff;
+        }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg-dark); color: white; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        
+        .main-layout { display: flex; gap: 20px; width: 1300px; align-items: flex-start; }
+
+        /* Trace List */
+        #trace-container { width: 350px; background: #2f3542; border-radius: 8px; padding: 15px; height: 650px; overflow-y: auto; border: 1px solid #57606f; }
+        #trace-list { list-style-type: decimal; padding-left: 30px; color: #55efc4; font-family: 'Courier New', monospace; font-size: 0.85rem; }
+
+        /* Simulator Area */
+        .sim-area { flex-grow: 1; display: flex; flex-direction: column; align-items: center; }
+        .progress-container { width: 100%; display: flex; justify-content: space-between; margin-bottom: 20px; background: #353b48; padding: 10px; border-radius: 8px; }
+        .stage-indicator { flex: 1; text-align: center; padding: 10px; color: #747d8c; font-weight: bold; font-size: 0.85rem; }
+        .stage-active { color: #55efc4; border-bottom: 3px solid #55efc4; }
+
+        .grid { display: grid; grid-template-columns: 420px 100px 240px; gap: 0; }
+        .component { background: var(--panel-white); color: #2d3436; padding: 20px; border-radius: 12px; border: 4px solid #636e72; z-index: 10; }
+        #cpu { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        
+        .bus-area { display: flex; flex-direction: column; justify-content: space-around; padding: 40px 0; }
+        .bus { height: 22px; width: 100%; border-radius: 4px; font-weight: bold; font-size: 0.65rem; transition: 0.3s; color: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; }
+        #addr-bus { background: var(--addr-bus); }
+        #data-bus { background: var(--data-bus); }
+        .bus-active { color: white; box-shadow: 0 0 15px white; border: 1px solid white; }
+
+        .register { background: #f1f2f6; border: 2px solid #b2bec3; padding: 10px; border-radius: 8px; text-align: center; }
+        .reg-label { font-size: 0.7rem; font-weight: bold; color: #636e72; display: block; }
+        .reg-val { font-family: 'Consolas', monospace; font-size: 1.2rem; font-weight: bold; }
+
+        #ram { height: 500px; border-color: #00b894; overflow-y: auto; }
+        .mem-cell { border-bottom: 1px solid #eee; padding: 4px; display: flex; justify-content: space-between; font-size: 0.8rem; }
+        .highlight { background: #ffeaa7; font-weight: bold; }
+
+        #packet { position: fixed; width: 80px; height: 40px; background: var(--gold); border: 2px solid #b7950b; border-radius: 6px; display: none; align-items: center; justify-content: center; color: black; font-size: 0.75rem; font-weight: bold; z-index: 100; pointer-events: none; }
+
+        .controls { margin-top: 25px; display: flex; flex-direction: column; align-items: center; gap: 15px; width: 100%; }
+        select { padding: 10px; border-radius: 5px; background: #353b48; color: white; border: 1px solid #55efc4; font-weight: bold; cursor: pointer; }
+        .btn-group { display: flex; gap: 15px; }
+        button { padding: 12px 30px; font-weight: bold; cursor: pointer; border-radius: 8px; border: none; color: white; }
+        #btn-step { background: #00d2d3; }
+        #btn-reset { background: #ff4757; }
+        
+        .speed-box { background: #353b48; padding: 12px 25px; border-radius: 30px; display: flex; align-items: center; gap: 20px; border: 1px solid #57606f; }
+        input[type=range] { cursor: pointer; width: 200px; direction: rtl; }
+    </style>
+</head>
+<body>
+
+<h2 style="margin-bottom: 15px;">OCR J277: OCR J277 - Von Neumann Architecture and FDE Sim</h2>
+
+<div class="main-layout">
+    <div id="trace-container">
+        <h4 style="margin: 0 0 10px 0; color: #55efc4; border-bottom: 2px solid #55efc4; padding-bottom: 5px;">REGISTER TRACE</h4>
+        <ol id="trace-list"></ol>
+    </div>
+
+    <div class="sim-area">
+        <div style="margin-bottom: 15px;">
+            <label>Select Program: </label>
+            <select id="program-selector" onchange="loadProgram()">
+                <option value="basic">1. Basic Addition (LDA/ADD/OUT)</option>
+                <option value="subtract">2. Subtraction (INP/SUB/OUT)</option>
+                <option value="loop">3. Countdown Loop (BRZ Loop)</option>
+                <option value="multiply">4. Simple Doubler (ADD Self)</option>
+                <option value="store">5. Memory Write (STO Test)</option>
+            </select>
+        </div>
+
+        <div class="progress-container">
+            <div id="prog-f" class="stage-indicator">FETCH (Addr)</div>
+            <div id="prog-fi" class="stage-indicator">FETCH (Data)</div>
+            <div id="prog-d" class="stage-indicator">DECODE</div>
+            <div id="prog-e" class="stage-indicator">EXECUTE</div>
+        </div>
+
+        <div class="grid">
+            <div id="cpu" class="component">
+                <h3 style="grid-column: span 2; margin:0 0 10px 0; font-size: 1.1rem;">CPU</h3>
+                <div id="reg-pc" class="register"><span class="reg-label">PC</span><span class="reg-val">0</span></div>
+                <div id="reg-acc" class="register"><span class="reg-label">ACC</span><span class="reg-val">0</span></div>
+                <div id="reg-mar" class="register"><span class="reg-label">MAR</span><span class="reg-val">--</span></div>
+                <div id="reg-mdr" class="register"><span class="reg-label">MDR</span><span class="reg-val">--</span></div>
+                <div id="cu" class="register" style="grid-column: span 2;"><span class="reg-label">CU Status</span><span class="reg-val">IDLE</span></div>
+                <div id="alu" class="register" style="grid-column: span 2; background: #fab1a0;"><span class="reg-label">ALU</span><span class="reg-val">READY</span></div>
+            </div>
+
+            <div class="bus-area">
+                <div id="addr-bus" class="bus">ADDRESS BUS</div>
+                <div id="data-bus" class="bus">DATA BUS</div>
+            </div>
+
+            <div id="ram" class="component">
+                <h3 style="margin:0 0 10px 0; font-size: 1.1rem;">RAM</h3>
+                <div id="mem-grid"></div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="speed-box">
+                <span>Slow</span>
+                <input type="range" id="speed-slider" min="100" max="1500" value="800" step="100">
+                <span>Fast</span>
+            </div>
+            <div class="btn-group">
+                <button id="btn-step" onclick="handleStep()">NEXT STEP</button>
+                <button id="btn-reset" onclick="resetSystem()">RESET</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="packet"></div>
+
+<script>
+    const programs = {
+        basic: ["LDA 5", "ADD 6", "OUT", "HLT", " ", "25", "15"],
+        subtract: ["INP", "SUB 4", "OUT", "HLT", "10"],
+        loop: ["LDA 5", "OUT", "SUB 6", "STO 5", "BRP 1", "HLT", "1"],
+        multiply: ["INP", "STO 4", "ADD 4", "OUT", "HLT"],
+        store: ["INP", "STO 4", "LDA 5", "ADD 4", "STO 6", "HLT", "0", "10", "0"]
+    };
+
+    let ramData = [];
+    let pc = 0, acc = 0, step = 0, marVal = 0, currentMDR = "";
+
+    function loadProgram() {
+        const progKey = document.getElementById('program-selector').value;
+        ramData = [...programs[progKey]];
+        resetSystem();
+    }
+
+    function resetSystem() {
+        pc = 0; acc = 0; step = 0; marVal = 0; currentMDR = "";
+        document.getElementById('trace-list').innerHTML = "";
+        document.getElementById('reg-pc').querySelector('.reg-val').innerText = "0";
+        document.getElementById('reg-acc').querySelector('.reg-val').innerText = "0";
+        document.getElementById('reg-mar').querySelector('.reg-val').innerText = "--";
+        document.getElementById('reg-mdr').querySelector('.reg-val').innerText = "--";
+        document.getElementById('cu').querySelector('.reg-val').innerText = "IDLE";
+        
+        const memGrid = document.getElementById('mem-grid');
+        memGrid.innerHTML = "";
+        ramData.forEach((val, i) => {
+            memGrid.innerHTML += `<div class="mem-cell" id="cell-${i}"><span>[${i}]</span> <span class="val-text">${val}</span></div>`;
+        });
+        document.getElementById('btn-step').disabled = false;
+        document.getElementById('btn-step').innerText = "NEXT STEP";
+    }
+
+    function addTrace(msg) {
+        const list = document.getElementById('trace-list');
+        const li = document.createElement('li');
+        li.innerText = msg;
+        list.appendChild(li);
+        list.scrollTop = list.scrollHeight;
+    }
+
+    async function precisionAnimate(fromId, busId, toId, text) {
+        const p = document.getElementById('packet');
+        const busLine = document.getElementById(busId);
+        const start = document.getElementById(fromId).getBoundingClientRect();
+        const busRect = busLine.getBoundingClientRect();
+        const end = document.getElementById(toId).getBoundingClientRect();
+        const segment = parseInt(document.getElementById('speed-slider').value) / 3;
+
+        p.innerText = text; p.style.display = 'flex'; p.style.transition = 'none';
+        p.style.top = start.top + 'px'; p.style.left = start.left + 'px';
+        busLine.classList.add('bus-active');
+
+        await new Promise(r => setTimeout(r, 20));
+        p.style.transition = `all ${segment}ms linear`;
+        p.style.left = busRect.left + 'px'; p.style.top = busRect.top + 'px';
+        await new Promise(r => setTimeout(r, segment));
+        p.style.left = (busRect.left + busRect.width - 15) + 'px';
+        await new Promise(r => setTimeout(r, segment));
+        p.style.left = end.left + 'px'; p.style.top = end.top + 'px';
+        await new Promise(r => setTimeout(r, segment));
+        p.style.display = 'none';
+        busLine.classList.remove('bus-active');
+    }
+
+    async function handleStep() {
+        const btn = document.getElementById('btn-step');
+        btn.disabled = true;
+        const setProg = (id) => {
+            document.querySelectorAll('.stage-indicator').forEach(i => i.classList.remove('stage-active'));
+            if(id) document.getElementById(id).classList.add('stage-active');
+        };
+
+        switch(step) {
+            case 0: // FETCH 1
+                setProg('prog-f');
+                marVal = pc;
+                document.getElementById('reg-mar').querySelector('.reg-val').innerText = marVal;
+                addTrace(`FETCH: PC (${pc}) → MAR.`);
+                step++;
+                break;
+            case 1: // FETCH 2
+                await precisionAnimate('reg-mar', 'addr-bus', `cell-${marVal}`, `ADDR ${marVal}`);
+                document.querySelectorAll('.mem-cell').forEach(c => c.classList.remove('highlight'));
+                document.getElementById(`cell-${marVal}`).classList.add('highlight');
+                step++;
+                break;
+            case 2: // FETCH 3
+                setProg('prog-fi');
+                currentMDR = ramData[marVal];
+                await precisionAnimate(`cell-${marVal}`, 'data-bus', 'reg-mdr', currentMDR);
+                document.getElementById('reg-mdr').querySelector('.reg-val').innerText = currentMDR;
+                pc++; document.getElementById('reg-pc').querySelector('.reg-val').innerText = pc;
+                step++;
+                break;
+            case 3: // DECODE
+                setProg('prog-d');
+                document.getElementById('cu').querySelector('.reg-val').innerText = "DECODING: " + currentMDR;
+                addTrace(`DECODE: CU interpreting ${currentMDR}.`);
+                step++;
+                break;
+            case 4: // EXECUTE
+                setProg('prog-e');
+                const parts = currentMDR.split(' ');
+                const op = parts[0];
+                const addr = parts[1];
+                
+                if(op === "INP") {
+                    acc = parseInt(prompt("Enter Input:")) || 0;
+                } else if(op === "OUT") {
+                    alert("Output: " + acc);
+                } else if(op === "LDA") {
+                    await precisionAnimate('reg-mdr', 'addr-bus', `cell-${addr}`, `ADDR ${addr}`);
+                    acc = parseInt(ramData[addr]);
+                    await precisionAnimate(`cell-${addr}`, 'data-bus', 'reg-acc', acc);
+                } else if(op === "ADD" || op === "SUB") {
+                    await precisionAnimate('reg-mdr', 'addr-bus', `cell-${addr}`, `ADDR ${addr}`);
+                    let val = parseInt(ramData[addr]);
+                    await precisionAnimate(`cell-${addr}`, 'data-bus', 'alu', val);
+                    acc = (op === "ADD") ? acc + val : acc - val;
+                } else if(op === "STO") {
+                    await precisionAnimate('reg-acc', 'data-bus', `cell-${addr}`, acc);
+                    ramData[addr] = acc;
+                    document.querySelectorAll('.val-text')[addr].innerText = acc;
+                } else if(op === "BRP") { // Branch if Positive or Zero
+                    if(acc >= 0) { pc = parseInt(addr); addTrace(`BRANCH: ACC is ${acc}, jumping to ${pc}`); }
+                } else if(op === "HLT") {
+                    btn.innerText = "HALTED";
+                    addTrace("SYSTEM HALTED.");
+                    return;
+                }
+                
+                document.getElementById('reg-acc').querySelector('.reg-val').innerText = acc;
+                document.getElementById('cu').querySelector('.reg-val').innerText = "IDLE";
+                addTrace(`EXECUTE: ${op} finished. ACC=${acc}.`);
+                step = 0;
+                break;
+        }
+        btn.disabled = false;
+    }
+
+    loadProgram(); // Initialize
+</script>
+</body>
+</html>13:57 09/03/2026
