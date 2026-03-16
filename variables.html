@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Variable Concept Simulator</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #f4f7f6; display: flex; flex-direction: column; align-items: center; padding: 20px; color: #2d3436; }
+        #game-container { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 8px 20px rgba(0,0,0,0.15); max-width: 800px; width: 100%; text-align: center; }
+        .explanation-box { background: #eef2f7; padding: 15px; border-left: 5px solid #3498db; text-align: left; margin-bottom: 20px; font-size: 0.95rem; line-height: 1.4; }
+        .box-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin: 20px 0; min-height: 120px; }
+        .box { border: 3px solid #3498db; border-radius: 10px; height: 95px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #ffffff; position: relative; transition: 0.2s; }
+        .box.hidden-content .content { display: none; }
+        .box.wrong { background: #ff7675 !important; border-color: #d63031; }
+        .box.correct { border-color: #27ae60; box-shadow: 0 0 10px #2ecc71; }
+        .label { font-size: 0.75rem; font-weight: bold; color: #2d3436; margin-bottom: 5px; background: #ffeaa7; padding: 2px 5px; border-radius: 3px; border: 1px solid #fdcb6e; }
+        .content { font-size: 1.1rem; font-weight: bold; color: #2d3436; }
+        
+        /* Python Console Styles */
+        #console { background: #1e1e1e; color: #d4d4d4; font-family: 'Consolas', 'Courier New', monospace; padding: 15px; border-radius: 8px; text-align: left; margin: 20px 0; font-size: 0.9rem; min-height: 60px; border: 2px solid #333; }
+        .console-prompt { color: #569cd6; font-weight: bold; }
+        .console-output { color: #ce9178; }
+
+        .lives-container { font-size: 2rem; margin-bottom: 10px; height: 40px; }
+        .controls { margin-top: 25px; padding-top: 20px; border-top: 2px dashed #dfe6e9; }
+        input { padding: 12px; border: 2px solid #dfe6e9; border-radius: 6px; width: 180px; margin: 2px; font-size: 1rem; }
+        #py-input { width: 70%; font-family: 'Courier New', monospace; border: 2px solid #0984e3; }
+        button { padding: 12px 25px; background: #0984e3; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 1rem; }
+        button:hover { background: #74b9ff; }
+        #message { height: 50px; margin: 15px; font-weight: bold; font-size: 1.1rem; }
+        .example-code { font-family: 'Courier New', monospace; background: #34495e; padding: 3px 6px; border-radius: 4px; color: #ecf0f1; font-weight: normal; }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <div id="round-title" style="font-weight: bold; color: #636e72;">ROUND 1</div>
+    <h2 id="round-header" style="margin: 10px 0;">The Mystery of RAM</h2>
+    
+    <div id="explanation" class="explanation-box"></div>
+
+    <div class="lives-container" id="lives-display"></div>
+    <div id="box-area" class="box-grid"></div>
+    
+    <div id="console" style="display:none;">
+        <div># Python 3.10 Console</div>
+        <div id="console-log"></div>
+    </div>
+
+    <div id="message"></div>
+
+    <div class="controls" id="standard-inputs">
+        <input type="text" id="label-input" placeholder="Variable Name" style="display:none;">
+        <input type="text" id="value-input" placeholder="Data (Word or Number)">
+        <button id="add-btn" onclick="addItem()">Store Item (0/5)</button>
+    </div>
+
+    <div class="controls" id="python-inputs" style="display:none;">
+        <p id="py-prompt" style="font-size: 0.85rem; margin-bottom: 15px;"></p>
+        <input type="text" id="py-input" placeholder='Type your Python code...'>
+        <button onclick="handlePythonAction()">Run Code</button>
+    </div>
+
+    <div class="controls" id="action-controls" style="display:none;">
+        <button onclick="startChallenge()">Jumble & Hide Memory</button>
+    </div>
+</div>
+
+<script>
+    let currentRound = 1;
+    let items = [];
+    let targetItem = null;
+    let lives = 3;
+    let isGameOver = false;
+    let challengeActive = false;
+
+    // --- Sound Engine ---
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playSound(freq, type, duration) {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(); osc.stop(audioCtx.currentTime + duration);
+    }
+
+    const sfx = {
+        click: () => playSound(600, 'sine', 0.1),
+        success: () => { playSound(500, 'sine', 0.1); setTimeout(() => playSound(800, 'sine', 0.2), 100); },
+        error: () => playSound(150, 'sawtooth', 0.3),
+        win: () => { [440, 554, 659, 880].forEach((f, i) => setTimeout(() => playSound(f, 'sine', 0.4), i * 150)); }
+    };
+
+    const explanations = [
+        "In this example, we see 5 locations of empty memory in a computer's RAM. A program is written which will need 5 data items. Because there are no labels, the computer (and you) will have to guess where the data is!",
+        "In Round 2, we introduce <b>Identifiers</b>. When you store a data item, you now give it a name. Even when the memory is jumbled, the label stays on the 'box' so we can find our data instantly.",
+        "<b>Code Master:</b> In Python, use <span class='example-code'>=</span> to assign data. <br><b>Rule:</b> Use speech marks for words: <span class='example-code'>name = \"Alex\"</span>. <br>Use NO speech marks for numbers: <span class='example-code'>age = 11</span>."
+    ];
+
+    function initRound() {
+        items = []; lives = 3; isGameOver = false; challengeActive = false;
+        updateLivesDisplay();
+        document.getElementById('box-area').innerHTML = '';
+        document.getElementById('console-log').innerHTML = '';
+        document.getElementById('console').style.display = 'none';
+        document.getElementById('action-controls').style.display = 'none';
+        document.getElementById('message').innerText = '';
+        document.getElementById('message').style.color = 'black';
+        updateButtonCount();
+        
+        const standardInputs = document.getElementById('standard-inputs');
+        const pythonInputs = document.getElementById('python-inputs');
+        const labelInput = document.getElementById('label-input');
+        const header = document.getElementById('round-header');
+        const title = document.getElementById('round-title');
+        const explanation = document.getElementById('explanation');
+        const pyPrompt = document.getElementById('py-prompt');
+
+        title.innerText = `ROUND ${currentRound}`;
+        explanation.innerHTML = explanations[currentRound - 1];
+        standardInputs.style.display = (currentRound < 3) ? 'block' : 'none';
+        pythonInputs.style.display = (currentRound === 3) ? 'block' : 'none';
+
+        if (currentRound === 1) {
+            header.innerText = "The Mystery of RAM";
+            labelInput.style.display = 'none';
+        } else if (currentRound === 2) {
+            header.innerText = "Adding Identifiers (Labels)";
+            labelInput.style.display = 'inline-block';
+        } else {
+            header.innerText = "Python Assignment Rules";
+            pyPrompt.innerHTML = `Try creating a text variable like <span class="example-code">fav_food = "Pizza"</span> or a number like <span class="example-code">score = 50</span>`;
+            document.getElementById('console').style.display = 'block';
+        }
+    }
+
+    function updateButtonCount() {
+        document.getElementById('add-btn').innerText = `Store Item (${items.length}/5)`;
+    }
+
+    function updateLivesDisplay() {
+        document.getElementById('lives-display').innerText = "❤️".repeat(lives);
+    }
+
+    function addItem() {
+        if (items.length >= 5) return;
+        const val = document.getElementById('value-input').value.trim();
+        const lab = document.getElementById('label-input').value.trim();
+        if (!val) return;
+        if (currentRound === 2 && !lab) { sfx.error(); return; }
+        
+        sfx.click();
+        items.push({ value: val, label: lab });
+        renderBoxes(false);
+        updateButtonCount();
+        document.getElementById('value-input').value = '';
+        document.getElementById('label-input').value = '';
+        if (items.length === 5) showChallengeBtn();
+    }
+
+    function handlePythonAction() {
+        const input = document.getElementById('py-input').value.trim();
+        const log = document.getElementById('console-log');
+        
+        if (!challengeActive) {
+            // Check for assignment: name = "text" or name = 123
+            const match = input.match(/^([a-z_]\w*)\s*=\s*(.+)$/i);
+            
+            if (match) {
+                const name = match[1];
+                const rawVal = match[2];
+                let processedVal = "";
+
+                // Data Type Validation
+                if ((rawVal.startsWith('"') && rawVal.endsWith('"')) || (rawVal.startsWith("'") && rawVal.endsWith("'"))) {
+                    processedVal = rawVal.slice(1, -1); // It's a string
+                } else if (!isNaN(rawVal)) {
+                    processedVal = rawVal; // It's a number
+                } else {
+                    sfx.error();
+                    log.innerHTML += `<div><span class="console-prompt">>>></span> <span style="color:red">SyntaxError: Text must be in "quotes"</span></div>`;
+                    return;
+                }
+
+                sfx.click();
+                items.push({ label: name, value: processedVal });
+                log.innerHTML += `<div><span class="console-prompt">>>></span> ${input}</div>`;
+                renderBoxes(false);
+                document.getElementById('py-input').value = '';
+                if (items.length === 5) showChallengeBtn();
+            } else {
+                sfx.error();
+                log.innerHTML += `<div><span class="console-prompt">>>></span> <span style="color:red">Invalid Syntax</span></div>`;
+            }
+        } else {
+            // Print logic
+            log.innerHTML += `<div><span class="console-prompt">>>></span> ${input}</div>`;
+            const printMatch = input.match(/^print\s*\(\s*([a-z_]\w*)\s*\)$/i);
+            
+            if (printMatch) {
+                const varName = printMatch[1];
+                const foundItem = items.find(i => i.label === varName);
+                if (foundItem && foundItem.value == targetItem.value) {
+                    log.innerHTML += `<div class="console-output">${foundItem.value}</div>`;
+                    processSuccess(varName);
+                } else {
+                    log.innerHTML += `<div class="console-output">${foundItem ? foundItem.value : 'None'}</div>`;
+                    processFailure();
+                }
+            } else {
+                sfx.error();
+                log.innerHTML += `<div><span style="color:red">NameError: use print(variable_name)</span></div>`;
+            }
+        }
+        log.scrollTop = log.scrollHeight;
+    }
+
+    function showChallengeBtn() {
+        document.getElementById('standard-inputs').style.display = 'none';
+        document.getElementById('python-inputs').style.display = 'none';
+        document.getElementById('action-controls').style.display = 'block';
+    }
+
+    function renderBoxes(hideContent) {
+        const area = document.getElementById('box-area');
+        area.innerHTML = '';
+        items.forEach((item) => {
+            const div = document.createElement('div');
+            div.className = 'box' + (hideContent ? ' hidden-content' : '');
+            const labelHTML = item.label ? `<div class="label">${item.label}</div>` : '';
+            div.innerHTML = `${labelHTML}<div class="content">${item.value}</div>`;
+            if (currentRound < 3) div.onclick = () => handleBoxClick(div, item);
+            area.appendChild(div);
+        });
+    }
+
+    function startChallenge() {
+        sfx.click();
+        targetItem = items[Math.floor(Math.random() * items.length)];
+        challengeActive = true;
+        document.getElementById('action-controls').style.display = 'none';
+
+        if (currentRound === 3) {
+            document.getElementById('python-inputs').style.display = 'block';
+            document.getElementById('message').innerText = `CHALLENGE: Output the value "${targetItem.value}" from the correct variable name.`;
+        } else {
+            document.getElementById('message').innerText = `CHALLENGE: Find the box containing "${targetItem.value}"`;
+        }
+        
+        items.sort(() => Math.random() - 0.5);
+        renderBoxes(true);
+    }
+
+    function handleBoxClick(element, item) {
+        if (isGameOver || !element.classList.contains('hidden-content')) return;
+        element.classList.remove('hidden-content');
+        if (item.value === targetItem.value) processSuccess();
+        else processFailure(element);
+    }
+
+    function processSuccess(varName) {
+        sfx.success();
+        if(varName) {
+             const boxes = document.querySelectorAll('.box');
+             boxes.forEach(b => { if(b.innerText.includes(varName)) b.classList.remove('hidden-content'), b.classList.add('correct'); });
+        }
+        document.getElementById('message').innerText = "SUCCESS! Memory Accessed.";
+        document.getElementById('message').style.color = "green";
+        isGameOver = true;
+        setTimeout(() => { if(currentRound < 3) { currentRound++; initRound(); } else { sfx.win(); document.getElementById('message').innerText = "PYTHON CODE MASTER!"; } }, 3000);
+    }
+
+    function processFailure(element) {
+        sfx.error();
+        lives--;
+        updateLivesDisplay();
+        if(element) element.classList.add('wrong');
+        
+        if (lives <= 0) {
+            isGameOver = true;
+            if (currentRound === 1) {
+                document.getElementById('message').innerText = "FAILED! Moving to Round 2 to use Labels...";
+                setTimeout(() => { currentRound = 2; initRound(); }, 3000);
+            } else {
+                document.getElementById('message').innerText = "CRASHED! Restarting round...";
+                setTimeout(initRound, 3000);
+            }
+        } else if (element) {
+            setTimeout(() => { element.classList.add('hidden-content'); element.classList.remove('wrong'); }, 1500);
+        }
+    }
+
+    initRound();
+</script>
+</body>
+</html>
