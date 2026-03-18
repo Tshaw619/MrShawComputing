@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Variable Concept Simulator - Final</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #f4f7f6; display: flex; flex-direction: column; align-items: center; padding: 20px; color: #2d3436; }
+        #game-container { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 8px 20px rgba(0,0,0,0.15); max-width: 900px; width: 100%; text-align: center; position: relative; }
+        .explanation-box { background: #eef2f7; padding: 15px; border-left: 5px solid #3498db; text-align: left; margin-bottom: 20px; font-size: 0.95rem; line-height: 1.4; }
+        
+        .box-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 20px 0; min-height: 400px; }
+        .box { border: 2px solid #bdc3c7; border-radius: 8px; height: 80px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #ffffff; position: relative; transition: 0.2s; font-size: 0.85rem; }
+        
+        /* Address Marker */
+        .address { position: absolute; top: 2px; right: 4px; font-size: 0.6rem; color: #95a5a6; font-family: monospace; }
+        
+        .box.user-box { border-color: #3498db; border-width: 3px; }
+        .box.system-box { opacity: 0.6; background: #f9f9f9; border-style: dashed; }
+        
+        /* Challenge Mode Uniformity */
+        .challenge-mode .box { border: 2px solid #95a5a6 !important; border-style: solid !important; background: #ecf0f1 !important; box-shadow: none !important; opacity: 1 !important; }
+        .box.hidden-content .content { display: none; }
+        .box.wrong { background: #ff7675 !important; border-color: #d63031 !important; }
+        .box.correct { border-color: #27ae60 !important; background: #e8f5e9 !important; }
+        
+        .label { font-size: 0.65rem; font-weight: bold; color: #2d3436; margin-bottom: 3px; background: #ffeaa7; padding: 1px 4px; border-radius: 3px; border: 1px solid #fdcb6e; }
+        .round-1-challenge .label { display: none; }
+        .content { font-weight: bold; color: #2c3e50; }
+        
+        #console { background: #1e1e1e; color: #d4d4d4; font-family: 'Consolas', monospace; padding: 15px; border-radius: 8px; text-align: left; margin: 20px 0; font-size: 0.85rem; min-height: 80px; border: 2px solid #333; overflow-y: auto; max-height: 120px; }
+        .lives-container { font-size: 2rem; margin-bottom: 10px; height: 40px; }
+        .controls { margin-top: 25px; padding-top: 20px; border-top: 2px dashed #dfe6e9; }
+        input { padding: 10px; border: 2px solid #dfe6e9; border-radius: 6px; width: 160px; margin: 2px; }
+        button { padding: 10px 25px; background: #0984e3; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        
+        /* Summary Overlay */
+        #summary-page { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 100; border-radius: 15px; padding: 40px; box-sizing: border-box; flex-direction: column; align-items: center; justify-content: center; }
+        .summary-card { background: #f8f9fa; border: 1px solid #dee2e6; padding: 15px; margin: 10px; border-radius: 8px; width: 80%; text-align: left; }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <div id="round-title" style="font-weight: bold; color: #636e72;">ROUND 1</div>
+    <h2 id="round-header" style="margin: 10px 0;">The RAM Grid</h2>
+    
+    <div id="explanation" class="explanation-box"></div>
+    <div class="lives-container" id="lives-display"></div>
+    <div id="box-area" class="box-grid"></div>
+    
+    <div id="console" style="display:none;"><div id="console-log"></div></div>
+    <div id="message"></div>
+
+    <div class="controls" id="standard-inputs">
+        <input type="text" id="label-input" placeholder="Variable Name" style="display:none;">
+        <input type="text" id="value-input" placeholder="Data Value">
+        <button onclick="addItem()">Store Item (0/5)</button>
+    </div>
+
+    <div class="controls" id="python-inputs" style="display:none;">
+        <input type="text" id="py-input" placeholder='e.g. score = 10'>
+        <button onclick="handlePythonAction()">Run Code</button>
+    </div>
+
+    <div class="controls" id="action-controls" style="display:none;">
+        <button onclick="startChallenge()">Jumble & Hide</button>
+    </div>
+
+    <div id="summary-page">
+        <h1>Lesson Complete!</h1>
+        <div class="summary-card">
+            <b>Round 1: Physical RAM</b><br>
+            We saw that without labels, data items are impossible to find. Computers use millions of these slots!
+        </div>
+        <div class="summary-card">
+            <b>Round 2: Identifiers</b><br>
+            We used Variable Names (Labels) to find our data instantly, even when mixed with system background noise.
+        </div>
+        <div class="summary-card">
+            <b>Round 3: Python Syntax</b><br>
+            We used <code>=</code> for assignment and <code>print()</code> to call data by name. Quotes are for text; no quotes for numbers!
+        </div>
+        <div style="margin-top:20px;">
+            <button onclick="location.reload()">RESTART SIMULATOR</button>
+            <button onclick="alert('Great work today!');" style="background:#636e72; margin-left:10px;">QUIT</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentRound = 1;
+    let userItems = [];
+    let allGridItems = [];
+    let targetItem = null;
+    let lives = 3;
+    let isGameOver = false;
+    let challengeActive = false;
+
+    const systemLabels = ["sys_temp", "kernel_v", "cache_01", "font_res", "icon_buf", "net_stack", "audio_drv", "gpu_clock", "usb_hub", "bg_task", "proc_id", "mem_limit", "ptr_0x4", "tty_0", "dma_req", "irq_high", "p_state", "v_sync", "pipe_f", "reg_x"];
+
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playSound(f, t, d) {
+        const o = audioCtx.createOscillator(); const g = audioCtx.createGain();
+        o.type = t; o.frequency.setValueAtTime(f, audioCtx.currentTime);
+        g.gain.setValueAtTime(0.05, audioCtx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + d);
+        o.connect(g); g.connect(audioCtx.destination);
+        o.start(); o.stop(audioCtx.currentTime + d);
+    }
+
+    function initRound() {
+        userItems = []; allGridItems = []; lives = 3; isGameOver = false; challengeActive = false;
+        document.getElementById('box-area').className = "box-grid";
+        document.getElementById('console').style.display = 'none';
+        document.getElementById('action-controls').style.display = 'none';
+        document.getElementById('message').innerText = '';
+        updateLivesDisplay();
+        
+        document.getElementById('round-title').innerText = `ROUND ${currentRound}`;
+        const explanations = [
+            "RAM is a grid of memory addresses. Without labels, your 5 data items are identical to the 20 system items!",
+            "Identifiers (Labels) allow us to pick our data out from the noise, even when the grid is jumbled.",
+            "In Python, we use code to manage variables. Rule: <b>\"Quotes\"</b> for text, none for numbers. Use <b>print()</b> to call data."
+        ];
+        document.getElementById('explanation').innerHTML = explanations[currentRound - 1];
+        
+        document.getElementById('standard-inputs').style.display = (currentRound < 3) ? 'block' : 'none';
+        document.getElementById('python-inputs').style.display = (currentRound === 3) ? 'block' : 'none';
+        document.getElementById('label-input').style.display = (currentRound === 2) ? 'inline-block' : 'none';
+        if (currentRound === 3) document.getElementById('console').style.display = 'block';
+        renderBoxes(false);
+    }
+
+    function updateLivesDisplay() { document.getElementById('lives-display').innerText = "❤️".repeat(lives); }
+
+    function addItem() {
+        if (userItems.length >= 5) return;
+        const val = document.getElementById('value-input').value.trim();
+        const lab = document.getElementById('label-input').value.trim();
+        if (!val || (currentRound === 2 && !lab)) return;
+        userItems.push({ value: val, label: lab, type: 'user' });
+        renderBoxes(false);
+        document.getElementById('value-input').value = '';
+        document.getElementById('label-input').value = '';
+        if (userItems.length === 5) document.getElementById('action-controls').style.display = 'block';
+    }
+
+    function handlePythonAction() {
+        const input = document.getElementById('py-input').value.trim();
+        const log = document.getElementById('console-log');
+        if (!challengeActive) {
+            const match = input.match(/^([a-z_]\w*)\s*=\s*(.+)$/i);
+            if (match) {
+                let val = match[2];
+                if ((val.startsWith('"') && val.endsWith('"')) || !isNaN(val)) {
+                    userItems.push({ label: match[1], value: val.replace(/"/g,''), type: 'user' });
+                    log.innerHTML += `<div>>>> ${input}</div>`;
+                    renderBoxes(false);
+                    document.getElementById('py-input').value = '';
+                    if (userItems.length === 5) document.getElementById('action-controls').style.display = 'block';
+                } else { log.innerHTML += `<div style="color:red">>>> SyntaxError: Quotes for text!</div>`; }
+            }
+        } else {
+            const pm = input.match(/^print\s*\(\s*([a-z_]\w*)\s*\)$/i);
+            if (pm) {
+                const found = userItems.find(i => i.label === pm[1]);
+                log.innerHTML += `<div>>>> ${input}</div><div style="color:#4caf50">${found ? found.value : 'None'}</div>`;
+                if (found && found.value == targetItem.value) processSuccess(pm[1]);
+                else processFailure();
+            }
+        }
+    }
+
+    function renderBoxes(isJumbled) {
+        const area = document.getElementById('box-area');
+        area.innerHTML = '';
+        if (!isJumbled) {
+            allGridItems = [...userItems];
+            for (let i = 0; i < (25 - userItems.length); i++) 
+                allGridItems.push({ label: currentRound > 1 ? systemLabels[i] : '', value: 'SYS_'+i, type: 'system' });
+        }
+        allGridItems.forEach((item, idx) => {
+            const div = document.createElement('div');
+            div.className = `box ${item.type}-box ${isJumbled ? 'hidden-content' : ''}`;
+            const addr = "0x" + (idx + 1).toString(16).padStart(2, '0').toUpperCase();
+            div.innerHTML = `<span class="address">${addr}</span>` + 
+                (item.label ? `<div class="label">${item.label}</div>` : '') + 
+                `<div class="content">${item.value}</div>`;
+            if (isJumbled) div.onclick = () => (currentRound < 3 && item.type === 'user') ? handleBoxClick(div, item) : (currentRound < 3 ? processFailure(div) : null);
+            area.appendChild(div);
+        });
+    }
+
+    function startChallenge() {
+        targetItem = userItems[Math.floor(Math.random() * userItems.length)];
+        challengeActive = true;
+        document.getElementById('action-controls').style.display = 'none';
+        document.getElementById('box-area').classList.add('challenge-mode');
+        if (currentRound === 1) document.getElementById('box-area').classList.add('round-1-challenge');
+        if (currentRound === 3) document.getElementById('python-inputs').style.display = 'block';
+        document.getElementById('message').innerText = `SEARCHING FOR: "${targetItem.value}"` + (currentRound >= 2 ? ` (Identifier: ${targetItem.label})` : "");
+        allGridItems.sort(() => Math.random() - 0.5);
+        renderBoxes(true);
+    }
+
+    function handleBoxClick(e, i) {
+        if (isGameOver) return;
+        e.classList.remove('hidden-content');
+        if (i.value === targetItem.value) processSuccess();
+        else processFailure(e);
+    }
+
+    function processSuccess(n) {
+        playSound(800, 'sine', 0.2);
+        if (n) document.querySelectorAll('.box').forEach(b => { if(b.innerText.includes(n)) b.classList.add('correct'), b.classList.remove('hidden-content'); });
+        document.getElementById('message').innerText = "SUCCESS!";
+        isGameOver = true;
+        setTimeout(() => { if(currentRound < 3) { currentRound++; initRound(); } else showSummary(); }, 2000);
+    }
+
+    function processFailure(e) {
+        playSound(150, 'sawtooth', 0.3);
+        lives--; updateLivesDisplay();
+        if (e) { e.classList.remove('hidden-content'); e.classList.add('wrong'); }
+        if (lives <= 0) {
+            isGameOver = true;
+            setTimeout(() => { if(currentRound === 1) currentRound = 2; initRound(); }, 2500);
+        } else if (e) setTimeout(() => { e.classList.add('hidden-content'); e.classList.remove('wrong'); }, 1200);
+    }
+
+    function showSummary() {
+        document.getElementById('summary-page').style.display = 'flex';
+        playSound(440, 'sine', 0.2);
+    }
+
+    initRound();
+</script>
+</body>
+</html>
