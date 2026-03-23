@@ -177,7 +177,7 @@
         area.innerHTML = '';
         if (!isJumbled) {
             allGridItems = [...userItems];
-            for (let i = 0; i < (25 - userItems.length); i++) 
+            for (let i = 0; i < (15 - userItems.length); i++) 
                 allGridItems.push({ label: currentRound > 1 ? systemLabels[i] : '', value: 'SYS_'+i, type: 'system' });
         }
         allGridItems.forEach((item, idx) => {
