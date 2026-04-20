@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J277 Revision Journey</title>
+    <style>
+        :root { --dark: #2c3e50; --primary: #3498db; --secondary: #e67e22; --success: #27ae60; --light: #f4f7f6; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--light); color: var(--dark); margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; overflow-x: hidden; }
+        
+        .page { display: none; flex-direction: column; align-items: center; width: 100%; max-width: 900px; padding: 20px; text-align: center; animation: fadeIn 0.4s ease; }
+        .active { display: flex; }
+        
+        /* Wheels */
+        .wheel-wrapper { position: relative; margin: 10px 0; }
+        .wheel-svg { width: 550px; height: 550px; transform: rotate(-90deg); transition: transform 4s cubic-bezier(0.15, 0, 0.15, 1); filter: drop-shadow(0 8px 20px rgba(0,0,0,0.12)); }
+        .pointer { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 20px solid transparent; border-right: 20px solid transparent; border-top: 45px solid var(--dark); z-index: 10; }
+        
+        /* Buttons */
+        button { margin-top: 20px; padding: 15px 50px; font-size: 1.1rem; font-weight: bold; cursor: pointer; background: var(--primary); color: white; border: none; border-radius: 50px; box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3); transition: 0.2s; }
+        button:hover { background: #2980b9; transform: translateY(-2px); }
+        button:disabled { background: #ccc; cursor: not-allowed; transform: none; }
+
+        /* Summary Page Links */
+        .resource-container { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 20px; }
+        .res-link { text-decoration: none; background: #fff; border: 2px solid var(--primary); color: var(--primary); padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 0.9rem; transition: 0.2s; }
+        .res-link:hover { background: var(--primary); color: white; }
+
+        .summary-card { background: white; padding: 40px; border-radius: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); width: 100%; max-width: 650px; }
+        .step-indicator { font-size: 0.85rem; color: #95a5a6; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 3px; }
+        
+        text { font-size: 4px; font-weight: 600; fill: white; pointer-events: none; text-transform: uppercase; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+    </style>
+</head>
+<body>
+
+    <div id="page1" class="page active">
+        <div class="step-indicator">Step 1: Main Unit</div>
+        <h1 style="margin: 5px 0;">Unit Selection</h1>
+        <div class="wheel-wrapper">
+            <div class="pointer"></div>
+            <svg id="wheel1" class="wheel-svg" viewBox="0 0 100 100"></svg>
+        </div>
+        <button id="spin1" onclick="handleSpin('wheel1', mainTopics, 1)">Spin for Unit</button>
+    </div>
+
+    <div id="page2" class="page">
+        <div class="step-indicator">Step 2: Specific Detail</div>
+        <h1 id="selectedUnitTitle" style="margin: 5px 0;">Unit</h1>
+        <div class="wheel-wrapper">
+            <div class="pointer"></div>
+            <svg id="wheel2" class="wheel-svg" viewBox="0 0 100 100"></svg>
+        </div>
+        <button id="spin2" onclick="handleSpin('wheel2', currentSubList, 2)">Spin for Sub-Topic</button>
+    </div>
+
+    <div id="page3" class="page">
+        <div class="step-indicator">Step 3: Revision Strategy</div>
+        <h1 style="margin: 5px 0;">Pick Your Method</h1>
+        <div class="wheel-wrapper">
+            <div class="pointer"></div>
+            <svg id="wheel3" class="wheel-svg" viewBox="0 0 100 100"></svg>
+        </div>
+        <button id="spin3" onclick="handleSpin('wheel3', techniques, 3)">Spin for Technique</button>
+    </div>
+
+    <div id="page4" class="page">
+        <div class="summary-card">
+            <h1 style="color: var(--success); margin-top: 0;">✓ Session Generated</h1>
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+            <div id="summaryContent" style="text-align: left; line-height: 1.8; font-size: 1.1rem;">
+                <p><strong>Main Unit:</strong> <span id="finalUnit" style="color:var(--primary)"></span></p>
+                <p><strong>Sub-Topic:</strong> <span id="finalSub" style="color:var(--primary)"></span></p>
+                <div style="margin-top: 15px; padding: 15px; background: #f9f9f9; border-radius: 10px; border-left: 5px solid var(--secondary);">
+                    <span id="finalTech"></span>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 30px; font-size: 1rem;">Recommended Resources:</h3>
+            <div class="resource-container">
+                <a href="https://www.bbc.co.uk/bitesize/examspecs/zmtchbk" target="_blank" class="res-link">BBC Bitesize</a>
+                <a href="https://www.erevision.uk/" target="_blank" class="res-link">e-Revision</a>
+                <a href="https://craigndave.org/ocr-gcse-j277-videos/" target="_blank" class="res-link">Craig & Dave Videos</a>
+            </div>
+
+            <button onclick="location.reload()" style="background: var(--dark); margin-top: 30px;">Start New Journey</button>
+        </div>
+    </div>
+
+    <script>
+        // --- AUDIO ENGINE ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playTick() {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(700, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.08);
+            gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.08);
+        }
+
+        function playSuccess() {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.frequency.setValueAtTime(500, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(1000, audioCtx.currentTime + 0.4);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.4);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.4);
+        }
+
+        // --- DATA ---
+        const mainTopics = ["1.1 Architecture", "1.2 Memory/Storage", "1.3 Networks", "1.4 Security", "1.5 Software", "1.6 Impact", "2.1 Algorithms", "2.2 Programming", "2.3 Robustness", "2.4 Logic", "2.5 IDEs"];
+        const subTopics = {
+            "1.1 Architecture": ["CPU Purpose", "ALU/CU/Registers", "Von Neumann", "MAR/MDR/PC/ACC", "F-D-E Cycle", "Clock/Cores/Cache", "Embedded Systems"],
+            "1.2 Memory/Storage": ["RAM vs ROM", "Virtual Memory", "Magnetic/Optical/SSD", "Storage Capacity", "Data Units", "Binary/Hex Conversions", "Characters/Images/Sound", "Compression"],
+            "1.3 Networks": ["LAN vs WAN", "Performance Factors", "Client-Server/P2P", "NIC/Router/Switch", "Star/Mesh Topology", "Protocols & Layers"],
+            "1.4 Security": ["Malware", "Phishing", "Brute-force", "SQL Injection", "Pen-testing", "Firewalls", "Encryption"],
+            "1.5 Software": ["OS Purpose", "User Interface", "Multitasking", "File Management", "Utility Software"],
+            "1.6 Impact": ["Data Privacy", "Open Source/Proprietary", "Digital Divide", "Environmental Impact"],
+            "2.1 Algorithms": ["Decomposition", "Abstraction", "Pseudocode", "Flowcharts", "Search", "Sort"],
+            "2.2 Programming": ["Variables/Constants", "Data Types", "Arrays", "Functions", "File Handling", "SQL Basics"],
+            "2.3 Robustness": ["Validation", "Authentication", "Test Plans", "Normal/Boundary/Erroneous"],
+            "2.4 Logic": ["AND/OR/NOT Gates", "Truth Tables", "Logic Diagrams"],
+            "2.5 IDEs": ["High/Low Level Lang", "Translators", "IDE Tools"]
+        };
+
+        const techniques = [
+            { title: "Practice Papers", full: "<strong>Practice Testing:</strong> Answer questions under exam conditions tests memory." },
+            { title: "Blurting", full: "<strong>Blurting:</strong> Read, close book, and brain-dump everything you know." },
+            { title: "Flashcards", full: "<strong>Flashcards:</strong> Use Anki/Quizlet for keywords and facts." },
+            { title: "Feynman Method", full: "<strong>The Feynman Technique:</strong> Explain this concept to a child." },
+            { title: "e-Revision", full: "<strong>e-Revision:</strong> Visit the e-Revision website and focus on this topic." }
+        ];
+
+        let state = { unit: "", sub: "", tech: "", rotations: { wheel1: 0, wheel2: 0, wheel3: 0 } };
+        let currentSubList = [];
+        const colors = ["#3498db", "#2980b9", "#2471a3", "#1f618d", "#1a5276", "#5499c7", "#7fb3d5", "#a9cce3"];
+
+        function createWheel(id, data, colorPalette) {
+            const svg = document.getElementById(id);
+            svg.innerHTML = ''; 
+            const sliceAngle = 360 / data.length;
+            data.forEach((item, i) => {
+                const text = typeof item === 'string' ? item : item.title;
+                const angle = i * sliceAngle;
+                const nextAngle = (i + 1) * sliceAngle;
+                const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                path.setAttribute("d", `M 50 50 L ${50 + 50 * Math.cos(Math.PI * angle / 180)} ${50 + 50 * Math.sin(Math.PI * angle / 180)} A 50 50 0 0 1 ${50 + 50 * Math.cos(Math.PI * nextAngle / 180)} ${50 + 50 * Math.sin(Math.PI * nextAngle / 180)} Z`);
+                path.setAttribute("fill", colorPalette[i % colorPalette.length]);
+                path.setAttribute("stroke", "white");
+                path.setAttribute("stroke-width", "0.1");
+                svg.appendChild(path);
+                const textNode = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                textNode.setAttribute("x", "75"); textNode.setAttribute("y", "50");
+                textNode.setAttribute("transform", `rotate(${angle + sliceAngle / 2}, 50, 50)`);
+                textNode.setAttribute("text-anchor", "middle"); textNode.setAttribute("alignment-baseline", "middle");
+                textNode.textContent = text;
+                svg.appendChild(textNode);
+            });
+        }
+
+        function handleSpin(wheelId, data, pageNum) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            
+            const btn = document.getElementById(`spin${pageNum}`);
+            btn.disabled = true;
+            const extraSpins = Math.floor(Math.random() * 360) + 1440; 
+            state.rotations[wheelId] += extraSpins;
+            const wheel = document.getElementById(wheelId);
+            wheel.style.transform = `rotate(${state.rotations[wheelId] - 90}deg)`;
+
+            let lastTickAngle = 0;
+            const sliceSize = 360 / data.length;
+            const startTime = performance.now();
+            const duration = 4000;
+
+            function checkTick(now) {
+                const elapsed = now - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                // Cubic Bezier out easing
+                const easedProgress = progress < 0.5 ? 8 * progress**4 : 1 - Math.pow(-2 * progress + 2, 4) / 2;
+                const currentRotation = state.rotations[wheelId] * easedProgress;
+                
+                if (Math.floor(currentRotation / sliceSize) > lastTickAngle) {
+                    playTick();
+                    lastTickAngle = Math.floor(currentRotation / sliceSize);
+                }
+                if (progress < 1) requestAnimationFrame(checkTick);
+            }
+            requestAnimationFrame(checkTick);
+
+            setTimeout(() => {
+                const actualDegrees = state.rotations[wheelId] % 360;
+                const index = Math.floor((360 - actualDegrees) / sliceSize) % data.length;
+                const result = data[index];
+
+                if (pageNum === 1) {
+                    state.unit = result;
+                    currentSubList = subTopics[result];
+                    createWheel("wheel2", currentSubList, colors);
+                    document.getElementById('selectedUnitTitle').innerText = result;
+                } else if (pageNum === 2) {
+                    state.sub = result;
+                } else if (pageNum === 3) {
+                    state.tech = result;
+                    playSuccess();
+                }
+
+                setTimeout(() => {
+                    document.getElementById(`page${pageNum}`).classList.remove('active');
+                    if (pageNum < 3) document.getElementById(`page${pageNum + 1}`).classList.add('active');
+                    else showSummary();
+                }, 800);
+            }, 4000);
+        }
+
+        function showSummary() {
+            document.getElementById('page4').classList.add('active');
+            document.getElementById('finalUnit').innerText = state.unit;
+            document.getElementById('finalSub').innerText = state.sub;
+            document.getElementById('finalTech').innerHTML = state.tech.full;
+        }
+
+        createWheel("wheel1", mainTopics, colors);
+        createWheel("wheel3", techniques, ["#e67e22", "#d35400", "#e74c3c", "#c0392b", "#922b21"]);
+    </script>
+</body>
+</html>
