@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Bug Hunter: Pro Edition</title>
+    <!-- PDF Generation Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #1e1e1e;
+            --terminal-bg: #000000;
+            --text-color: #d4d4d4;
+            --accent-color: #4ec9b0;
+            --error-color: #f44747;
+            --success-color: #6a9955;
+            --hint-color: #ce9178;
+            --gold: #dcdcaa;
+        }
+
+        body {
+            font-family: 'Consolas', 'Monaco', monospace;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0; padding: 20px;
+            display: flex; flex-direction: column; align-items: center;
+        }
+
+        .score-board {
+            position: fixed; top: 20px; right: 20px;
+            background: #333; padding: 15px; border-radius: 8px;
+            border: 2px solid var(--accent-color); z-index: 100;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            font-size: 0.9em;
+        }
+
+        .container { max-width: 850px; width: 100%; }
+
+        #setup-screen {
+            text-align: center; margin-top: 100px;
+            background: #252526; padding: 40px; border-radius: 8px;
+        }
+
+        input[type="text"] {
+            padding: 12px; width: 280px; border-radius: 4px; border: 1px solid var(--accent-color);
+            background: #000; color: #fff; font-family: inherit; margin-bottom: 20px; outline: none;
+        }
+
+        .section-title {
+            color: var(--gold); border-bottom: 2px solid var(--gold);
+            margin: 60px 0 20px 0; padding-bottom: 10px; text-transform: uppercase;
+        }
+
+        .card {
+            background: #252526; border-radius: 8px; padding: 20px;
+            margin-bottom: 30px; border-left: 5px solid #555;
+        }
+
+        h2 { color: var(--accent-color); margin-top: 0; font-size: 1.1em; }
+        
+        .editor-container { background: var(--terminal-bg); padding: 15px; border-radius: 4px 4px 0 0; }
+
+        textarea {
+            width: 100%; height: 85px; background: transparent; color: #9cdcfe;
+            border: none; font-family: inherit; font-size: 15px; outline: none; line-height: 1.5; resize: none;
+        }
+
+        .controls { display: flex; gap: 10px; padding: 10px 0; }
+
+        button { padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .run-btn { background: var(--success-color); color: white; }
+        .hint-btn { background: #3e3e42; color: var(--hint-color); border: 1px solid var(--hint-color); }
+        .download-btn { background: var(--gold); color: #000; padding: 20px 40px; font-size: 1.2em; border-radius: 8px; }
+
+        .output-console { 
+            background: #000; border: 1px solid #333; border-radius: 0 0 4px 4px;
+            padding: 12px; min-height: 55px; font-size: 0.9em;
+        }
+        .status-msg { font-weight: bold; margin-bottom: 4px; display: block; font-size: 0.85em; }
+        .terminal-text { white-space: pre-wrap; font-family: 'Courier New', monospace; }
+
+        .hint-text { display: none; color: var(--hint-color); margin-top: 10px; border: 1px dashed; padding: 10px; font-size: 0.85em; background: rgba(206, 145, 120, 0.1); }
+
+        #final-report-box { 
+            display: none; text-align: center; background: white; color: black; 
+            padding: 50px; width: 600px; margin: 20px auto; border: 10px double #333;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 1. NAME ENTRY SCREEN -->
+    <div id="setup-screen" class="container">
+        <h1 style="color: var(--gold);">🐍 PYTHON BUG HUNTER LAB</h1>
+        <p>Please enter your name to begin the certification lab.</p>
+        <input type="text" id="student-name" placeholder="Student Full Name">
+        <br>
+        <button class="run-btn" style="padding: 15px 40px;" onclick="startGame()">START LAB</button>
+    </div>
+
+    <!-- 2. LIVE SCOREBOARD -->
+    <div class="score-board" id="score-display" style="display:none;">
+        Student: <span id="disp-name" style="color: var(--gold);"></span><br>
+        Score: <span id="current-score" style="color: var(--accent-color);">0</span> / <span id="total-possible">18</span><br>
+        Hints Used: <span id="hints-used" style="color: var(--error-color);">0</span>
+    </div>
+
+    <!-- 3. MAIN GAME CONTENT -->
+    <div class="container" id="game-content" style="display:none;">
+        
+        <!-- SECTION 1 -->
+        <h1 class="section-title">Section 1: Variables & Data</h1>
+        
+        <div class="card">
+            <h2>1. String Quotes</h2>
+            <div class="editor-container"><textarea spellcheck="false" id="code1">user = Batman
+print("Welcome " + user)</textarea></div>
+            <div class="controls">
+                <button class="run-btn" onclick="evaluateTask(1)">Run Code</button>
+                <button class="hint-btn" id="hbtn1" onclick="showHint(1)">Hint</button>
+            </div>
+            <div class="output-console" id="console1"><span id="status1" class="status-msg"></span><div id="term1" class="terminal-text">> 1 bug</div></div>
+            <div id="hint1" class="hint-text">💡 Strings must be wrapped in "quotes".</div>
+        </div>
+
+        <div class="card">
+            <h2>2. Case Sensitivity</h2>
+            <div class="editor-container"><textarea spellcheck="false" id="code2">score = 100
+print(Score)</textarea></div>
+            <div class="controls"><button class="run-btn" onclick="evaluateTask(2)">Run Code</button><button class="hint-btn" id="hbtn2" onclick="showHint(2)">Hint</button></div>
+            <div class="output-console" id="console2"><span id="status2" class="status-msg"></span><div id="term2" class="terminal-text">> 1 bug</div></div>
+            <div id="hint2" class="hint-text">💡 Python is case-sensitive!</div>
+        </div>
+
+        <div class="card">
+            <h2>3. Missing Operator</h2>
+            <div class="editor-container"><textarea spellcheck="false" id="code3">coins = 5
+total = coins  10
+print(total)</textarea></div>
+            <div class="controls"><button class="run-btn" onclick="evaluateTask(3)">Run Code</button><button class="hint-btn" id="hbtn3" onclick="showHint(3)">Hint</button></div>
+            <div class="output-console" id="console3"><span id="status3" class="status-msg"></span><div id="term3" class="terminal-text">> 1 bug</div></div>
+            <div id="hint3" class="hint-text">💡 Add a '+' between coins and 10.</div>
+        </div>
+
+        <div class="card">
+            <h2>4. Illegal Spaces</h2>
+            <div class="editor-container"><textarea spellcheck="false" id="code4">high score = 99
+print(high score)</textarea></div>
+            <div class="controls"><button class="run-btn" onclick="evaluateTask(4)">Run Code</button><button class="hint-btn" id="hbtn4" onclick="showHint(4)">Hint</button></div>
+            <div class="output-console" id="console4"><span id="status4" class="status-msg"></span><div id="term4" class="terminal-text">> 2 bugs</div></div>
+            <div id="hint4" class="hint-text">💡 Use high_score (no spaces).</div>
+        </div>
+
+        <div class="card">
+            <h2>5. Input Type Casting</h2>
+            <div class="editor-container"><textarea spellcheck="false" id="code5">age = input("Age: ")
+# User types 20
+print(age + 1)</textarea></div>
+            <div class="controls"><button class="run-btn" onclick="evaluateTask(5)">Run Code</button><button class="hint-btn" id="hbtn5" onclick="showHint(5)">Hint</button></div>
+            <div class="output-console" id="console5"><span id="status5" class="status-msg"></span><div id="term5" class="terminal-text">> 1 bug</div></div>
+            <div id="hint5" class="hint-text">💡 Wrap input in int().</div>
+        </div>
+
+        <!-- SECTION 2 -->
+        <h1 class="section-title">Section 2: Selection</h1>
+
+        <div class="card">
+            <h2>6. Comparison & Colon</h2>
+            <div class="editor-container"><textarea spellcheck="false" id="code6">age = 18
+if age = 18
+    print("Adult")</textarea></div>
+            <div class="controls"><button class="run-btn" onclick="evaluateTask(6)">Run Code</button><button class="hint-btn" id="hbtn6" onclick="showHint(6)">Hint</button></div>
+            <div class="output-console" id="console6"><span id="status6" class="status-msg"></span><div id="term6" class="terminal-text">> 2 bugs</div></div>
+            <div id="hint6" class="hint-text">💡 Use == and add a colon at the end.</div>
+        </div>
+
+        <div class="card">
+            <h2>7. Indentation</h2>
+            <div class="editor-container"><textarea spellcheck="false" id="code7">if True:
+print("Match")</textarea></div>
+            <div class="controls"><button class="run-btn" onclick="evaluateTask(7)">Run Code</button><button class="hint-btn" id="hbtn7" onclick="showHint(7)">Hint</button></div>
+            <div class="output-console" id="console7"><span id="status7" class="status-msg"></span><div id="term7" class="terminal-text">> 1 bug</div></div>
+            <div id="hint7" class="hint-text">💡 Indent the print statement (Tab).</div>
+        </div>
+
+        <div class="card">
+            <h2>8. Else Syntax</h2>
+            <div class="editor-container"><textarea spellcheck="false" id="code8">if False:
+    print("X")
+else
+    print("Y")</textarea></div>
+            <div class="controls"><button class="run-btn" onclick="evaluateTask(8)">Run Code</button><button class="hint-btn" id="hbtn8" onclick="showHint(8)">Hint</button></div>
+            <div class="output-console" id="console8"><span id="status8" class="status-msg"></span><div id="term8" class="terminal-text">> 1 bug</div></div>
+            <div id="hint8" class="hint-text">💡 Add a colon after else.</div>
+        </div>
+
+        <div class="card">
+            <h2>9. Elif Spelling</h2>
+            <div class="editor-container"><textarea spellcheck="false" id="code9">score = 5
+if score > 10:
+    print("A")
+elsif score > 0:
+    print("B")</textarea></div>
+            <div class="controls"><button class="run-btn" onclick="evaluateTask(9)">Run Code</button><button class="hint-btn" id="hbtn9" onclick="showHint(9)">Hint</button></div>
+            <div class="output-console" id="console9"><span id="status9" class="status-msg"></span><div id="term9" class="terminal-text">> 1 bug</div></div>
+            <div id="hint9" class="hint-text">💡 It's 'elif' in Python.</div>
+        </div>
+
+        <div class="card">
+            <h2>10. Logic Quotes</h2>
+            <div class="editor-container"><textarea spellcheck="false" id="code10">mode = "Hard"
+if mode == Hard:
+    print("Active")</textarea></div>
+            <div class="controls"><button class="run-btn" onclick="evaluateTask(10)">Run Code</button><button class="hint-btn" id="hbtn10" onclick="showHint(10)">Hint</button></div>
+            <div class="output-console" id="console10"><span id="status10" class="status-msg"></span><div id="term10" class="terminal-text">> 1 bug</div></div>
+            <div id="hint10" class="hint-text">💡 "Hard" needs quotes.</div>
+        </div>
+
+        <!-- SECTION 3 -->
+        <h1 class="section-title">Section 3: For Loops</h1>
+
+        <div class="card">
+            <h2>11. Loop Colon</h2>
+            <div class="editor-container"><textarea spellcheck="false" id="code11">for i in range(3)
+    print("Hi")</textarea></div>
+            <div class="controls"><button class="run-btn" onclick="evaluateTask(11)">Run Code</button><button class="hint-btn" id="hbtn11" onclick="showHint(11)">Hint</button></div>
+            <div class="output-console" id="console11"><span id="status11" class="status-msg"></span><div id="term11" class="terminal-text">> 1 bug</div></div>
+            <div id="hint11" class="hint-text">💡 Add a colon at the end of the for line.</div>
+        </div>
+
+        <div class="card">
+            <h2>12. Variable Match</h2>
+            <div class="editor-container"><textarea spellcheck="false" id="code12">for letter in "Yo":
+    print(i)</textarea></div>
+            <div class="controls"><button class="run-btn" onclick="evaluateTask(12)">Run Code</button><button class="hint-btn" id="hbtn12" onclick="showHint(12)">Hint</button></div>
+            <div class="output-console" id="console12"><span id="status12" class="status-msg"></span><div id="term12" class="terminal-text">> 1 bug</div></div>
+            <div id="hint12" class="hint-text">💡 Variable was 'letter', not 'i'.</div>
+        </div>
+
+        <div class="card">
+            <h2>13. Loop Keyword</h2>
+            <div class="editor-container"><textarea spellcheck="false" id="code13">four x in range(2):
+    print(x)</textarea></div>
+            <div class="controls"><button class="run-btn" onclick="evaluateTask(13)">Run Code</button><button class="hint-btn" id="hbtn13" onclick="showHint(13)">Hint</button></div>
+            <div class="output-console" id="console13"><span id="status13" class="status-msg"></span><div id="term13" class="terminal-text">> 1 bug</div></div>
+            <div id="hint13" class="hint-text">💡 Fix the spelling of 'for'.</div>
+        </div>
+
+        <div class="card">
+            <h2>14. Range Function</h2>
+            <div class="editor-container"><textarea spellcheck="false" id="code14">for i in range 5:
+    print(i)</textarea></div>
+            <div class="controls"><button class="run-btn" onclick="evaluateTask(14)">Run Code</button><button class="hint-btn" id="hbtn14" onclick="showHint(14)">Hint</button></div>
+            <div class="output-console" id="console14"><span id="status14" class="status-msg"></span><div id="term14" class="terminal-text">> 1 bug</div></div>
+            <div id="hint14" class="hint-text">💡 Use range(5).</div>
+        </div>
+
+        <div class="card">
+            <h2>15. Nested Indent</h2>
+            <div class="editor-container"><textarea spellcheck="false" id="code15">for i in range(2):
+    if i == 1
+    print("Found")</textarea></div>
+            <div class="controls"><button class="run-btn" onclick="evaluateTask(15)">Run Code</button><button class="hint-btn" id="hbtn15" onclick="showHint(15)">Hint</button></div>
+            <div class="output-console" id="console15"><span id="status15" class="status-msg"></span><div id="term15" class="terminal-text">> 2 bugs</div></div>
+            <div id="hint15" class="hint-text">💡 Add colon and indent twice for print.</div>
+        </div>
+
+        <button onclick="finishGame()" style="width: 100%; padding: 25px; background: var(--accent-color); font-weight: bold; cursor: pointer; margin-bottom: 100px; border: none; border-radius: 8px; font-size: 1.2em; color: #1e1e1e;">SUBMIT LAB & VIEW REPORT</button>
+    </div>
+
+    <!-- 4. THE PDF REPORT (HIDDEN UNTIL FINISHED) -->
+    <div id="final-report-box">
+        <h1 style="border-bottom: 3px solid #333; padding-bottom: 10px;">Python Lab Certificate</h1>
+        <div style="text-align: left; margin: 30px 0; font-size: 1.25em; line-height: 2;">
+            <p><strong>Student:</strong> <span id="pdf-name" style="text-decoration: underline;"></span></p>
+            <p><strong>Final Score:</strong> <span id="pdf-score"></span> / 18</p>
+            <p><strong>Hints Utilized:</strong> <span id="pdf-hints"></span></p>
+            <p><strong>Date of Completion:</strong> <span id="pdf-date"></span></p>
+            <p><strong>Status:</strong> Python Bug Hunter Certified</p>
+        </div>
+        <p style="margin-top: 60px; border-top: 1px solid #ccc; padding-top: 10px; font-size: 0.8em;">Gemini AI Lab Framework 2026</p>
+    </div>
+    
+    <div id="download-area" style="display:none; text-align:center; margin-bottom: 100px;">
+        <button class="download-btn" onclick="downloadPDF()">DOWNLOAD REPORT AS .PDF</button>
+        <br><br>
+        <button onclick="location.reload()" style="background:none; border:none; color:white; text-decoration:underline; cursor:pointer;">Restart Lab</button>
+    </div>
+
+<script>
+    let userName = "";
+    let hintsUsed = 0;
+    let solvedBugs = {};
+    let activeHints = new Set();
+    const bugLimits = { 1:1, 2:1, 3:1, 4:2, 5:1, 6:2, 7:1, 8:1, 9:1, 10:1, 11:1, 12:1, 13:1, 14:1, 15:2 };
+    const expected = { 
+        1:"Welcome Batman", 2:"100", 3:"15", 4:"99", 5:"21", 
+        6:"Adult", 7:"Match", 8:"Y", 9:"B", 10:"Active", 
+        11:"Hi\nHi\nHi", 12:"Y\no", 13:"0\n1", 14:"0\n1\n2\n3\n4", 15:"Found" 
+    };
+
+    function startGame() {
+        userName = document.getElementById('student-name').value.trim();
+        if (!userName) { alert("Please enter your name!"); return; }
+        document.getElementById('setup-screen').style.display = 'none';
+        document.getElementById('game-content').style.display = 'block';
+        document.getElementById('score-display').style.display = 'block';
+        document.getElementById('disp-name').innerText = userName;
+    }
+
+    // ENABLE TAB KEY
+    document.querySelectorAll('textarea').forEach(textarea => {
+        textarea.addEventListener('keydown', function(e) {
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                const start = this.selectionStart;
+                const end = this.selectionEnd;
+                this.value = this.value.substring(0, start) + "    " + this.value.substring(end);
+                this.selectionStart = this.selectionEnd = start + 4;
+            }
+        });
+    });
+
+    function showHint(id) {
+        if (!activeHints.has(id)) {
+            document.getElementById('hint' + id).style.display = 'block';
+            document.getElementById('hbtn' + id).disabled = true;
+            document.getElementById('hbtn' + id).style.opacity = "0.5";
+            hintsUsed++;
+            activeHints.add(id);
+            updateDisplay();
+        }
+    }
+
+    function updateDisplay() {
+        let bugPoints = 0;
+        for (let key in solvedBugs) { bugPoints += solvedBugs[key].length; }
+        document.getElementById('current-score').innerText = bugPoints - hintsUsed;
+        document.getElementById('hints-used').innerText = hintsUsed;
+    }
+
+    function evaluateTask(id) {
+        const code = document.getElementById('code' + id).value;
+        const term = document.getElementById('term' + id);
+        const status = document.getElementById('status' + id);
+        const consoleBox = document.getElementById('console' + id);
+        
+        if (!solvedBugs[id]) solvedBugs[id] = [];
+        let currentFound = [];
+
+        // VALIDATION LOGIC
+        if (id === 1 && (code.includes('"Batman"') || code.includes("'Batman'"))) currentFound.push('b1');
+        if (id === 2 && code.includes('print(score)')) currentFound.push('b1');
+        if (id === 3 && code.includes('coins + 10')) currentFound.push('b1');
+        if (id === 4) {
+            if (code.includes('high_score =')) currentFound.push('b1');
+            if (code.includes('print(high_score)')) currentFound.push('b2');
+        }
+        if (id === 5 && code.includes('int(input(')) currentFound.push('b1');
+        if (id === 6) {
+            if (code.includes('age == 18')) currentFound.push('b1');
+            if (code.includes('18:')) currentFound.push('b2');
+        }
+        if (id === 7 && code.includes('\n    print')) currentFound.push('b1');
+        if (id === 8 && code.includes('else:')) currentFound.push('b1');
+        if (id === 9 && code.includes('elif')) currentFound.push('b1');
+        if (id === 10 && (code.includes('"Hard"') || code.includes("'Hard'"))) currentFound.push('b1');
+        if (id === 11 && code.includes('):')) currentFound.push('b1');
+        if (id === 12 && code.includes('print(letter)')) currentFound.push('b1');
+        if (id === 13 && code.startsWith('for ')) currentFound.push('b1');
+        if (id === 14 && code.includes('range(5):')) currentFound.push('b1');
+        if (id === 15) {
+            if (code.includes('if i == 1:')) currentFound.push('b1');
+            if (code.includes('\n        print')) currentFound.push('b2');
+        }
+
+        let remaining = bugLimits[id] - currentFound.length;
+
+        if (remaining <= 0) {
+            status.innerHTML = "✅ CORRECT! OUTPUT:";
+            status.style.color = "#4ec9b0";
+            term.innerHTML = expected[id];
+            term.style.color = "#fff";
+            currentFound.forEach(b => { if (!solvedBugs[id].includes(b)) solvedBugs[id].push(b); });
+        } else {
+            status.innerHTML = "❌ SYNTAX ERROR:";
+            status.style.color = "#f44747";
+            term.innerHTML = "> " + remaining + " bug(s) remaining.";
+            term.style.color = "#f44747";
+        }
+        updateDisplay();
+    }
+
+    function finishGame() {
+        let bugPoints = 0;
+        for (let key in solvedBugs) { bugPoints += solvedBugs[key].length; }
+        let finalScore = bugPoints - hintsUsed;
+
+        document.getElementById('game-content').style.display = 'none';
+        document.getElementById('score-display').style.display = 'none';
+        
+        // Populate PDF Values
+        document.getElementById('pdf-name').innerText = userName;
+        document.getElementById('pdf-score').innerText = finalScore;
+        document.getElementById('pdf-hints').innerText = hintsUsed;
+        document.getElementById('pdf-date').innerText = new Date().toLocaleDateString();
+        
+        document.getElementById('final-report-box').style.display = 'block';
+        document.getElementById('download-area').style.display = 'block';
+    }
+
+    function downloadPDF() {
+        const element = document.getElementById('final-report-box');
+        const opt = {
+            margin: 0.5,
+            filename: userName + '_Python_Lab_Result.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 3 },
+            jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+        };
+        html2pdf().set(opt).from(element).save();
+    }
+</script>
+</body>
+</html>
