@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OCR GCSE Networks: Focused Revision</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --success: #27ae60;
+            --error: #e74c3c;
+            --bg: #f4f7f6;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--primary);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        h1, h2, h3 { text-align: center; color: var(--primary); }
+        h1 { border-bottom: 2px solid var(--secondary); padding-bottom: 10px; }
+
+        /* Menu Styles */
+        #topic-selection {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .menu-btn {
+            background: white;
+            color: var(--primary);
+            border: 2px solid var(--secondary);
+            font-weight: bold;
+        }
+
+        .menu-btn:hover {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .all-btn {
+            background: var(--primary);
+            grid-column: 1 / -1;
+            margin-top: 10px;
+        }
+
+        /* Quiz Styles */
+        .stats-bar {
+            display: flex;
+            justify-content: space-between;
+            background: #ecf0f1;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            display: none;
+        }
+
+        .question-card {
+            margin-bottom: 30px;
+            padding: 25px;
+            border: 2px solid #eee;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .active { display: block; animation: fadeIn 0.4s; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 14px;
+            border: none;
+            border-radius: 6px;
+            background: var(--secondary);
+            color: white;
+            cursor: pointer;
+            font-size: 15px;
+            transition: all 0.2s ease;
+        }
+
+        button.correct { background-color: var(--success) !important; transform: scale(1.02); }
+        button.wrong { background-color: var(--error) !important; opacity: 0.7; }
+        
+        #feedback-msg {
+            text-align: center;
+            font-weight: bold;
+            margin-top: 15px;
+            min-height: 30px;
+        }
+
+        .revision-bank {
+            margin-top: 60px;
+            border-top: 4px solid #eee;
+            padding-top: 30px;
+        }
+
+        .category-header {
+            background: var(--primary);
+            color: white;
+            padding: 10px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+
+        table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+        th, td { text-align: left; padding: 12px; border-bottom: 1px solid #ddd; }
+        tr:nth-child(even) { background-color: #fcfcfc; }
+        .term-col { width: 30%; font-weight: bold; color: var(--secondary); }
+
+        #results { display: none; text-align: center; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>OCR GCSE Networks: Revision Tool</h1>
+    
+    <div id="topic-selection">
+        <h2>Select a Subtopic to Focus On</h2>
+        <div class="menu-grid" id="menu-options">
+            </div>
+    </div>
+
+    <div id="quiz-ui">
+        <div class="stats-bar" id="stats-bar">
+            <span>Score: <span id="current-score">0</span></span>
+            <span id="topic-label" style="color: var(--secondary)"></span>
+            <span>Question: <span id="question-num">1</span> / <span id="total-questions">0</span></span>
+        </div>
+        <div id="question-container"></div>
+        <div id="feedback-msg"></div>
+    </div>
+
+    <div id="results">
+        <h2>Quiz Complete!</h2>
+        <p style="font-size: 28px;">Final Score: <span id="final-score">0</span> / <span id="final-total">0</span></p>
+        <div id="incorrect-area" style="background: #fffafa; border: 1px solid #ffcccc; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: left;">
+            <h3>Review These Definitions:</h3>
+            <div id="incorrect-container"></div>
+        </div>
+        <button onclick="location.reload()" style="background: var(--primary); padding: 15px 30px;">Choose Different Topic</button>
+    </div>
+
+    <div class="revision-bank" id="full-list">
+        <h2>Master Terminology List</h2>
+    </div>
+</div>
+
+<script>
+    const masterData = {
+        "Types of Networks": [
+            ["LAN", "A network covering a small area such as a school or office."],
+            ["WAN", "A network covering a large geographical area, often connecting multiple LANs."],
+            ["PAN", "A personal network for devices around one person."],
+            ["MAN", "A network that spans a city or large campus."],
+            ["WLAN", "A LAN that uses wireless communication instead of cables."]
+        ],
+        "Network Topologies": [
+            ["Star Topology", "All devices connect to a central device (e.g., switch)."],
+            ["Mesh Topology", "Devices are interconnected with many redundant connections."],
+            ["Bus Topology", "All devices share a single communication cable."],
+            ["Ring Topology", "Each device connects to two others, forming a loop."],
+            ["Hybrid Topology", "A combination of different topologies."],
+            ["Node", "Any device connected to a network."],
+            ["Central Node / Hub Device", "The main device controlling communication in a star network."]
+        ],
+        "Network Hardware": [
+            ["Router", "Directs data packets between networks."],
+            ["Switch", "Connects devices in a LAN and forwards data to the correct device."],
+            ["Hub", "Broadcasts data to all devices on a network."],
+            ["WAP", "Allows wireless devices to connect to a network."],
+            ["NIC", "Hardware that allows a device to connect to a network."],
+            ["Modem", "Modulates and demodulates signals for internet connection."],
+            ["Transmission Media", "The physical or wireless method used to transfer data."],
+            ["Server", "Provides services or resources to other computers on a network."],
+            ["Client", "A device that requests services from a server."]
+        ],
+        "Internet & Cloud": [
+            ["Internet", "A global network of interconnected networks."],
+            ["World Wide Web (WWW)", "A system of linked web pages accessed via the internet."],
+            ["Web Server", "Stores and delivers web pages to users."],
+            ["Web Browser", "Software used to access and view web pages."],
+            ["Hosting", "Storing a website on a server so it can be accessed online."],
+            ["Cloud Storage", "Storing data on remote servers accessed via the internet."],
+            ["Cloud Computing", "Using remote servers to process and store data."]
+        ],
+        "Communication & Protocols": [
+            ["Protocol", "A set of rules for communication between devices."],
+            ["TCP/IP", "Protocols that manage how data is broken into packets and sent."],
+            ["HTTP", "Protocol used to transfer web pages."],
+            ["HTTPS", "Secure version of HTTP."],
+            ["FTP", "Protocol for transferring files."],
+            ["SMTP", "Protocol for sending emails."],
+            ["IMAP", "Protocol for retrieving emails while keeping them on the server."],
+            ["POP", "Protocol for downloading emails to a device."]
+        ],
+        "Addressing": [
+            ["IP Address", "A unique identifier for a device on a network."],
+            ["Static IP Address", "An IP address that does not change."],
+            ["Dynamic IP Address", "An IP address that is assigned and can change."],
+            ["MAC Address", "A unique hardware address assigned to a device."],
+            ["DNS", "Translates domain names into IP addresses."],
+            ["Domain Name", "A human-readable web address."],
+            ["URL", "The full address used to locate a web page."]
+        ],
+        "Performance & Data": [
+            ["Bandwidth", "The maximum amount of data that can be transferred per second."],
+            ["Latency", "The delay in data transmission."],
+            ["Packet", "A small chunk of data sent over a network."],
+            ["Packet Switching", "Data is broken into packets and sent independently."],
+            ["Packet Loss", "When data packets fail to reach their destination."],
+            ["Error Checking", "Detecting and correcting errors in data transmission."],
+            ["Copper Cable", "Uses electrical signals to transmit data."],
+            ["Fibre Optic Cable", "Uses light to transmit data at high speeds."]
+        ],
+        "Design & Exam Concepts": [
+            ["Scalability", "How well a network can grow."],
+            ["Reliability", "How dependable a network is."],
+            ["Redundancy", "Extra components to improve reliability."],
+            ["Single Point of Failure", "A part of a network that, if it fails, stops the whole system."],
+            ["Performance", "How well a network operates."],
+            ["Cost", "The expense of setting up and maintaining a network."]
+        ]
+    };
+
+    const allTerms = Object.values(masterData).flat();
+    let currentQuizPool = [];
+    let currentIdx = 0;
+    let score = 0;
+    let incorrectItems = [];
+    let isProcessing = false;
+
+    function initMenu() {
+        const menu = document.getElementById('menu-options');
+        const bank = document.getElementById('full-list');
+
+        // Create Subtopic Buttons
+        Object.keys(masterData).forEach(topic => {
+            const btn = document.createElement('button');
+            btn.className = 'menu-btn';
+            btn.innerText = topic;
+            btn.onclick = () => startQuiz(topic);
+            menu.appendChild(btn);
+
+            // Populate Master List simultaneously
+            const section = document.createElement('div');
+            section.innerHTML = `<h3 class="category-header">${topic}</h3>
+                <table><tbody>${masterData[topic].map(t => `<tr><td class="term-col">${t[0]}</td><td>${t[1]}</td></tr>`).join('')}</tbody></table>`;
+            bank.appendChild(section);
+        });
+
+        // Add "All" Button
+        const allBtn = document.createElement('button');
+        allBtn.className = 'all-btn';
+        allBtn.innerText = "Full Specification (All Topics)";
+        allBtn.onclick = () => startQuiz('all');
+        menu.appendChild(allBtn);
+    }
+
+    function startQuiz(selection) {
+        if (selection === 'all') {
+            currentQuizPool = [...allTerms].sort(() => 0.5 - Math.random()).slice(0, 20);
+            document.getElementById('topic-label').innerText = "Full Specification";
+        } else {
+            currentQuizPool = [...masterData[selection]].sort(() => 0.5 - Math.random());
+            document.getElementById('topic-label').innerText = selection;
+        }
+
+        document.getElementById('topic-selection').style.display = 'none';
+        document.getElementById('stats-bar').style.display = 'flex';
+        document.getElementById('total-questions').innerText = currentQuizPool.length;
+        
+        buildQuestions();
+    }
+
+    function buildQuestions() {
+        const container = document.getElementById('question-container');
+        currentQuizPool.forEach((item, index) => {
+            const correct = item[0];
+            const decoys = allTerms.filter(t => t[0] !== correct).sort(() => 0.5 - Math.random()).slice(0, 3).map(t => t[0]);
+            const options = [...decoys, correct].sort(() => 0.5 - Math.random());
+
+            const div = document.createElement('div');
+            div.className = `question-card ${index === 0 ? 'active' : ''}`;
+            div.id = `q-${index}`;
+            div.innerHTML = `
+                <p style="font-size: 1.1em;"><strong>Identify the term:</strong><br>${item[1]}</p>
+                <div class="options-grid">
+                    ${options.map(opt => `<button class="opt-btn" onclick="checkAnswer(this, '${opt}', '${correct}', ${index})">${opt}</button>`).join('')}
+                </div>`;
+            container.appendChild(div);
+        });
+    }
+
+    window.checkAnswer = function(btn, selected, correct, index) {
+        if (isProcessing) return;
+        isProcessing = true;
+
+        const feedback = document.getElementById('feedback-msg');
+        const allBtns = document.querySelectorAll(`#q-${index} .opt-btn`);
+        
+        if (selected === correct) {
+            score++;
+            document.getElementById('current-score').innerText = score;
+            btn.classList.add('correct');
+            feedback.innerHTML = `<span style="color: var(--success)">Correct!</span>`;
+        } else {
+            btn.classList.add('wrong');
+            feedback.innerHTML = `<span style="color: var(--error)">Incorrect. It was ${correct}.</span>`;
+            incorrectItems.push({ term: correct, definition: currentQuizPool[index][1] });
+            allBtns.forEach(b => { if(b.innerText === correct) b.classList.add('correct'); });
+        }
+
+        setTimeout(() => {
+            feedback.innerHTML = "";
+            document.getElementById(`q-${index}`).classList.remove('active');
+            currentIdx++;
+            if (currentIdx < currentQuizPool.length) {
+                document.getElementById(`q-${currentIdx}`).classList.add('active');
+                document.getElementById('question-num').innerText = currentIdx + 1;
+                isProcessing = false;
+            } else { showResults(); }
+        }, 1500);
+    }
+
+    function showResults() {
+        document.getElementById('quiz-ui').style.display = 'none';
+        document.getElementById('results').style.display = 'block';
+        document.getElementById('final-score').innerText = score;
+        document.getElementById('final-total').innerText = currentQuizPool.length;
+        const container = document.getElementById('incorrect-container');
+        
+        if (incorrectItems.length === 0) {
+            container.innerHTML = "<p style='color: var(--success); text-align:center;'>Perfect! You've mastered this topic.</p>";
+        } else {
+            incorrectItems.forEach(item => {
+                container.innerHTML += `<p><strong>${item.term}:</strong> ${item.definition}</p>`;
+            });
+        }
+        window.scrollTo(0,0);
+    }
+
+    initMenu();
+</script>
+</body>
+</html>
