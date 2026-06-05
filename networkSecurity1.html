@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NetSec_Exploit_Terminal v2.4.0</title>
+    <style>
+        :root {
+            --bg-color: #030303;
+            --terminal-green: #00ff33;
+            --dim-green: #006611;
+            --dark-green: #002200;
+            --alert-red: #ff2222;
+            --panel-bg: #0a0a0a;
+            --border-glow: 0 0 10px rgba(0, 255, 51, 0.25);
+            --lock-gray: #333333;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--terminal-green);
+            padding: 20px;
+            line-height: 1.5;
+            background-image: linear-gradient(rgba(0, 255, 51, 0.02) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(0, 255, 51, 0.01), rgba(0, 0, 0, 0.1));
+            background-size: 100% 4px, 6px 100%;
+        }
+
+        .container {
+            max-width: 950px;
+            margin: 0 auto;
+            border: 1px solid var(--terminal-green);
+            box-shadow: var(--border-glow);
+            background: var(--panel-bg);
+            padding: 25px;
+        }
+
+        header {
+            border-bottom: 2px dashed var(--terminal-green);
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        @media (min-width: 600px) {
+            header { flex-direction: row; align-items: center; }
+        }
+
+        .terminal-title {
+            font-size: 1.6rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 5px var(--terminal-green);
+        }
+
+        .dashboard-panel {
+            background: #001100;
+            border: 1px dashed var(--terminal-green);
+            padding: 10px 15px;
+            display: flex;
+            gap: 20px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        @media (min-width: 600px) {
+            .dashboard-panel { margin-top: 0; }
+        }
+
+        .timer-alert {
+            color: var(--alert-red) !important;
+            animation: textPulse 1s infinite alternate;
+        }
+
+        .quiz-section {
+            margin-bottom: 40px;
+            position: relative;
+            border: 1px solid var(--terminal-green);
+            padding: 20px;
+            background: #0d0d0d;
+            transition: all 0.4s ease;
+        }
+
+        .quiz-section.locked {
+            border-color: var(--lock-gray);
+            background: #050505;
+            opacity: 0.4;
+            pointer-events: none;
+            filter: grayscale(100%);
+        }
+
+        .lock-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.85);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            color: var(--alert-red);
+            font-weight: bold;
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+        }
+
+        .section-title {
+            text-transform: uppercase;
+            border: 1px solid var(--terminal-green);
+            display: inline-block;
+            padding: 5px 15px;
+            background-color: var(--dark-green);
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+        }
+
+        /* MCQ Card with dynamic animations capabilities */
+        .mc-card {
+            background: #111;
+            border: 1px solid #222;
+            border-left: 4px solid var(--terminal-green);
+            padding: 15px;
+            margin-bottom: 20px;
+            position: relative;
+            transition: background 0.3s, border-color 0.3s;
+        }
+
+        /* Interactive Matrix Animation Border Overlay triggered on Correct */
+        .mc-card.matrix-glitch-active {
+            animation: matrixBorderPulse 0.8s infinite linear;
+            background: #000b02;
+        }
+
+        .mc-card.completed {
+            border: 1px solid var(--dim-green);
+            border-left: 4px solid var(--terminal-green);
+            background: #001100;
+        }
+
+        .question-text {
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #fff;
+        }
+
+        .attempt-tracker {
+            font-size: 0.8rem;
+            color: #ff9900;
+            margin-top: -10px;
+            margin-bottom: 10px;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        @media (min-width: 768px) {
+            .options-grid { grid-template-columns: 1fr 1fr; }
+        }
+
+        .option-btn {
+            background: transparent;
+            border: 1px solid var(--dim-green);
+            color: var(--terminal-green);
+            padding: 12px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.85rem;
+        }
+
+        .option-btn:hover {
+            background: var(--dark-green);
+            border-color: var(--terminal-green);
+        }
+
+        .option-btn.correct {
+            background: var(--terminal-green) !important;
+            color: #000 !important;
+            font-weight: bold;
+            border-color: var(--terminal-green) !important;
+        }
+
+        .option-btn.wrong {
+            background: var(--alert-red) !important;
+            color: #fff !important;
+            border-color: var(--alert-red) !important;
+            text-decoration: line-through;
+        }
+
+        .option-btn.disabled {
+            pointer-events: none;
+            opacity: 0.6;
+        }
+
+        .matching-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        @media (min-width: 768px) {
+            .matching-container { flex-direction: row; }
+        }
+
+        .drag-source, .drop-targets {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .drag-item {
+            background: var(--dark-green);
+            border: 1px dashed var(--terminal-green);
+            padding: 12px;
+            cursor: grab;
+            user-select: none;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .drop-zone {
+            background: #121212;
+            border: 1px solid var(--dim-green);
+            padding: 15px;
+            min-height: 90px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .drop-zone-header {
+            font-size: 0.8rem;
+            color: #777;
+            margin-bottom: 6px;
+            border-bottom: 1px solid #222;
+        }
+
+        .drop-zone.hovered {
+            border-color: var(--terminal-green);
+            background: #1a1a1a;
+        }
+
+        .matched-item {
+            background: var(--terminal-green);
+            color: #000;
+            padding: 8px;
+            font-weight: bold;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .matched-item::after {
+            content: " [DISCONNECT]";
+            font-size: 0.7rem;
+            color: #333;
+            display: block;
+        }
+
+        .sys-log {
+            background: #000;
+            border: 1px solid var(--terminal-green);
+            padding: 15px;
+            margin-top: 20px;
+            font-family: monospace;
+            font-size: 0.85rem;
+            height: 120px;
+            overflow-y: auto;
+            color: #00ff33;
+        }
+
+        .toast-wiped {
+            animation: flashRed 0.5s steps(2, start) 2;
+        }
+
+        /* Keyframes simulation of continuous code sequence binary breaches on the element borders */
+        @keyframes matrixBorderPulse {
+            0% { border-color: #00ff33; box-shadow: 0 0 15px #00ff33; border-style: dotted; }
+            25% { border-color: #006611; box-shadow: -2px 0 10px #006611; }
+            50% { border-color: #00ff33; box-shadow: 0 4px 12px #00ff33; border-style: dashed; }
+            75% { border-color: #ffffff; box-shadow: 2px 0 18px #00ff33; }
+            100% { border-color: #00ff33; box-shadow: 0 0 15px #00ff33; border-style: solid; }
+        }
+
+        @keyframes flashRed {
+            0% { background-color: rgba(255,0,0,0.4); }
+            100% { background-color: transparent; }
+        }
+
+        @keyframes textPulse {
+            0% { opacity: 1; }
+            100% { opacity: 0.4; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container" id="terminalRoot">
+    <header>
+        <div>
+            <div class="terminal-title">> METSEC_REACTIVE_SHELL v2.4</div>
+            <div style="font-size:0.8rem; color:#666; margin-top:2px;">KINETIC BREACH ANIMATIONS REGISTERED</div>
+        </div>
+        <div class="dashboard-panel">
+            <div>TIMER: <span id="clockNode">05:00</span></div>
+            <div>SCORE: <span id="scoreNode" style="color:#fff;">0000</span></div>
+        </div>
+    </header>
+
+    <div id="masterTerminalLog" class="sys-log">> STANDBY... SYSTEM ACTIVE. ATTACK ROOM OPENED.</div>
+
+    <div class="quiz-section" id="sec-part1">
+        <div class="section-title">PART I: FIREWALL INTRUSION (MCQ Concept Mapping)</div>
+        <p style="color:#888; font-size:0.85rem; margin-bottom:15px;">Rule: Clear 5 concept rooms. Correct answers trigger short localized border stream glitches.</p>
+        <div id="container-p1"></div>
+    </div>
+
+    <div class="quiz-section locked" id="sec-part2">
+        <div class="lock-overlay" id="overlay-p2">[LOCKED] COMPLETE PART I SECTOR SECURITY PIPELINE</div>
+        <div class="section-title">PART II: CORES ACCESS DECRYPTION (MCQ Reverse Mapping)</div>
+        <p style="color:#888; font-size:0.85rem; margin-bottom:15px;">Rule: Correct mapping executes kinetic framework spikes. Incorrect wipes global logs.</p>
+        <div id="container-p2"></div>
+    </div>
+
+    <div class="quiz-section locked" id="sec-part3">
+        <div class="lock-overlay" id="overlay-p3">[LOCKED] COMPLETE PART II SECTOR SECURITY PIPELINE</div>
+        <div class="section-title">PART III: MAIN MATRIX COUPLING (DRAG & DROP MATRIX)</div>
+        <p style="color:#888; font-size:0.85rem; margin-bottom:15px;">Link all 5 dynamic arrays perfectly to reset modules and stack points before the clock lapses.</p>
+        
+        <div class="matching-container">
+            <div class="drag-source" id="dragSourceDeck"></div>
+            <div class="drop-targets" id="dropTargetContainer"></div>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <button type="button" style="background:transparent; border:1px solid #00ff33; padding:10px 25px; color:#00ff33; font-weight:bold; cursor:pointer;" onclick="evaluatePart3()">EXECUTE MATRIX COMPILATION</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// Web Audio Context Synthesis Engine 
+let audioCtx = null;
+
+function initAudio() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+}
+
+function playPing() {
+    initAudio();
+    let osc1 = audioCtx.createOscillator(), osc2 = audioCtx.createOscillator(), gain = audioCtx.createGain();
+    osc1.type = 'sine'; osc1.frequency.setValueAtTime(880, audioCtx.currentTime);
+    osc1.frequency.exponentialRampToValueAtTime(1320, audioCtx.currentTime + 0.1);
+    osc2.type = 'triangle'; osc2.frequency.setValueAtTime(440, audioCtx.currentTime);
+    osc2.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.15);
+    gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+    osc1.connect(gain); osc2.connect(gain); gain.connect(audioCtx.destination);
+    osc1.start(); osc2.start(); osc1.stop(audioCtx.currentTime + 0.3); osc2.stop(audioCtx.currentTime + 0.3);
+}
+
+function playKlaxon() {
+    initAudio();
+    let osc1 = audioCtx.createOscillator(), osc2 = audioCtx.createOscillator(), gain = audioCtx.createGain();
+    osc1.type = 'sawtooth'; osc1.frequency.setValueAtTime(140, audioCtx.currentTime);
+    osc1.frequency.linearRampToValueAtTime(90, audioCtx.currentTime + 0.3);
+    osc2.type = 'square'; osc2.frequency.setValueAtTime(145, audioCtx.currentTime);
+    osc2.frequency.linearRampToValueAtTime(95, audioCtx.currentTime + 0.3);
+    gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+    gain.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 0.35);
+    osc1.connect(gain); osc2.connect(gain); gain.connect(audioCtx.destination);
+    osc1.start(); osc2.start(); osc1.stop(audioCtx.currentTime + 0.35); osc2.stop(audioCtx.currentTime + 0.35);
+}
+
+function playSystemWipe() {
+    initAudio();
+    let osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+    osc.type = 'sawtooth'; osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.8);
+    gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+    gain.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 0.8);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(); osc.stop(audioCtx.currentTime + 0.8);
+}
+
+// Master Keyword Database Source
+const dataset = [
+    {"Keyword": "Network Security", "Definition": "Measures taken to protect a network from unauthorised access, attacks, and data loss."},
+    {"Keyword": "Vulnerability", "Definition": "A weakness in a system that could be exploited by attackers."},
+    {"Keyword": "Threat", "Definition": "A potential danger that could exploit a vulnerability."},
+    {"Keyword": "Risk", "Definition": "The likelihood that a threat will cause harm."},
+    {"Keyword": "Malware", "Definition": "Software designed to damage or gain unauthorised access to systems."},
+    {"Keyword": "Virus", "Definition": "Malware that attaches itself to files and spreads when opened."},
+    {"Keyword": "Worm", "Definition": "Self-replicating malware that spreads across networks without user action."},
+    {"Keyword": "Trojan Horse", "Definition": "Malware disguised as legitimate software."},
+    {"Keyword": "Spyware", "Definition": "Software that secretly monitors user activity."},
+    {"Keyword": "Adware", "Definition": "Software that displays unwanted advertisements."},
+    {"Keyword": "Ransomware", "Definition": "Malware that encrypts files and demands payment to restore access."},
+    {"Keyword": "Keylogger", "Definition": "Records keystrokes to capture sensitive information such as passwords."},
+    {"Keyword": "Social Engineering", "Definition": "Tricking users into giving away confidential information."},
+    {"Keyword": "Phishing", "Definition": "Fraudulent emails pretending to be from trusted organisations."},
+    {"Keyword": "Spear Phishing", "Definition": "Targeted phishing aimed at a specific individual or organisation."},
+    {"Keyword": "Shoulder Surfing", "Definition": "Watching someone enter sensitive information."},
+    {"Keyword": "Blagging (Pretexting)", "Definition": "Pretending to be someone else to gain information."},
+    {"Keyword": "Brute Force Attack", "Definition": "Trying every possible password combination."},
+    {"Keyword": "Denial of Service (DoS)", "Definition": "Flooding a network with traffic to make it unavailable."},
+    {"Keyword": "Distributed Denial of Service (DDoS)", "Definition": "DoS attack using multiple computers."},
+    {"Keyword": "Man-in-the-Middle Attack", "Definition": "Intercepting communication between two devices."},
+    {"Keyword": "SQL Injection", "Definition": "Inserting malicious SQL code into a database query."},
+    {"Keyword": "Firewall", "Definition": "Hardware or software that filters network traffic."},
+    {"Keyword": "Penetration Testing", "Definition": "Testing a system to find vulnerabilities."},
+    {"Keyword": "Anti-malware Software", "Definition": "Detects and removes malicious software."},
+    {"Keyword": "Encryption", "Definition": "Scrambling data so it cannot be read without a key."},
+    {"Keyword": "Authentication", "Definition": "Verifying a user’s identity."},
+    {"Keyword": "Biometric Authentication", "Definition": "Using fingerprints, facial recognition, etc."},
+    {"Keyword": "Two-Factor Authentication (2FA)", "Definition": "Requires two methods of verification."},
+    {"Keyword": "Access Levels", "Definition": "Restricting user permissions based on role."},
+    {"Keyword": "Passwords", "Definition": "Secret codes used to access systems."},
+    {"Keyword": "Strong Password", "Definition": "A password that is long and includes different character types."},
+    {"Keyword": "Network Policies", "Definition": "Rules for safe network use."},
+    {"Keyword": "MAC Address Filtering", "Definition": "Allowing only approved devices to connect."},
+    {"Keyword": "Encryption Protocols (HTTPS)", "Definition": "Secure communication methods that encrypt data in transit."},
+    {"Keyword": "Backup", "Definition": "Copying data so it can be restored if lost."},
+    {"Keyword": "Data Interception", "Definition": "Capturing data being transferred across a network."},
+    {"Keyword": "SSL/TLS", "Definition": "Protocols for encrypting data over the internet."},
+    {"Keyword": "Digital Certificate", "Definition": "Confirms a website’s authenticity."}
+];
+
+function shuffle(arr) {
+    let array = [...arr];
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
+// Master Systems States
+let cumulativeScore = 0;
+let timeRemaining = 300; 
+let tickerInterval = null;
+
+let p1Pool = [], p2Pool = [], p3Pool = [];
+let scoreP1 = 0, scoreP2 = 0;
+let p3Answers = {};
+
+function sysLog(msg, type="info") {
+    const logger = document.getElementById("masterTerminalLog");
+    let color = "#00ff33";
+    if (type === "warn") color = "#ff9900";
+    if (type === "error") color = "#ff2222";
+    logger.innerHTML += `<br><span style="color:${color}">> ${msg}</span>`;
+    logger.scrollTop = logger.scrollHeight;
+}
+
+function flashScreenFailure() {
+    const root = document.getElementById("terminalRoot");
+    root.classList.add("toast-wiped");
+    setTimeout(() => root.classList.remove("toast-wiped"), 1000);
+}
+
+function updateScoreboard() {
+    document.getElementById("scoreNode").innerText = String(cumulativeScore).padStart(4, '0');
+}
+
+function triggerGlitchBorders(element) {
+    element.classList.add("matrix-glitch-active");
+    setTimeout(() => {
+        element.classList.remove("matrix-glitch-active");
+        element.classList.add("completed");
+    }, 1000);
+}
+
+function startCountdown() {
+    if(tickerInterval) clearInterval(tickerInterval);
+    tickerInterval = setInterval(() => {
+        timeRemaining--;
+        if (timeRemaining <= 0) {
+            timeRemaining = 0;
+            clearInterval(tickerInterval);
+            handleTimeout();
+        }
+        let mins = Math.floor(timeRemaining / 60);
+        let secs = timeRemaining % 60;
+        const clockNode = document.getElementById("clockNode");
+        clockNode.innerText = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        
+        if (timeRemaining < 60) clockNode.classList.add("timer-alert");
+    }, 1000);
+}
+
+function handleTimeout() {
+    playSystemWipe();
+    sysLog("CRITICAL TIMEOUT: OPERATIONAL RUN LAPSED.", "error");
+    document.getElementById("terminalRoot").style.pointerEvents = "none";
+    alert(`OPERATIONAL TIMEOUT! Cumulative Matrix Coefficient: ${cumulativeScore}`);
+}
+
+function resetScoreRegisters() {
+    cumulativeScore = 0;
+    updateScoreboard();
+}
+
+function generateRoundPools() {
+    let freshMix = shuffle(dataset);
+    p1Pool = freshMix.slice(0, 5);
+    p2Pool = freshMix.slice(5, 10);
+    p3Pool = freshMix.slice(10, 15);
+}
+
+function rebootTerminalCycle(incorrectWipe = false) {
+    if (incorrectWipe) {
+        resetScoreRegisters();
+    }
+    
+    document.getElementById("sec-part2").classList.add("locked");
+    document.getElementById("overlay-p2").style.display = "flex";
+    document.getElementById("sec-part3").classList.add("locked");
+    document.getElementById("overlay-p3").style.display = "flex";
+    
+    generateRoundPools();
+    initPart1();
+}
+
+// PART 1
+function initPart1() {
+    const target = document.getElementById("container-p1");
+    target.innerHTML = "";
+    scoreP1 = 0;
+    
+    p1Pool.forEach((item, index) => {
+        let card = document.createElement("div");
+        card.className = "mc-card";
+        card.id = `p1-card-${index}`;
+        card.dataset.attempts = "0";
+        
+        let distractors = shuffle(dataset.filter(x => x.Keyword !== item.Keyword)).slice(0, 3);
+        let options = shuffle([item, ...distractors]);
+        
+        card.innerHTML = `
+            <div class="question-text">Sector 0${index+1}: Match concept token [ ${item.Keyword} ]</div>
+            <div class="attempt-tracker" id="p1-track-${index}">Attempts: 0/2</div>
+            <div class="options-grid" id="p1-grid-${index}"></div>
+        `;
+        target.appendChild(card);
+        
+        let grid = document.getElementById(`p1-grid-${index}`);
+        options.forEach(opt => {
+            let btn = document.createElement("button");
+            btn.className = "option-btn";
+            btn.innerText = opt.Definition;
+            btn.onclick = () => handleP1Selection(btn, item, card, index);
+            grid.appendChild(btn);
+        });
+    });
+}
+
+function handleP1Selection(btn, correctItem, card, cardIndex) {
+    let currentAttempts = parseInt(card.dataset.attempts) + 1;
+    card.dataset.attempts = currentAttempts;
+    document.getElementById(`p1-track-${cardIndex}`).innerText = `Attempts: ${currentAttempts}/2`;
+    
+    if (btn.innerText === correctItem.Definition) {
+        playPing();
+        btn.classList.add("correct");
+        triggerGlitchBorders(card);
+        sysLog(`SECTOR 0${cardIndex+1} ENCRYPTION BYPASSED`, "info");
+        disableCardButtons(`p1-grid-${cardIndex}`);
+        
+        cumulativeScore += 10;
+        updateScoreboard();
+        scoreP1++;
+        checkPart1Progression();
+    } else {
+        btn.classList.add("wrong");
+        btn.disabled = true;
+        
+        if (currentAttempts >= 2) {
+            playSystemWipe();
+            sysLog("CRITICAL FAILURE: ACCESS BREACH ALARM. ALL PROGRESSION WIPED.", "error");
+            flashScreenFailure();
+            setTimeout(() => { rebootTerminalCycle(true); }, 1200);
+        } else {
+            playKlaxon();
+            sysLog(`BRUTE-FORCE ANOMALY DETECTED AT SECTOR 0${cardIndex+1}`, "warn");
+        }
+    }
+}
+
+function disableCardButtons(gridId) {
+    let grid = document.getElementById(gridId);
+    Array.from(grid.children).forEach(btn => btn.classList.add("disabled"));
+}
+
+function checkPart1Progression() {
+    if (scoreP1 === 5) {
+        sysLog("FIREWALL COMPROMISED. MODULES DECRYPTION GRID ACCESSIBLE.", "info");
+        document.getElementById("sec-part2").classList.remove("locked");
+        document.getElementById("overlay-p2").style.display = "none";
+        initPart2();
+    }
+}
+
+// PART 2
+function initPart2() {
+    const target = document.getElementById("container-p2");
+    target.innerHTML = "";
+    scoreP2 = 0;
+    sysLog("DECRYPTING SECTOR CORRELATION PROTOCOLS...");
+    
+    p2Pool.forEach((item, index) => {
+        let card = document.createElement("div");
+        card.className = "mc-card";
+        card.id = `p2-card-${index}`;
+        card.dataset.attempts = "0";
+        
+        let distractors = shuffle(dataset.filter(x => x.Keyword !== item.Keyword)).slice(0, 3);
+        let options = shuffle([item, ...distractors]);
+        
+        card.innerHTML = `
+            <div class="question-text">Grid Lock ${index+6}: "${item.Definition}"</div>
+            <div class="attempt-tracker" id="p2-track-${index}">Attempts: 0/2</div>
+            <div class="options-grid" id="p2-grid-${index}"></div>
+        `;
+        target.appendChild(card);
+        
+        let grid = document.getElementById(`p2-grid-${index}`);
+        options.forEach(opt => {
+            let btn = document.createElement("button");
+            btn.className = "option-btn";
+            btn.innerText = opt.Keyword;
+            btn.onclick = () => handleP2Selection(btn, item, card, index);
+            grid.appendChild(btn);
+        });
+    });
+}
+
+function handleP2Selection(btn, correctItem, card, cardIndex) {
+    let currentAttempts = parseInt(card.dataset.attempts) + 1;
+    card.dataset.attempts = currentAttempts;
+    document.getElementById(`p2-track-${cardIndex}`).innerText = `Attempts: ${currentAttempts}/2`;
+    
+    if (btn.innerText === correctItem.Keyword) {
+        playPing();
+        btn.classList.add("correct");
+        triggerGlitchBorders(card);
+        sysLog(`CORE LOCK 0${cardIndex+6} RE-MAPPED SUCCESSFULLY`, "info");
+        disableCardButtons(`p2-grid-${cardIndex}`);
+        
+        cumulativeScore += 10;
+        updateScoreboard();
+        scoreP2++;
+        checkPart2Progression();
+    } else {
+        btn.classList.add("wrong");
+        btn.disabled = true;
+        
+        if (currentAttempts >= 2) {
+            playSystemWipe();
+            sysLog("BUFFER CRASH: STACK POINTER TRIPPED. LOG RESET.", "error");
+            flashScreenFailure();
+            setTimeout(() => { rebootTerminalCycle(true); }, 1200);
+        } else {
+            playKlaxon();
+            sysLog(`RE-MAPPING VECTOR REJECTED AT LOCK 0${cardIndex+6}`, "warn");
+        }
+    }
+}
+
+function checkPart2Progression() {
+    if (scoreP2 === 5) {
+        sysLog("ALL CORES UNLOCKED. INTERACTIVE COUPLING MATRIX READY.", "info");
+        document.getElementById("sec-part3").classList.remove("locked");
+        document.getElementById("overlay-p3").style.display = "none";
+        initPart3();
+    }
+}
+
+// PART 3
+function initPart3() {
+    const srcDeck = document.getElementById("dragSourceDeck");
+    const tgtContainer = document.getElementById("dropTargetContainer");
+    
+    srcDeck.innerHTML = "";
+    tgtContainer.innerHTML = "";
+    p3Answers = {};
+    
+    let dragData = shuffle([...p3Pool]);
+    let dropData = shuffle([...p3Pool]);
+    
+    dragData.forEach((item, index) => {
+        let el = document.createElement("div");
+        el.className = "drag-item";
+        el.draggable = true;
+        el.id = `p3-drag-${index}`;
+        el.innerText = item.Keyword;
+        el.dataset.keyword = item.Keyword;
+        
+        el.addEventListener("dragstart", (e) => {
+            initAudio(); 
+            e.dataTransfer.setData("text/plain", e.target.id);
+        });
+        srcDeck.appendChild(el);
+    });
+    
+    dropData.forEach((item, index) => {
+        let zone = document.createElement("div");
+        zone.className = "drop-zone";
+        zone.dataset.definition = item.Definition;
+        zone.innerHTML = `
+            <div class="drop-zone-header">NODE DESTINATION PLACEMENT [${index+1}]</div>
+            <div style="font-size:0.85rem; margin-bottom:8px; color:#fff;">${item.Definition}</div>
+            <div class="drop-slot" id="p3-slot-${index}" style="min-height:35px; border:1px dashed #222;"></div>
+        `;
+        
+        let slot = zone.querySelector(".drop-slot");
+        
+        zone.addEventListener("dragover", (e) => { e.preventDefault(); zone.classList.add("hovered"); });
+        zone.addEventListener("dragleave", () => zone.classList.remove("hovered"));
+        zone.addEventListener("drop", (e) => {
+            e.preventDefault();
+            zone.classList.remove("hovered");
+            let dragId = e.dataTransfer.getData("text/plain");
+            let draggedEl = document.getElementById(dragId);
+            
+            if (draggedEl && slot.children.length === 0) {
+                let badge = document.createElement("div");
+                badge.className = "matched-item";
+                badge.innerText = draggedEl.dataset.keyword;
+                p3Answers[item.Definition] = draggedEl.dataset.keyword;
+                
+                badge.onclick = () => {
+                    draggedEl.style.display = "block";
+                    badge.remove();
+                    delete p3Answers[item.Definition];
+                };
+                
+                slot.appendChild(badge);
+                draggedEl.style.display = "none";
+            }
+        });
+        tgtContainer.appendChild(zone);
+    });
+}
+
+function evaluatePart3() {
+    let perfect = true;
+    let counted = 0;
+    
+    p3Pool.forEach(item => {
+        if(p3Answers[item.Definition]) counted++;
+        if (p3Answers[item.Definition] !== item.Keyword) {
+            perfect = false;
+        }
+    });
+    
+    if (counted < 5) {
+        playKlaxon();
+        sysLog("COMPILATION REJECTED: CHANNELS REMAIN EMPTY.", "warn");
+        return;
+    }
+    
+    if (perfect) {
+        playPing();
+        setTimeout(playPing, 150); 
+        
+        cumulativeScore += 100; 
+        updateScoreboard();
+        
+        sysLog("=========================================================", "info");
+        sysLog(" MATRIX COUPLING COMPLETE! HARVEST BONUS EXTRACTED (+100)", "info");
+        sysLog(" CYCLING SUBSECTOR LOGIC REGISTERS...", "info");
+        sysLog("=========================================================", "info");
+        
+        setTimeout(() => { rebootTerminalCycle(false); }, 1500);
+    } else {
+        playSystemWipe();
+        sysLog("COMPILATION ERROR: RE-COUPLING OVERRUN. REGISTER LOG ZEROED.", "error");
+        flashScreenFailure();
+        setTimeout(() => { rebootTerminalCycle(true); }, 1200);
+    }
+}
+
+// Kickstart Run Engine
+window.addEventListener('DOMContentLoaded', () => {
+    generateRoundPools();
+    initPart1();
+    startCountdown();
+});
+</script>
+
+</body>
+</html>
