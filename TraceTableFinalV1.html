@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GCSE CS Trace Table Trainer</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --border: #cbd5e1;
+            --success: #16a34a;
+            --error: #dc2626;
+            --warning: #d97706;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        header {
+            grid-column: 1 / -1;
+            text-align: center;
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .problem-select-container {
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        select {
+            padding: 8px 12px;
+            font-size: 1rem;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background-color: white;
+            cursor: pointer;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        pre.code-block {
+            background-color: #0f172a;
+            color: #f8fafc;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Consolas', 'Courier New', Courier, monospace;
+            font-size: 1.05rem;
+            line-height: 1.6;
+            overflow-x: auto;
+        }
+
+        .line {
+            display: block;
+            padding: 2px 5px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .line.active {
+            background-color: #2563eb;
+            color: white;
+            font-weight: bold;
+        }
+
+        .line-num {
+            color: #64748b;
+            display: inline-block;
+            width: 30px;
+            user-select: none;
+        }
+
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        button:disabled {
+            background-color: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        .btn-check {
+            background-color: #16a34a;
+            padding: 4px 10px;
+            font-size: 0.85rem;
+        }
+        .btn-check:hover { background-color: #15803d; }
+
+        .btn-danger { background-color: var(--error); }
+        .btn-danger:hover { background-color: #b91c1c; }
+
+        input[type="text"], input[type="number"] {
+            padding: 8px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 0.95rem;
+        }
+
+        .var-setup-list {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 15px 0;
+        }
+
+        .var-tag {
+            background: #e2e8f0;
+            padding: 5px 12px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+        }
+
+        .var-tag span.remove {
+            color: var(--error);
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin-top: 15px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            border: 1px solid var(--border);
+            padding: 8px 12px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f1f5f9;
+        }
+
+        td input {
+            width: 85%;
+            text-align: center;
+        }
+
+        tr.row-correct {
+            background-color: #dcfce7 !important;
+        }
+
+        tr.row-error {
+            background-color: #fee2e2 !important;
+        }
+
+        .badge-gap {
+            background-color: #fef08a;
+            color: #854d0e;
+            font-size: 0.8rem;
+            font-weight: bold;
+            padding: 3px 8px;
+            border-radius: 12px;
+            display: inline-block;
+            margin-bottom: 5px;
+        }
+
+        .feedback-box {
+            margin-top: 12px;
+            padding: 12px 15px;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            display: none;
+            line-height: 1.4;
+        }
+
+        .feedback-box.error {
+            background-color: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fca5a5;
+            display: block;
+        }
+
+        .feedback-box.success {
+            background-color: #f0fdf4;
+            color: #166534;
+            border: 1px solid #86efac;
+            display: block;
+        }
+
+        .feedback-box.info {
+            background-color: #eff6ff;
+            color: #1e40af;
+            border: 1px solid #93c5fd;
+            display: block;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            max-width: 600px;
+            width: 90%;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .demo-step {
+            margin: 15px 0;
+            padding: 12px;
+            background: #f8fafc;
+            border-left: 4px solid var(--primary);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>GCSE CS Trace Table Interactive Trainer</h1>
+        <p>Master algorithm tracing step-by-step.</p>
+        <div class="problem-select-container">
+            <label for="problemSelect"><strong>Select Challenge:</strong></label>
+            <select id="problemSelect" onchange="loadSelectedProblem()">
+                <option value="0">Ex 1: Simple Sum (FOR Loop)</option>
+                <option value="1">Ex 2: [FILL THE GAP] Count Down Loop</option>
+                <option value="2">Ex 3: WHILE Loop Counter</option>
+                <option value="3">Ex 4: IF Selection Check</option>
+                <option value="4">Ex 5: [FILL THE GAP] Multiplication Table</option>
+                <option value="5">Ex 6: Array Summation</option>
+                <option value="6">Ex 7: Linear Search Algorithm</option>
+                <option value="7">Ex 8: [FILL THE GAP] Even Numbers (Modulo)</option>
+                <option value="8">Ex 9: Minimum Value Search</option>
+                <option value="9">Ex 10: String Character Counter</option>
+                <option value="10">Ex 11: Nested FOR Loop Grid</option>
+            </select>
+            <button onclick="openDemoModal()">🎬 Guide / Demo</button>
+        </div>
+    </header>
+
+    <div class="card">
+        <h2>1. Algorithm Code</h2>
+        <div id="exerciseBadge"></div>
+        <pre class="code-block" id="codeDisplay"></pre>
+        <div id="outputDisplay" style="margin-top: 10px; font-weight: bold; font-family: monospace;">
+            OUTPUT: <span id="outputValue" style="color: #2563eb;">[Nothing printed yet]</span>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>2. Trace Table Setup & Execution</h2>
+        
+        <div id="setupPhase">
+            <p><strong>Step 1:</strong> Type a variable name and click <strong>Add Variable</strong>.</p>
+            <div style="display: flex; gap: 10px;">
+                <input type="text" id="varInput" placeholder="e.g. total" onkeypress="handleKeyPress(event)">
+                <button onclick="addVariable()">Add Variable</button>
+            </div>
+            
+            <div id="setupFeedback" class="feedback-box"></div>
+
+            <div class="var-setup-list" id="varList"></div>
+            <button onclick="lockSetup()" id="startBtn" style="margin-top: 10px;" disabled>Start Tracing Table</button>
+        </div>
+
+        <div id="tracePhase" style="display: none;">
+            <p><strong>Step 2:</strong> Trace the execution line by line. Enter values and click <strong>Check Row</strong> on each step.</p>
+            <div class="table-container">
+                <table id="traceTable">
+                    <thead>
+                        <tr id="tableHeader">
+                            <th>Line #</th>
+                            <th>OUTPUT</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                    </tbody>
+                </table>
+            </div>
+            <div style="margin-top: 15px; display: flex; gap: 10px;">
+                <button onclick="resetApp()" class="btn-danger">Reset Exercise</button>
+            </div>
+
+            <div id="traceFeedback" class="feedback-box"></div>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="demoModal">
+    <div class="modal-content">
+        <h2>How to Trace an Algorithm Line by Line</h2>
+        <div id="demoContent" class="demo-step">
+            Click "Next Step" to walk through a guided trace table demonstration.
+        </div>
+        <div style="display: flex; justify-content: space-between; margin-top: 20px;">
+            <button onclick="prevDemoStep()" id="prevDemoBtn" disabled>Previous</button>
+            <span id="demoStepTracker" style="align-self: center;">Step 1 / 5</span>
+            <button onclick="nextDemoStep()" id="nextDemoBtn">Next Step</button>
+        </div>
+        <button onclick="closeDemoModal()" class="btn-danger" style="margin-top: 15px; width: 100%;">Close Guide</button>
+    </div>
+</div>
+
+<script>
+    const exercises = [
+        // 1. FOR Loop Sum
+        {
+            title: "Simple Sum (FOR Loop)",
+            type: "standard",
+            code: [
+                { num: 1, text: "total = 0" },
+                { num: 2, text: "FOR i = 1 TO 3" },
+                { num: 3, text: "    total = total + i" },
+                { num: 4, text: "NEXT i" },
+                { num: 5, text: "PRINT total" }
+            ],
+            requiredVars: ["total", "i"],
+            keywords: ["FOR", "TO", "NEXT", "PRINT", "0", "1", "3"],
+            expectedTrace: [
+                { lines: [1], vars: { total: "0", i: null }, output: "" },
+                { lines: [2], vars: { total: "0", i: "1" }, output: "" },
+                { lines: [3], vars: { total: "1", i: "1" }, output: "" },
+                { lines: [2], vars: { total: "1", i: "2" }, output: "" },
+                { lines: [3], vars: { total: "3", i: "2" }, output: "" },
+                { lines: [2], vars: { total: "3", i: "3" }, output: "" },
+                { lines: [3], vars: { total: "6", i: "3" }, output: "" },
+                { lines: [5], vars: { total: "6", i: "3" }, output: "6" }
+            ]
+        },
+        // 2. FILL THE GAP: Count Down
+        {
+            title: "Count Down Loop (Fill the Gap)",
+            type: "gap",
+            code: [
+                { num: 1, text: "count = 3" },
+                { num: 2, text: "WHILE count > 0" },
+                { num: 3, text: "    PRINT count" },
+                { num: 4, text: "    count = count - 1" },
+                { num: 5, text: "ENDWHILE" }
+            ],
+            requiredVars: ["count"],
+            keywords: ["WHILE", "PRINT", "ENDWHILE", "3", "0", "1"],
+            prefilledRows: [
+                { line: 1, vars: { count: "3" }, output: "", lock: true },
+                { line: 3, vars: { count: "3" }, output: "3", lock: true },
+                { line: 4, vars: { count: "" }, output: "", lock: false }, // GAP
+                { line: 3, vars: { count: "2" }, output: "", lock: false }, // GAP
+                { line: 4, vars: { count: "1" }, output: "", lock: true },
+                { line: 3, vars: { count: "1" }, output: "1", lock: true },
+                { line: 4, vars: { count: "" }, output: "", lock: false }  // GAP
+            ],
+            expectedTrace: [
+                { lines: [1], vars: { count: "3" }, output: "" },
+                { lines: [3], vars: { count: "3" }, output: "3" },
+                { lines: [4], vars: { count: "2" }, output: "" },
+                { lines: [3], vars: { count: "2" }, output: "2" },
+                { lines: [4], vars: { count: "1" }, output: "" },
+                { lines: [3], vars: { count: "1" }, output: "1" },
+                { lines: [4], vars: { count: "0" }, output: "" }
+            ]
+        },
+        // 3. WHILE Loop Counter
+        {
+            title: "WHILE Loop Power Doubler",
+            type: "standard",
+            code: [
+                { num: 1, text: "n = 1" },
+                { num: 2, text: "WHILE n < 10" },
+                { num: 3, text: "    n = n * 2" },
+                { num: 4, text: "ENDWHILE" },
+                { num: 5, text: "PRINT n" }
+            ],
+            requiredVars: ["n"],
+            keywords: ["WHILE", "ENDWHILE", "PRINT", "1", "10", "2"],
+            expectedTrace: [
+                { lines: [1], vars: { n: "1" }, output: "" },
+                { lines: [3], vars: { n: "2" }, output: "" },
+                { lines: [3], vars: { n: "4" }, output: "" },
+                { lines: [3], vars: { n: "8" }, output: "" },
+                { lines: [3], vars: { n: "16" }, output: "" },
+                { lines: [5], vars: { n: "16" }, output: "16" }
+            ]
+        },
+        // 4. IF Selection
+        {
+            title: "IF Selection Check",
+            type: "standard",
+            code: [
+                { num: 1, text: "score = 45" },
+                { num: 2, text: "IF score >= 50 THEN" },
+                { num: 3, text: "    result = 'Pass'" },
+                { num: 4, text: "ELSE" },
+                { num: 5, text: "    result = 'Fail'" },
+                { num: 6, text: "ENDIF" },
+                { num: 7, text: "PRINT result" }
+            ],
+            requiredVars: ["score", "result"],
+            keywords: ["IF", "THEN", "ELSE", "ENDIF", "PRINT", "45", "50"],
+            expectedTrace: [
+                { lines: [1], vars: { score: "45", result: null }, output: "" },
+                { lines: [5], vars: { score: "45", result: "Fail" }, output: "" },
+                { lines: [7], vars: { score: "45", result: "Fail" }, output: "Fail" }
+            ]
+        },
+        // 5. FILL THE GAP: Multiplication Table
+        {
+            title: "Multiplication Table (Fill the Gap)",
+            type: "gap",
+            code: [
+                { num: 1, text: "m = 5" },
+                { num: 2, text: "FOR i = 1 TO 3" },
+                { num: 3, text: "    ans = m * i" },
+                { num: 4, text: "    PRINT ans" },
+                { num: 5, text: "NEXT i" }
+            ],
+            requiredVars: ["m", "i", "ans"],
+            keywords: ["FOR", "TO", "NEXT", "PRINT", "5", "1", "3"],
+            prefilledRows: [
+                { line: 1, vars: { m: "5", i: "", ans: "" }, output: "", lock: true },
+                { line: 2, vars: { m: "5", i: "1", ans: "" }, output: "", lock: true },
+                { line: 3, vars: { m: "5", i: "1", ans: "" }, output: "", lock: false }, // GAP
+                { line: 4, vars: { m: "5", i: "1", ans: "5" }, output: "5", lock: true },
+                { line: 2, vars: { m: "5", i: "2", ans: "5" }, output: "", lock: true },
+                { line: 3, vars: { m: "5", i: "2", ans: "10" }, output: "", lock: true },
+                { line: 4, vars: { m: "5", i: "2", ans: "10" }, output: "", lock: false }, // GAP
+                { line: 2, vars: { m: "5", i: "3", ans: "10" }, output: "", lock: true },
+                { line: 3, vars: { m: "5", i: "3", ans: "" }, output: "", lock: false }  // GAP
+            ],
+            expectedTrace: [
+                { lines: [1], vars: { m: "5", i: null, ans: null }, output: "" },
+                { lines: [2], vars: { m: "5", i: "1", ans: null }, output: "" },
+                { lines: [3], vars: { m: "5", i: "1", ans: "5" }, output: "" },
+                { lines: [4], vars: { m: "5", i: "1", ans: "5" }, output: "5" },
+                { lines: [2], vars: { m: "5", i: "2", ans: "5" }, output: "" },
+                { lines: [3], vars: { m: "5", i: "2", ans: "10" }, output: "" },
+                { lines: [4], vars: { m: "5", i: "2", ans: "10" }, output: "10" },
+                { lines: [2], vars: { m: "5", i: "3", ans: "10" }, output: "" },
+                { lines: [3], vars: { m: "5", i: "3", ans: "15" }, output: "" }
+            ]
+        },
+        // 6. Array Summation
+        {
+            title: "Array Summation",
+            type: "standard",
+            code: [
+                { num: 1, text: "nums = [4, 2, 6]" },
+                { num: 2, text: "total = 0" },
+                { num: 3, text: "FOR k = 0 TO 2" },
+                { num: 4, text: "    total = total + nums[k]" },
+                { num: 5, text: "NEXT k" },
+                { num: 6, text: "PRINT total" }
+            ],
+            requiredVars: ["total", "k"],
+            keywords: ["FOR", "TO", "NEXT", "PRINT", "0", "2"],
+            expectedTrace: [
+                { lines: [2], vars: { total: "0", k: null }, output: "" },
+                { lines: [3], vars: { total: "0", k: "0" }, output: "" },
+                { lines: [4], vars: { total: "4", k: "0" }, output: "" },
+                { lines: [3], vars: { total: "4", k: "1" }, output: "" },
+                { lines: [4], vars: { total: "6", k: "1" }, output: "" },
+                { lines: [3], vars: { total: "6", k: "2" }, output: "" },
+                { lines: [4], vars: { total: "12", k: "2" }, output: "" },
+                { lines: [6], vars: { total: "12", k: "2" }, output: "12" }
+            ]
+        },
+        // 7. Linear Search
+        {
+            title: "Linear Search Algorithm",
+            type: "standard",
+            code: [
+                { num: 1, text: "arr = [8, 3, 5]" },
+                { num: 2, text: "target = 3" },
+                { num: 3, text: "found = False" },
+                { num: 4, text: "FOR i = 0 TO 2" },
+                { num: 5, text: "    IF arr[i] == target THEN" },
+                { num: 6, text: "        found = True" },
+                { num: 7, text: "    ENDIF" },
+                { num: 8, text: "NEXT i" }
+            ],
+            requiredVars: ["target", "found", "i"],
+            keywords: ["FOR", "TO", "NEXT", "IF", "THEN", "ENDIF", "True", "False"],
+            expectedTrace: [
+                { lines: [2], vars: { target: "3", found: null, i: null }, output: "" },
+                { lines: [3], vars: { target: "3", found: "False", i: null }, output: "" },
+                { lines: [4], vars: { target: "3", found: "False", i: "0" }, output: "" },
+                { lines: [4], vars: { target: "3", found: "False", i: "1" }, output: "" },
+                { lines: [6], vars: { target: "3", found: "True", i: "1" }, output: "" }
+            ]
+        },
+        // 8. FILL THE GAP: Even Numbers Modulo
+        {
+            title: "Even Numbers Modulo (Fill the Gap)",
+            type: "gap",
+            code: [
+                { num: 1, text: "n = 1" },
+                { num: 2, text: "WHILE n <= 4" },
+                { num: 3, text: "    IF n MOD 2 == 0 THEN" },
+                { num: 4, text: "        PRINT n" },
+                { num: 5, text: "    ENDIF" },
+                { num: 6, text: "    n = n + 1" },
+                { num: 7, text: "ENDWHILE" }
+            ],
+            requiredVars: ["n"],
+            keywords: ["WHILE", "IF", "THEN", "ENDIF", "MOD", "ENDWHILE", "1", "4", "2"],
+            prefilledRows: [
+                { line: 1, vars: { n: "1" }, output: "", lock: true },
+                { line: 6, vars: { n: "" }, output: "", lock: false }, // GAP
+                { line: 4, vars: { n: "2" }, output: "", lock: false }, // GAP
+                { line: 6, vars: { n: "3" }, output: "", lock: true }
+            ],
+            expectedTrace: [
+                { lines: [1], vars: { n: "1" }, output: "" },
+                { lines: [6], vars: { n: "2" }, output: "" },
+                { lines: [4], vars: { n: "2" }, output: "2" },
+                { lines: [6], vars: { n: "3" }, output: "" }
+            ]
+        },
+        // 9. Minimum Search
+        {
+            title: "Find Minimum Value",
+            type: "standard",
+            code: [
+                { num: 1, text: "vals = [7, 3, 9]" },
+                { num: 2, text: "min = vals[0]" },
+                { num: 3, text: "FOR i = 1 TO 2" },
+                { num: 4, text: "    IF vals[i] < min THEN" },
+                { num: 5, text: "        min = vals[i]" },
+                { num: 6, text: "    ENDIF" },
+                { num: 7, text: "NEXT i" }
+            ],
+            requiredVars: ["min", "i"],
+            keywords: ["FOR", "TO", "NEXT", "IF", "THEN", "ENDIF", "1", "2"],
+            expectedTrace: [
+                { lines: [2], vars: { min: "7", i: null }, output: "" },
+                { lines: [3], vars: { min: "7", i: "1" }, output: "" },
+                { lines: [5], vars: { min: "3", i: "1" }, output: "" },
+                { lines: [3], vars: { min: "3", i: "2" }, output: "" }
+            ]
+        },
+        // 10. String Character Counter
+        {
+            title: "String Character Counter",
+            type: "standard",
+            code: [
+                { num: 1, text: "word = 'CAT'" },
+                { num: 2, text: "count = 0" },
+                { num: 3, text: "FOR i = 0 TO 2" },
+                { num: 4, text: "    count = count + 1" },
+                { num: 5, text: "NEXT i" },
+                { num: 6, text: "PRINT count" }
+            ],
+            requiredVars: ["count", "i"],
+            keywords: ["FOR", "TO", "NEXT", "PRINT", "0", "2"],
+            expectedTrace: [
+                { lines: [2], vars: { count: "0", i: null }, output: "" },
+                { lines: [3], vars: { count: "0", i: "0" }, output: "" },
+                { lines: [4], vars: { count: "1", i: "0" }, output: "" },
+                { lines: [3], vars: { count: "1", i: "1" }, output: "" },
+                { lines: [4], vars: { count: "2", i: "1" }, output: "" },
+                { lines: [3], vars: { count: "2", i: "2" }, output: "" },
+                { lines: [4], vars: { count: "3", i: "2" }, output: "" },
+                { lines: [6], vars: { count: "3", i: "2" }, output: "3" }
+            ]
+        },
+        // 11. Nested FOR Loop Grid
+        {
+            title: "Nested FOR Loop Grid",
+            type: "standard",
+            code: [
+                { num: 1, text: "FOR r = 1 TO 2" },
+                { num: 2, text: "    FOR c = 1 TO 2" },
+                { num: 3, text: "        PRINT r" },
+                { num: 4, text: "    NEXT c" },
+                { num: 5, text: "NEXT r" }
+            ],
+            requiredVars: ["r", "c"],
+            keywords: ["FOR", "TO", "NEXT", "PRINT", "1", "2"],
+            expectedTrace: [
+                { lines: [1], vars: { r: "1", c: null }, output: "" },
+                { lines: [2], vars: { r: "1", c: "1" }, output: "" },
+                { lines: [3], vars: { r: "1", c: "1" }, output: "1" },
+                { lines: [2], vars: { r: "1", c: "2" }, output: "" },
+                { lines: [3], vars: { r: "1", c: "2" }, output: "1" },
+                { lines: [1], vars: { r: "2", c: "2" }, output: "" },
+                { lines: [2], vars: { r: "2", c: "1" }, output: "" },
+                { lines: [3], vars: { r: "2", c: "1" }, output: "2" }
+            ]
+        }
+    ];
+
+    let currentProblemIndex = 0;
+    let currentProblem = exercises[0];
+    let userVars = [];
+    let currentRowIndex = 0;
+    let runningState = {};
+
+    function loadSelectedProblem() {
+        const select = document.getElementById("problemSelect");
+        currentProblemIndex = parseInt(select.value, 10);
+        currentProblem = exercises[currentProblemIndex];
+        resetApp();
+    }
+
+    function renderCode() {
+        const codeDisplay = document.getElementById("codeDisplay");
+        codeDisplay.innerHTML = currentProblem.code
+            .map(line => `<span class="line" id="code-line-${line.num}"><span class="line-num">${line.num}</span>${line.text}</span>`)
+            .join("");
+
+        const badgeEl = document.getElementById("exerciseBadge");
+        if (currentProblem.type === "gap") {
+            badgeEl.innerHTML = `<span class="badge-gap">✏️ Fill in the Gap Exercise</span>`;
+        } else {
+            badgeEl.innerHTML = ``;
+        }
+    }
+
+    function highlightCodeLine(lineNum) {
+        document.querySelectorAll(".line").forEach(l => l.classList.remove("active"));
+        if (lineNum) {
+            const el = document.getElementById(`code-line-${lineNum}`);
+            if (el) el.classList.add("active");
+        }
+    }
+
+    function handleKeyPress(e) {
+        if (e.key === 'Enter') addVariable();
+    }
+
+    function addVariable() {
+        const input = document.getElementById("varInput");
+        const rawInput = input.value.trim();
+        const feedbackEl = document.getElementById("setupFeedback");
+
+        if (!rawInput) {
+            showFeedback(feedbackEl, "⚠️ Please enter a variable name first.", "error");
+            return;
+        }
+
+        if (userVars.includes(rawInput)) {
+            showFeedback(feedbackEl, `⚠️ You have already added "${rawInput}".`, "error");
+            input.value = "";
+            return;
+        }
+
+        const matchCaseInsensitive = currentProblem.requiredVars.find(
+            v => v.toLowerCase() === rawInput.toLowerCase()
+        );
+        if (matchCaseInsensitive && matchCaseInsensitive !== rawInput) {
+            showFeedback(
+                feedbackEl, 
+                `❌ <strong>Incorrect case:</strong> "${rawInput}" is close, but variable names are case-sensitive.<br>💡 <strong>Correction:</strong> Try adding <code>${matchCaseInsensitive}</code> instead.`, 
+                "error"
+            );
+            return;
+        }
+
+        if (currentProblem.keywords.includes(rawInput.toUpperCase())) {
+            showFeedback(
+                feedbackEl, 
+                `❌ <strong>"${rawInput}" is not a variable!</strong> It is a language keyword or fixed value.<br>💡 <strong>Correction:</strong> Variables store data that changes (e.g., look for values assigned with <code>=</code> or loop counters).`, 
+                "error"
+            );
+            return;
+        }
+
+        if (!currentProblem.requiredVars.includes(rawInput)) {
+            showFeedback(
+                feedbackEl, 
+                `❌ <strong>Incorrect Variable:</strong> "${rawInput}" does not exist in this algorithm.<br>💡 <strong>Correction:</strong> Check the code snippet carefully for variable assignments or loop parameters.`, 
+                "error"
+            );
+            return;
+        }
+
+        userVars.push(rawInput);
+        input.value = "";
+        renderVarTags();
+
+        if (userVars.length === currentProblem.requiredVars.length) {
+            showFeedback(feedbackEl, `🎉 <strong>Great job!</strong> You have found all required variables (${userVars.join(", ")}). Click "Start Tracing Table" below.`, "success");
+            document.getElementById("startBtn").disabled = false;
+        } else {
+            const remaining = currentProblem.requiredVars.length - userVars.length;
+            showFeedback(feedbackEl, `✅ Correct! "${rawInput}" added. You still need to find <strong>${remaining}</strong> more variable(s).`, "info");
+        }
+    }
+
+    function removeVariable(varName) {
+        userVars = userVars.filter(v => v !== varName);
+        renderVarTags();
+        document.getElementById("startBtn").disabled = true;
+        
+        const feedbackEl = document.getElementById("setupFeedback");
+        showFeedback(feedbackEl, `Removed "${varName}". Identify all variables to proceed.`, "info");
+    }
+
+    function renderVarTags() {
+        const list = document.getElementById("varList");
+        list.innerHTML = userVars.map(v => 
+            `<div class="var-tag">${v} <span class="remove" onclick="removeVariable('${v}')">&times;</span></div>`
+        ).join("");
+    }
+
+    function showFeedback(element, message, type) {
+        element.className = `feedback-box ${type}`;
+        element.innerHTML = message;
+    }
+
+    function lockSetup() {
+        document.getElementById("setupPhase").style.display = "none";
+        document.getElementById("tracePhase").style.display = "block";
+
+        buildTraceTableHeaders();
+
+        if (currentProblem.type === "gap" && currentProblem.prefilledRows) {
+            loadGapRows();
+        } else {
+            addTraceRow();
+        }
+    }
+
+    function buildTraceTableHeaders() {
+        const headerTr = document.getElementById("tableHeader");
+        headerTr.innerHTML = `<th>Line #</th>`;
+        userVars.forEach(v => {
+            headerTr.innerHTML += `<th>${v}</th>`;
+        });
+        headerTr.innerHTML += `<th>OUTPUT</th><th>Action</th>`;
+    }
+
+    function loadGapRows() {
+        const tbody = document.getElementById("tableBody");
+        tbody.innerHTML = "";
+        
+        currentProblem.prefilledRows.forEach((pfRow, idx) => {
+            const row = document.createElement("tr");
+            row.id = `trace-row-${idx}`;
+
+            let rowHTML = `<td><input type="number" class="line-input" value="${pfRow.line || ''}" ${pfRow.lock ? 'disabled' : ''} style="width: 50px;"></td>`;
+            userVars.forEach(v => {
+                const val = pfRow.vars[v] !== undefined ? pfRow.vars[v] : '';
+                rowHTML += `<td><input type="text" class="var-val-input" data-var="${v}" value="${val}" ${pfRow.lock ? 'disabled' : ''}></td>`;
+            });
+            rowHTML += `<td><input type="text" class="output-input" value="${pfRow.output || ''}" ${pfRow.lock ? 'disabled' : ''}></td>`;
+            
+            if (pfRow.lock) {
+                row.className = "row-correct";
+                rowHTML += `<td><button class="btn-check" disabled>✓ Given</button></td>`;
+            } else {
+                rowHTML += `<td><button class="btn-check" onclick="checkCurrentRow(${idx})">Fill Gap</button></td>`;
+            }
+
+            row.innerHTML = rowHTML;
+            tbody.appendChild(row);
+        });
+
+        const firstGap = currentProblem.prefilledRows.findIndex(r => !r.lock);
+        currentRowIndex = firstGap !== -1 ? firstGap : 0;
+
+        const feedbackEl = document.getElementById("traceFeedback");
+        showFeedback(feedbackEl, `✏️ <strong>Fill in the Gaps:</strong> Some rows are already completed for you. Complete the blank input boxes and click <strong>Fill Gap</strong>.`, "info");
+    }
+
+    function addTraceRow() {
+        const tbody = document.getElementById("tableBody");
+        const row = document.createElement("tr");
+        row.id = `trace-row-${currentRowIndex}`;
+
+        let rowHTML = `<td><input type="number" class="line-input" style="width: 50px;"></td>`;
+        userVars.forEach(v => {
+            rowHTML += `<td><input type="text" class="var-val-input" data-var="${v}"></td>`;
+        });
+        rowHTML += `<td><input type="text" class="output-input"></td>`;
+        rowHTML += `<td><button class="btn-check" onclick="checkCurrentRow(${currentRowIndex})">Check Row</button></td>`;
+
+        row.innerHTML = rowHTML;
+        tbody.appendChild(row);
+
+        const feedbackEl = document.getElementById("traceFeedback");
+        showFeedback(feedbackEl, `👉 <strong>Step ${currentRowIndex + 1}:</strong> Enter the Line # executing next, update changed variables, and click <strong>Check Row</strong>.`, "info");
+    }
+
+    function cleanInputValue(inputStr, varName) {
+        if (!inputStr) return "";
+        let cleaned = inputStr.trim();
+        
+        if (varName && cleaned.toLowerCase().startsWith(varName.toLowerCase() + "=")) {
+            cleaned = cleaned.substring(varName.length + 1).trim();
+        } else if (cleaned.includes("=")) {
+            cleaned = cleaned.split("=")[1].trim();
+        }
+        return cleaned;
+    }
+
+    function checkCurrentRow(rowIndex) {
+        const row = document.getElementById(`trace-row-${rowIndex}`);
+        const feedbackEl = document.getElementById("traceFeedback");
+        const expected = currentProblem.expectedTrace[rowIndex];
+
+        const lineInput = row.querySelector(".line-input");
+        const outputInput = row.querySelector(".output-input");
+        const checkBtn = row.querySelector(".btn-check");
+
+        const enteredLine = parseInt(lineInput.value.trim(), 10);
+        let lineCorrect = expected.lines.includes(enteredLine);
+        let outputCorrect = cleanInputValue(outputInput.value) == expected.output;
+        let varsCorrect = true;
+        let rowErrors = [];
+
+        if (!lineCorrect) {
+            lineInput.style.borderColor = "var(--error)";
+            rowErrors.push(`Incorrect Line #: This step executes line ${expected.lines.join(" or ")}.`);
+        } else {
+            lineInput.style.borderColor = "var(--border)";
+            highlightCodeLine(enteredLine);
+        }
+
+        row.querySelectorAll(".var-val-input").forEach(vInput => {
+            const varName = vInput.dataset.var;
+            const expectedVal = expected.vars[varName];
+            const rawUserVal = cleanInputValue(vInput.value, varName);
+
+            let isMatch = false;
+
+            if (expectedVal === null || expectedVal === undefined) {
+                if (rawUserVal === "" || rawUserVal === "-" || rawUserVal === "null") {
+                    isMatch = true;
+                }
+            } else if (rawUserVal === expectedVal) {
+                isMatch = true;
+            } else if (rawUserVal === "" && runningState[varName] === expectedVal) {
+                isMatch = true;
+            } else if (rawUserVal === runningState[varName] && expectedVal === runningState[varName]) {
+                isMatch = true;
+            }
+
+            if (!isMatch) {
+                varsCorrect = false;
+                vInput.style.borderColor = "var(--error)";
+                const expStr = expectedVal === null ? "blank or '-'" : `'${expectedVal}'`;
+                rowErrors.push(`Column '${varName}': expected ${expStr}.`);
+            } else {
+                vInput.style.borderColor = "var(--border)";
+            }
+        });
+
+        if (!outputCorrect) {
+            outputInput.style.borderColor = "var(--error)";
+            rowErrors.push(`OUTPUT column should be '${expected.output || "blank"}'.`);
+        } else {
+            outputInput.style.borderColor = "var(--border)";
+        }
+
+        if (lineCorrect && outputCorrect && varsCorrect) {
+            row.className = "row-correct";
+            checkBtn.disabled = true;
+            checkBtn.innerText = "✓ Valid";
+            
+            row.querySelectorAll("input").forEach(i => i.disabled = true);
+
+            userVars.forEach(v => {
+                if (expected.vars[v] !== null) runningState[v] = expected.vars[v];
+            });
+
+            if (expected.output !== "") {
+                document.getElementById("outputValue").innerText = expected.output;
+            }
+
+            if (currentProblem.type === "gap") {
+                let nextGap = -1;
+                for (let i = rowIndex + 1; i < currentProblem.prefilledRows.length; i++) {
+                    if (!currentProblem.prefilledRows[i].lock) {
+                        nextGap = i;
+                        break;
+                    }
+                }
+                if (nextGap !== -1) {
+                    showFeedback(feedbackEl, "✅ <strong>Gap Correct!</strong> Move to the next gap row.", "success");
+                } else {
+                    showFeedback(feedbackEl, "🎉 <strong>Great work!</strong> You filled all the gaps in this exercise!", "success");
+                }
+            } else {
+                currentRowIndex++;
+                if (currentRowIndex < currentProblem.expectedTrace.length) {
+                    showFeedback(feedbackEl, "✅ <strong>Row Correct!</strong> Moving to the next instruction...", "success");
+                    setTimeout(() => { addTraceRow(); }, 500);
+                } else {
+                    showFeedback(feedbackEl, "🎉 <strong>Congratulations!</strong> You have completely traced the entire algorithm step by step!", "success");
+                }
+            }
+        } else {
+            row.className = "row-error";
+            showFeedback(feedbackEl, `❌ <strong>Mistake in Row ${rowIndex + 1}:</strong><br>${rowErrors.join("<br>")}`, "error");
+        }
+    }
+
+    function resetApp() {
+        userVars = [];
+        currentRowIndex = 0;
+        runningState = {};
+        document.getElementById("setupPhase").style.display = "block";
+        document.getElementById("tracePhase").style.display = "none";
+        document.getElementById("varList").innerHTML = "";
+        document.getElementById("tableBody").innerHTML = "";
+        document.getElementById("outputValue").innerText = "[Nothing printed yet]";
+        document.getElementById("setupFeedback").className = "feedback-box";
+        document.getElementById("traceFeedback").className = "feedback-box";
+        document.getElementById("startBtn").disabled = true;
+        highlightCodeLine(null);
+        renderCode();
+    }
+
+    const demoSteps = [
+        {
+            text: "<strong>Step 1: Find Variables.</strong> Scan the code for identifiers that store changing data. Here, <code>total</code> holds the sum and <code>i</code> acts as the loop counter.",
+            highlightLine: null
+        },
+        {
+            text: "<strong>Step 2: Line 1 (Initialization).</strong> Line 1 sets <code>total = 0</code>. Enter Line Number <code>1</code>, set <code>total</code> to <code>0</code>, leave <code>i</code> blank or write <code>-</code>, and click <strong>Check Row</strong>.",
+            highlightLine: 1
+        },
+        {
+            text: "<strong>Step 3: Line 2 (Loop Start).</strong> Line 2 initializes <code>i = 1</code>. Write line 2, set <code>i</code> to 1, and click <strong>Check Row</strong>.",
+            highlightLine: 2
+        },
+        {
+            text: "<strong>Step 4: Line 3 (Calculation).</strong> <code>total = total + i</code> (0 + 1 = 1). Update <code>total</code> to 1 and check.",
+            highlightLine: 3
+        },
+        {
+            text: "<strong>Step 5: Output.</strong> On Line 5 (<code>PRINT total</code>), output the final value (<code>6</code>) under the OUTPUT column.",
+            highlightLine: 5
+        }
+    ];
+
+    let currentDemoStep = 0;
+
+    function openDemoModal() {
+        document.getElementById("demoModal").style.display = "flex";
+        renderDemoStep();
+    }
+
+    function closeDemoModal() {
+        document.getElementById("demoModal").style.display = "none";
+        highlightCodeLine(null);
+    }
+
+    function renderDemoStep() {
+        const step = demoSteps[currentDemoStep];
+        document.getElementById("demoContent").innerHTML = step.text;
+        document.getElementById("demoStepTracker").innerText = `Step ${currentDemoStep + 1} / ${demoSteps.length}`;
+
+        document.getElementById("prevDemoBtn").disabled = currentDemoStep === 0;
+        document.getElementById("nextDemoBtn").disabled = currentDemoStep === demoSteps.length - 1;
+
+        highlightCodeLine(step.highlightLine);
+    }
+
+    function nextDemoStep() {
+        if (currentDemoStep < demoSteps.length - 1) {
+            currentDemoStep++;
+            renderDemoStep();
+        }
+    }
+
+    function prevDemoStep() {
+        if (currentDemoStep > 0) {
+            currentDemoStep--;
+            renderDemoStep();
+        }
+    }
+
+    renderCode();
+</script>
+
+</body>
+</html>
