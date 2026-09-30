@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KS3 Computer Science: Introduction to AI</title>
+    <style>
+        :root {
+            --primary: #1e1b4b;
+            --primary-light: #312e81;
+            --accent: #4f46e5;
+            --accent-hover: #4338ca;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #0f172a;
+            --text-muted: #475569;
+            --success: #16a34a;
+            --error: #dc2626;
+            --border: #cbd5e1;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 1.5rem 2rem;
+            text-align: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 0.25rem;
+        }
+
+        header p {
+            color: #93c5fd;
+            font-size: 0.95rem;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            flex-grow: 1;
+            width: 100%;
+        }
+
+        .tab-nav {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .tab-btn {
+            padding: 0.75rem 1.25rem;
+            border: none;
+            background: none;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+
+        .tab-content {
+            display: none;
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
+            border: 1px solid #e2e8f0;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        h2 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-size: 1.4rem;
+        }
+
+        .instruction {
+            margin-bottom: 1rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        .counter-badge {
+            display: inline-block;
+            background-color: var(--primary-light);
+            color: white;
+            font-weight: bold;
+            padding: 0.2rem 0.6rem;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            margin-left: 0.5rem;
+        }
+
+        .interactive-section {
+            margin-bottom: 2rem;
+            padding: 1.25rem;
+            background: #f1f5f9;
+            border-radius: 8px;
+        }
+
+        .tag-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .chip {
+            background-color: white;
+            border: 1px solid var(--border);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 500;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.2s ease;
+        }
+
+        .chip:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .chip.selected-correct {
+            background-color: var(--success) !important;
+            color: white !important;
+            border-color: var(--success) !important;
+        }
+
+        .chip.selected-incorrect {
+            background-color: var(--error) !important;
+            color: white !important;
+            border-color: var(--error) !important;
+        }
+
+        .reveal-box {
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: #e0e7ff;
+            border-left: 4px solid var(--accent);
+            border-radius: 4px;
+            display: none;
+        }
+
+        .think-pair-share {
+            background-color: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 1.25rem;
+            border-radius: 6px;
+            margin-top: 1rem;
+        }
+
+        .think-pair-share h4 {
+            color: #92400e;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .tps-textarea {
+            width: 100%;
+            min-height: 100px;
+            margin-top: 0.75rem;
+            padding: 0.75rem;
+            border: 1px solid #fcd34d;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            resize: vertical;
+            outline: none;
+            background-color: #fffbeb;
+            color: #451a03;
+        }
+
+        .tps-textarea:focus {
+            border-color: #d97706;
+            box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.2);
+        }
+
+        .pair-display {
+            display: none;
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: #ffffff;
+            border: 1px solid #fcd34d;
+            border-radius: 6px;
+        }
+
+        .pair-display h5 {
+            color: #92400e;
+            margin-bottom: 0.5rem;
+        }
+
+        .word-bank {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            padding: 1rem;
+            background: #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            min-height: 60px;
+            align-items: center;
+        }
+
+        .draggable-word {
+            background: var(--primary);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: grab;
+            font-weight: 600;
+            user-select: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .draggable-word:active {
+            cursor: grabbing;
+        }
+
+        .definition-text {
+            font-size: 1.15rem;
+            line-height: 2.2;
+            color: var(--text);
+            background: #fafafa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .drop-zone {
+            display: inline-block;
+            min-width: 120px;
+            height: 38px;
+            border-bottom: 2px dashed var(--accent);
+            background: #eef2ff;
+            vertical-align: middle;
+            margin: 0 4px;
+            padding: 0 8px;
+            border-radius: 4px;
+            text-align: center;
+            line-height: 36px;
+            transition: all 0.2s ease;
+        }
+
+        .drop-zone.over {
+            background: #c7d2fe;
+            border-style: solid;
+        }
+
+        .drop-zone .draggable-word {
+            display: inline-block;
+            margin: 0;
+            cursor: pointer;
+            box-shadow: none;
+        }
+
+        .action-btn {
+            display: inline-block;
+            margin-top: 1rem;
+            padding: 0.75rem 1.5rem;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .action-btn:hover {
+            background: var(--accent-hover);
+        }
+
+        .btn-warning {
+            background: #d97706;
+        }
+
+        .btn-warning:hover {
+            background: #b45309;
+        }
+
+        .feedback-message {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 6px;
+            font-weight: 600;
+            display: none;
+        }
+
+        .feedback-message.success {
+            background: #dcfce7;
+            color: var(--success);
+            border: 1px solid #86efac;
+            display: block;
+        }
+
+        .feedback-message.error {
+            background: #fee2e2;
+            color: var(--error);
+            border: 1px solid #fca5a5;
+            display: block;
+        }
+
+        /* Part 3: Applications Grid & Cards */
+        .app-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .app-card {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1.25rem;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .app-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent);
+            box-shadow: 0 8px 16px -2px rgba(79, 70, 229, 0.15);
+        }
+
+        .app-card-icon {
+            font-size: 2.2rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .app-card h3 {
+            color: var(--primary);
+            font-size: 1.15rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .app-card p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .click-prompt {
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .app-detail-panel {
+            display: none;
+            margin-top: 1.5rem;
+            background: #f1f5f9;
+            border: 2px solid var(--accent);
+            border-radius: 10px;
+            padding: 1.5rem;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .app-detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .app-detail-header h3 {
+            color: var(--primary);
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .close-btn {
+            background: transparent;
+            border: none;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+
+        .close-btn:hover {
+            color: var(--error);
+        }
+
+        .impact-badge {
+            display: inline-block;
+            background: #dcfce7;
+            color: var(--success);
+            padding: 0.3rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            border: 1px solid #86efac;
+        }
+
+        .detail-body {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .detail-image-gallery {
+            display: flex;
+            gap: 1rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+        }
+
+        .detail-img-card {
+            flex: 1;
+            min-width: 220px;
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .detail-img-card img {
+            width: 100%;
+            height: 140px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .detail-img-card span {
+            display: block;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            background: #f8fafc;
+        }
+
+        .detail-section-title {
+            font-weight: 700;
+            color: var(--primary);
+            margin-top: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .detail-text-content p {
+            line-height: 1.6;
+            color: var(--text);
+            font-size: 0.95rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .detail-text-content ul {
+            margin-left: 1.25rem;
+            margin-bottom: 0.75rem;
+            color: var(--text);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .summary-box {
+            margin-top: 1.25rem;
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .summary-box h4 {
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .summary-textarea {
+            width: 100%;
+            min-height: 80px;
+            padding: 0.6rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.9rem;
+            resize: vertical;
+            outline: none;
+        }
+
+        .summary-textarea:focus {
+            border-color: var(--accent);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Year 8 Computing Systems: Thinking Machines</h1>
+        <p>Lesson 5 – Interactive Introduction to Artificial Intelligence</p>
+    </header>
+
+    <div class="container">
+        <!-- Navigation Tabs -->
+        <nav class="tab-nav">
+            <button class="tab-btn active" onclick="switchTab('part1', this)">Part 1: Words Matter</button>
+            <button class="tab-btn" onclick="switchTab('part2', this)">Part 2: Defining AI</button>
+            <button class="tab-btn" onclick="switchTab('part3', this)">Part 3: Real-World AI</button>
+        </nav>
+
+        <!-- Part 1: Words Matter -->
+        <section id="part1" class="tab-content active">
+            <h2>Starter Activity: Deconstructing "Artificial Intelligence"</h2>
+            <p class="instruction">Break down the phrase 'Artificial Intelligence' by identifying the correct examples and synonyms among the options.</p>
+
+            <!-- Artificial Section -->
+            <div class="interactive-section">
+                <h3>1. Examples of 'Artificial' <span id="art-counter" class="counter-badge">0 / 7 found</span></h3>
+                <p class="instruction">Click on items that can be described as <strong>artificial</strong> (Avoid natural or non-applicable items!):</p>
+                <div class="tag-container" id="artificial-container">
+                    <span class="chip" data-correct="true" onclick="checkWord(this, 'art')">Flavouring</span>
+                    <span class="chip" data-correct="false" onclick="checkWord(this, 'art')">Rainfall</span>
+                    <span class="chip" data-correct="true" onclick="checkWord(this, 'art')">Flowers</span>
+                    <span class="chip" data-correct="false" onclick="checkWord(this, 'art')">Ocean</span>
+                    <span class="chip" data-correct="true" onclick="checkWord(this, 'art')">Hair</span>
+                    <span class="chip" data-correct="true" onclick="checkWord(this, 'art')">Heart</span>
+                    <span class="chip" data-correct="false" onclick="checkWord(this, 'art')">Sunlight</span>
+                    <span class="chip" data-correct="true" onclick="checkWord(this, 'art')">Lake</span>
+                    <span class="chip" data-correct="false" onclick="checkWord(this, 'art')">Wildlife</span>
+                    <span class="chip" data-correct="true" onclick="checkWord(this, 'art')">Light</span>
+                    <span class="chip" data-correct="true" onclick="checkWord(this, 'art')">Materials</span>
+                    <span class="chip" data-correct="false" onclick="checkWord(this, 'art')">Timber</span>
+                </div>
+                <button class="action-btn" style="margin-top: 1rem;" onclick="toggleReveal('def-reveal')">Reveal Definition of 'Artificial'</button>
+                <div id="def-reveal" class="reveal-box">
+                    <strong>Definition:</strong> Created by humans, usually as a copy of or substitute for something natural.
+                </div>
+            </div>
+
+            <!-- Intelligence Section -->
+            <div class="interactive-section">
+                <h3>2. Synonyms for 'Intelligent' <span id="intel-counter" class="counter-badge">0 / 8 found</span></h3>
+                <p class="instruction">Click on words that are <strong>synonyms for intelligent</strong> (Watch out for antonyms and unrelated terms!):</p>
+                <div class="tag-container" id="intel-container">
+                    <span class="chip" data-correct="true" onclick="checkWord(this, 'intel')">Clever</span>
+                    <span class="chip" data-correct="false" onclick="checkWord(this, 'intel')">Foolish</span>
+                    <span class="chip" data-correct="true" onclick="checkWord(this, 'intel')">Smart</span>
+                    <span class="chip" data-correct="false" onclick="checkWord(this, 'intel')">Slow</span>
+                    <span class="chip" data-correct="true" onclick="checkWord(this, 'intel')">Rational</span>
+                    <span class="chip" data-correct="true" onclick="checkWord(this, 'intel')">Knowledgeable</span>
+                    <span class="chip" data-correct="false" onclick="checkWord(this, 'intel')">Careless</span>
+                    <span class="chip" data-correct="true" onclick="checkWord(this, 'intel')">Creative</span>
+                    <span class="chip" data-correct="true" onclick="checkWord(this, 'intel')">Insightful</span>
+                    <span class="chip" data-correct="false" onclick="checkWord(this, 'intel')">Unaware</span>
+                    <span class="chip" data-correct="true" onclick="checkWord(this, 'intel')">Astute</span>
+                    <span class="chip" data-correct="true" onclick="checkWord(this, 'intel')">Ingenious</span>
+                </div>
+            </div>
+
+            <!-- Think-Pair-Share Section -->
+            <div class="think-pair-share">
+                <h4>Think, Pair, Share Activity</h4>
+                <p><strong>1. Think:</strong> When would you call a <strong>person</strong>, an <strong>animal</strong>, or a <strong>machine</strong> 'intelligent'?</p>
+                <textarea id="tps-input" class="tps-textarea" placeholder="Type your ideas here... (e.g. 'I would call a machine intelligent when it can solve problems by itself, or an animal intelligent when it learns tricks...')"></textarea>
+                <button class="action-btn btn-warning" onclick="saveTpsResponse()">Save & Share Ideas</button>
+
+                <div id="pair-box" class="pair-display">
+                    <h5>2. Pair & Share:</h5>
+                    <p style="margin-bottom: 0.5rem;"><strong>Your Saved Notes:</strong></p>
+                    <p id="saved-notes" style="font-style: italic; color: #451a03; background: #fffbeb; padding: 0.5rem; border-radius: 4px; border: 1px solid #fcd34d;"></p>
+                    <p style="margin-top: 0.75rem; font-size: 0.9rem; color: #78350f;">Now pair up with the student sitting next to you! Compare your definitions and discuss: <em>Did you both use the same reasons for machines versus animals or humans?</em></p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Part 2: Definition Drag & Drop -->
+        <section id="part2" class="tab-content">
+            <h2>Task A: Describe Artificial Intelligence</h2>
+            <p class="instruction">Drag the words from the bank below into the correct empty slots to complete the definition of Artificial Intelligence.</p>
+
+            <!-- Word Bank -->
+            <div class="word-bank" id="word-bank" ondrop="drop(event)" ondragover="allowDrop(event)">
+                <div class="draggable-word" draggable="true" ondragstart="drag(event)" id="word-complex">complex</div>
+                <div class="draggable-word" draggable="true" ondragstart="drag(event)" id="word-images">images</div>
+                <div class="draggable-word" draggable="true" ondragstart="drag(event)" id="word-data">data</div>
+                <div class="draggable-word" draggable="true" ondragstart="drag(event)" id="word-rules">rules</div>
+                <div class="draggable-word" draggable="true" ondragstart="drag(event)" id="word-intelligence">intelligence</div>
+                <div class="draggable-word" draggable="true" ondragstart="drag(event)" id="word-smart">smart</div>
+            </div>
+
+            <!-- Definition Sentence -->
+            <div class="definition-text">
+                Artificial <span class="drop-zone" data-answer="intelligence" ondrop="drop(event)" ondragover="allowDrop(event)"></span> is about building computer systems that can perform <span class="drop-zone" data-answer="complex" ondrop="drop(event)" ondragover="allowDrop(event)"></span> tasks and make decisions by learning from <span class="drop-zone" data-answer="data" ondrop="drop(event)" ondragover="allowDrop(event)"></span> or following <span class="drop-zone" data-answer="rules" ondrop="drop(event)" ondragover="allowDrop(event)"></span>.<br><br>
+                This includes things like analysing medical <span class="drop-zone" data-answer="images" ondrop="drop(event)" ondragover="allowDrop(event)"></span> to help doctors or recommending music and videos that users might enjoy.<br><br>
+                AI can appear to be <span class="drop-zone" data-answer="smart" ondrop="drop(event)" ondragover="allowDrop(event)"></span> but it is not human and doesn't think or feel things.
+            </div>
+
+            <button class="action-btn" onclick="checkAnswers()">Check Answers</button>
+            <button class="action-btn" style="background-color: var(--text-muted);" onclick="resetDragDrop()">Reset</button>
+
+            <div id="feedback" class="feedback-message"></div>
+        </section>
+
+        <!-- Part 3: Real-World AI Applications -->
+        <section id="part3" class="tab-content">
+            <h2>Part 3: High-Impact Applications of AI</h2>
+            <p class="instruction">Explore how AI is changing our world in unexpected ways. Click on any tile below to expand details, view example images, and write your own summary!</p>
+
+            <div class="app-grid">
+                <!-- Tile 1: Medical Scan Analysis -->
+                <div class="app-card" onclick="expandApp('medical')">
+                    <div>
+                        <div class="app-card-icon">🩺</div>
+                        <h3>Medical Imaging Analysis</h3>
+                        <p>AI algorithms scanning X-rays, MRIs, and retina scans to assist doctors in early diagnosis.</p>
+                    </div>
+                    <div class="click-prompt">Click to expand →</div>
+                </div>
+
+                <!-- Tile 2: Precision Farming & Drones -->
+                <div class="app-card" onclick="expandApp('agriculture')">
+                    <div>
+                        <div class="app-card-icon">🌾</div>
+                        <h3>Smart Agriculture & Drones</h3>
+                        <p>AI-powered drones scanning millions of crop leaves to identify weeds with zero waste.</p>
+                    </div>
+                    <div class="click-prompt">Click to expand →</div>
+                </div>
+
+                <!-- Tile 3: Coral Reef Protection -->
+                <div class="app-card" onclick="expandApp('ocean')">
+                    <div>
+                        <div class="app-card-icon">🪸</div>
+                        <h3>Ocean Coral Reef Bioacoustics</h3>
+                        <p>Underwater AI listening to marine soundscapes and mapping coral reef health in real time.</p>
+                    </div>
+                    <div class="click-prompt">Click to expand →</div>
+                </div>
+
+                <!-- Tile 4: Endangered Species Tracking -->
+                <div class="app-card" onclick="expandApp('wildlife')">
+                    <div>
+                        <div class="app-card-icon">🐆</div>
+                        <h3>Wild Animal Pattern Recognition</h3>
+                        <p>AI vision models recognizing individual animal coat patterns to stop illegal poaching.</p>
+                    </div>
+                    <div class="click-prompt">Click to expand →</div>
+                </div>
+            </div>
+
+            <!-- Detail Panel -->
+            <div id="app-detail-panel" class="app-detail-panel">
+                <div class="app-detail-header">
+                    <h3 id="detail-title">Application Title</h3>
+                    <button class="close-btn" onclick="closeDetailPanel()">&times;</button>
+                </div>
+                <div id="detail-impact" class="impact-badge">High Impact Metric</div>
+                
+                <div class="detail-body">
+                    <!-- Image Gallery -->
+                    <div id="detail-gallery" class="detail-image-gallery"></div>
+
+                    <!-- Detailed Content -->
+                    <div id="detail-content" class="detail-text-content"></div>
+                </div>
+
+                <div class="summary-box">
+                    <h4>Student Challenge: Summarise this AI application</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem;">In 1-2 sentences, explain how the machine learns or performs this task in your own words:</p>
+                    <textarea id="app-summary-input" class="summary-textarea" placeholder="Write your brief summary here..."></textarea>
+                    <button class="action-btn" style="margin-top: 0.5rem; padding: 0.5rem 1rem; font-size: 0.9rem;" onclick="saveSummary()">Save Summary</button>
+                    <p id="summary-saved-msg" style="color: var(--success); font-size: 0.85rem; font-weight: bold; margin-top: 0.5rem; display: none;">✓ Summary saved successfully!</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        function switchTab(tabId, btnElement) {
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+
+            document.getElementById(tabId).classList.add('active');
+            btnElement.classList.add('active');
+        }
+
+        let foundArtificial = 0;
+        const totalArtificial = 7;
+
+        let foundIntel = 0;
+        const totalIntel = 8;
+
+        function checkWord(element, category) {
+            const isCorrect = element.getAttribute('data-correct') === 'true';
+
+            if (isCorrect) {
+                if (!element.classList.contains('selected-correct')) {
+                    element.classList.add('selected-correct');
+                    element.classList.remove('selected-incorrect');
+                    
+                    if (category === 'art') {
+                        foundArtificial++;
+                        document.getElementById('art-counter').innerText = `${foundArtificial} / ${totalArtificial} found`;
+                    } else if (category === 'intel') {
+                        foundIntel++;
+                        document.getElementById('intel-counter').innerText = `${foundIntel} / ${totalIntel} found`;
+                    }
+                }
+            } else {
+                if (element.classList.contains('selected-incorrect')) {
+                    element.classList.remove('selected-incorrect');
+                } else {
+                    element.classList.add('selected-incorrect');
+                }
+            }
+        }
+
+        function toggleReveal(elementId) {
+            const el = document.getElementById(elementId);
+            el.style.display = el.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function saveTpsResponse() {
+            const text = document.getElementById('tps-input').value.trim();
+            if (text === "") {
+                alert("Please write a short answer first!");
+                return;
+            }
+            document.getElementById('saved-notes').innerText = text;
+            document.getElementById('pair-box').style.display = 'block';
+        }
+
+        function allowDrop(ev) {
+            ev.preventDefault();
+            if (ev.target.classList.contains('drop-zone')) {
+                ev.target.classList.add('over');
+            }
+        }
+
+        document.querySelectorAll('.drop-zone').forEach(zone => {
+            zone.addEventListener('dragleave', function() {
+                this.classList.remove('over');
+            });
+        });
+
+        function drag(ev) {
+            ev.dataTransfer.setData("text", ev.target.id);
+        }
+
+        function drop(ev) {
+            ev.preventDefault();
+            const target = ev.target;
+            target.classList.remove('over');
+
+            const data = ev.dataTransfer.getData("text");
+            const draggedElement = document.getElementById(data);
+
+            if (target.classList.contains('drop-zone')) {
+                if (target.children.length > 0) {
+                    document.getElementById('word-bank').appendChild(target.children[0]);
+                }
+                target.appendChild(draggedElement);
+            } else if (target.id === 'word-bank' || target.closest('#word-bank')) {
+                document.getElementById('word-bank').appendChild(draggedElement);
+            }
+        }
+
+        function checkAnswers() {
+            const dropZones = document.querySelectorAll('.drop-zone');
+            let correctCount = 0;
+            let totalZones = dropZones.length;
+
+            dropZones.forEach(zone => {
+                const child = zone.children[0];
+                if (child) {
+                    const word = child.innerText.trim();
+                    const expected = zone.getAttribute('data-answer');
+                    if (word === expected) {
+                        correctCount++;
+                        zone.style.borderColor = 'var(--success)';
+                        zone.style.backgroundColor = '#dcfce7';
+                    } else {
+                        zone.style.borderColor = 'var(--error)';
+                        zone.style.backgroundColor = '#fee2e2';
+                    }
+                } else {
+                    zone.style.borderColor = 'var(--error)';
+                }
+            });
+
+            const feedback = document.getElementById('feedback');
+            if (correctCount === totalZones) {
+                feedback.className = 'feedback-message success';
+                feedback.innerText = 'Well done! You completed the definition of Artificial Intelligence correctly.';
+            } else {
+                feedback.className = 'feedback-message error';
+                feedback.innerText = `You got ${correctCount} out of ${totalZones} correct. Try adjusting your answers!`;
+            }
+        }
+
+        function resetDragDrop() {
+            const wordBank = document.getElementById('word-bank');
+            const dropZones = document.querySelectorAll('.drop-zone');
+
+            dropZones.forEach(zone => {
+                if (zone.children.length > 0) {
+                    wordBank.appendChild(zone.children[0]);
+                }
+                zone.style.borderColor = 'var(--accent)';
+                zone.style.backgroundColor = '#eef2ff';
+            });
+
+            const feedback = document.getElementById('feedback');
+            feedback.style.display = 'none';
+        }
+
+        const appData = {
+            medical: {
+                title: "🩺 Medical Image Diagnostics",
+                impact: "High Impact: Detects eye conditions & lung tumors up to 40% faster than standard screenings",
+                images: [
+                    { url: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=600&q=80", caption: "AI identifying pixel anomalies on an X-ray scan" },
+                    { url: "https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&w=600&q=80", caption: "High-resolution digital eye scan analysed by computer vision" }
+                ],
+                htmlContent: `
+                    <p><strong>How it works:</strong> Computers are trained using thousands of anonymised medical scans (such as chest X-rays or retinal scans) that have already been diagnosed by human doctors. The AI learns to recognise extremely subtle pixel changes, subtle shading differences, or micro-patterns that indicate early disease.</p>
+                    <div class="detail-section-title">Key Advantages:</div>
+                    <ul>
+                        <li><strong>Speed & Scalability:</strong> Can process thousands of scans in seconds, allowing emergency doctors to prioritise urgent cases.</li>
+                        <li><strong>Early Detection:</strong> Identifies tiny abnormalities before they become visible to the human eye, improving treatment success rates.</li>
+                        <li><strong>Support Tool:</strong> Acts as a second pair of expert eyes for radiographers rather than replacing them.</li>
+                    </ul>
+                `
+            },
+            agriculture: {
+                title: "🌾 Smart Crop Drones & Targeted Weed Control",
+                impact: "High Impact: Cuts agricultural chemical usage by up to 89%",
+                images: [
+                    { url: "https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&w=600&q=80", caption: "Agricultural drone monitoring crop health across fields" },
+                    { url: "https://images.unsplash.com/photo-1625246333195-78d9c38ad449?auto=format&fit=crop&w=600&q=80", caption: "Smart tractor applying precise spot-spraying" }
+                ],
+                htmlContent: `
+                    <p><strong>How it works:</strong> Drones and smart tractor rigs fly or drive over fields equipped with high-speed cameras. Using computer vision models, the system scans every single leaf in real time. It compares leaf shapes and color patterns against thousands of training images to immediately distinguish crop plants from unwanted weeds.</p>
+                    <div class="detail-section-title">Key Advantages:</div>
+                    <ul>
+                        <li><strong>Environmental Protection:</strong> Instead of spraying entire fields with weedkiller, smart sprayers only squirt a tiny droplet onto individual weeds.</li>
+                        <li><strong>Cost Efficiency:</strong> Saves farmers huge amounts of money on expensive chemical supplies.</li>
+                        <li><strong>Early Blight Warning:</strong> Identifies crop fungal infections days before they spread across the farm.</li>
+                    </ul>
+                `
+            },
+            ocean: {
+                title: "🪸 Coral Reef Bioacoustic Monitoring",
+                impact: "High Impact: Monitors ocean ecosystems 24/7 without underwater human divers",
+                images: [
+                    { url: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=600&q=80", caption: "Healthy coral reef marine ecosystem" },
+                    { url: "https://images.unsplash.com/photo-1582967788606-a171c1080cb0?auto=format&fit=crop&w=600&q=80", caption: "Underwater hydrophone recording acoustic signals" }
+                ],
+                htmlContent: `
+                    <p><strong>How it works:</strong> Marine scientists place waterproof microphones (hydrophones) on fragile coral reefs. A healthy reef is surprisingly noisy, filled with snapping shrimp, grazing parrotfish, and territorial clicks. AI audio models are trained to convert soundwaves into visual spectrograms and 'listen' to ocean noise 24 hours a day.</p>
+                    <div class="detail-section-title">Key Advantages:</div>
+                    <ul>
+                        <li><strong>Ecosystem Health Index:</strong> Measures how well a coral reef is recovering after bleaching events by tracking marine creature sounds.</li>
+                        <li><strong>Non-Invasive:</strong> Collects ocean data continuously without disturbing fish or ocean life.</li>
+                        <li><strong>Illegal Fishing Alerts:</strong> Detects illegal underwater boat propellers or explosive fishing methods instantly.</li>
+                    </ul>
+                `
+            },
+            wildlife: {
+                title: "🐆 Wild Animal Pattern Recognition",
+                impact: "High Impact: Reduced illegal poaching activities by over 60% in reserve zones",
+                images: [
+                    { url: "https://images.unsplash.com/photo-1534188753412-3e26d0d618d6?auto=format&fit=crop&w=600&q=80", caption: "Wild leopard with unique coat pattern" },
+                    { url: "https://images.unsplash.com/photo-1516426122078-c23e76319801?auto=format&fit=crop&w=600&q=80", caption: "Remote motion-activated camera trap in national park" }
+                ],
+                htmlContent: `
+                    <p><strong>How it works:</strong> Motion-activated camera traps hidden in national parks capture millions of photographs. Rather than rangers spending hundreds of hours sifting through blank photos, AI image models filter out empty shots and analyze unique spots, stripes, or facial structures—like a human fingerprint—to identify individual animals.</p>
+                    <div class="detail-section-title">Key Advantages:</div>
+                    <ul>
+                        <li><strong>Population Counting:</strong> Tracks exact animal populations across vast wilderness areas automatically.</li>
+                        <li><strong>Anti-Poaching Protection:</strong> Connected camera traps detect armed intruders in real time and send immediate GPS coordinates to rangers.</li>
+                        <li><strong>Migration Analysis:</strong> Helps conservationists build safe corridors across roads and human developments.</li>
+                    </ul>
+                `
+            }
+        };
+
+        let currentAppKey = "";
+
+        function expandApp(appKey) {
+            currentAppKey = appKey;
+            const data = appData[appKey];
+            
+            document.getElementById('detail-title').innerText = data.title;
+            document.getElementById('detail-impact').innerText = data.impact;
+            document.getElementById('detail-content').innerHTML = data.htmlContent;
+
+            const gallery = document.getElementById('detail-gallery');
+            gallery.innerHTML = "";
+            data.images.forEach(imgObj => {
+                const imgCard = document.createElement('div');
+                imgCard.className = 'detail-img-card';
+                imgCard.innerHTML = `<img src="${imgObj.url}" alt="${imgObj.caption}"><span>${imgObj.caption}</span>`;
+                gallery.appendChild(imgCard);
+            });
+            
+            const savedText = localStorage.getItem('ai_app_summary_' + appKey) || "";
+            document.getElementById('app-summary-input').value = savedText;
+            document.getElementById('summary-saved-msg').style.display = 'none';
+
+            const panel = document.getElementById('app-detail-panel');
+            panel.style.display = 'block';
+            panel.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function closeDetailPanel() {
+            document.getElementById('app-detail-panel').style.display = 'none';
+        }
+
+        function saveSummary() {
+            if (!currentAppKey) return;
+            const text = document.getElementById('app-summary-input').value.trim();
+            if (text === "") {
+                alert("Please write a summary before saving!");
+                return;
+            }
+            localStorage.setItem('ai_app_summary_' + currentAppKey, text);
+            const msg = document.getElementById('summary-saved-msg');
+            msg.style.display = 'block';
+            setTimeout(() => { msg.style.display = 'none'; }, 3000);
+        }
+    </script>
+</body>
+</html>
