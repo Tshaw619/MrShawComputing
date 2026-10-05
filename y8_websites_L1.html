@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Website Building Blocks & Inline Styling - Interactive Learning Suite</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-color: #1e293b;
+            --border-color: #e2e8f0;
+            --success: #10b981;
+            --error: #ef4444;
+        }
+        
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 950px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: linear-gradient(135deg, #4f46e5, #3b82f6);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        header h1 {
+            margin: 0 0 0.5rem 0;
+            font-size: 2.2rem;
+        }
+
+        header p {
+            margin: 0;
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        /* Navigation Tabs */
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 2rem;
+        }
+
+        .nav-tab {
+            background: white;
+            border: 1px solid var(--border-color);
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            color: #64748b;
+            transition: all 0.2s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .nav-tab.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .page-section {
+            display: none;
+        }
+
+        .page-section.active {
+            display: block;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        h2 {
+            color: var(--primary);
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 0.5rem;
+            margin-top: 0;
+        }
+
+        /* Interactive Tag Styles */
+        .html-tag {
+            background-color: #e0e7ff;
+            color: #3730a3;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-weight: bold;
+            cursor: pointer;
+            border: 1px dashed #6366f1;
+            transition: all 0.2s;
+            display: inline-block;
+        }
+
+        .html-tag:hover {
+            background-color: #c7d2fe;
+            transform: translateY(-1px);
+        }
+
+        /* Drag and Drop Styles */
+        .sentence-container {
+            font-size: 1.1rem;
+            line-height: 2.2;
+            margin-bottom: 1.5rem;
+        }
+
+        .dropzone {
+            display: inline-block;
+            min-width: 130px;
+            height: 32px;
+            border: 2px dashed #94a3b8;
+            background-color: #f1f5f9;
+            border-radius: 6px;
+            vertical-align: middle;
+            text-align: center;
+            margin: 0 4px;
+            color: #64748b;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+
+        .dropzone.highlight {
+            border-color: var(--primary);
+            background-color: #e0e7ff;
+        }
+
+        .dropzone.filled {
+            border-style: solid;
+            border-color: #cbd5e1;
+            background-color: white;
+            color: var(--text-color);
+        }
+
+        .word-bank {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin: 1.5rem 0;
+            padding: 1rem;
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+        }
+
+        .draggable-word {
+            background: white;
+            border: 1px solid #cbd5e1;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: grab;
+            font-weight: bold;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            user-select: none;
+            transition: all 0.2s;
+        }
+
+        .draggable-word:active {
+            cursor: grabbing;
+        }
+
+        .draggable-word.dragging {
+            opacity: 0.4;
+        }
+
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .feedback {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 6px;
+            font-weight: bold;
+            display: none;
+        }
+
+        .feedback.success {
+            background-color: #d1fae5;
+            color: #065f46;
+            border: 1px solid #34d399;
+            display: block;
+        }
+
+        .feedback.error {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #f87171;
+            display: block;
+        }
+
+        /* Task B Workspace */
+        .code-editor {
+            width: 100%;
+            height: 150px;
+            font-family: monospace;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.95rem;
+            background: #0f172a;
+            color: #38bdf8;
+            resize: vertical;
+        }
+
+        .preview-box {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 1rem;
+            margin-top: 1rem;
+            min-height: 80px;
+        }
+
+        /* Inline Tags Table/List */
+        .inline-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .inline-table th, .inline-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+            text-align: left;
+        }
+
+        .inline-table th {
+            background-color: #f1f5f9;
+            color: #475569;
+            font-weight: 600;
+        }
+
+        .inline-table tr:hover {
+            background-color: #f8fafc;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            max-width: 650px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            transform: translateY(20px);
+            transition: transform 0.3s;
+        }
+
+        .modal-overlay.active .modal {
+            transform: translateY(0);
+        }
+
+        .modal h3 {
+            margin-top: 0;
+            color: var(--primary);
+        }
+
+        .modal-close {
+            float: right;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #64748b;
+        }
+
+        .demo-box {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border: 1px solid var(--border-color);
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 600px) {
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .compare-pane {
+            background: white;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 10px;
+        }
+
+        .compare-pane h4 {
+            margin: 0 0 8px 0;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #64748b;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 4px;
+        }
+
+        .interactive-playground {
+            margin-top: 12px;
+            padding: 10px;
+            background: white;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+        }
+
+        .playground-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .playground-controls input[type="text"] {
+            padding: 6px 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            flex-grow: 1;
+        }
+
+        ul.styled-list {
+            padding-left: 20px;
+        }
+
+        ul.styled-list li {
+            margin-bottom: 6px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Website Building Blocks & HTML Reference</h1>
+        <p>Interactive Learning Suite &bull; OCR Computer Science Curriculum</p>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <div class="nav-tabs">
+        <button class="nav-tab active" onclick="switchPage(1)">Page 1: Website Building Blocks</button>
+        <button class="nav-tab" onclick="switchPage(2)">Page 2: Inline Styling Tags Cheat Sheet</button>
+    </div>
+
+    <!-- PAGE 1: Website Building Blocks -->
+    <div class="page-section active" id="page1">
+        <div class="card">
+            <h2>Task A: Describe and use HTML</h2>
+            <p><strong>1) Fill in the blanks:</strong> Drag the correct words into the blank spaces below. Click on any <span class="html-tag" onclick="openTagModal('&lt;p&gt;')">&lt;p&gt;</span> tag to see its properties in action!</p>
+            
+            <div class="sentence-container">
+                HTML acts as the <span class="dropzone" id="drop1" data-answer="building blocks"></span> of a website. It uses special codes called <span class="dropzone" id="drop2" data-answer="tags"></span> to structure content. Each tag tells the web browser how to <span class="dropzone" id="drop3" data-answer="display"></span> different parts of the page. For example, the <span class="html-tag" onclick="openTagModal('&lt;p&gt;')">&lt;p&gt;</span> tag creates a <span class="dropzone" id="drop4" data-answer="paragraph"></span> of text.
+            </div>
+
+            <div class="word-bank" id="wordBank">
+                <div class="draggable-word" draggable="true" id="word1">display</div>
+                <div class="draggable-word" draggable="true" id="word2">building blocks</div>
+                <div class="draggable-word" draggable="true" id="word3">paragraph</div>
+                <div class="draggable-word" draggable="true" id="word4">tags</div>
+            </div>
+
+            <button class="btn" onclick="checkAnswers()">Check Answers</button>
+            <div id="feedbackA" class="feedback"></div>
+
+            <p style="margin-top: 2rem;"><strong>2) Open starter code:</strong> <a href="http://oak.link/my-sunday" target="_blank" style="color: var(--primary); font-weight: bold;">oak.link/my-sunday</a></p>
+            <p>Use the <span class="html-tag" onclick="openTagModal('&lt;p&gt;')">&lt;p&gt;</span> and <span class="html-tag" onclick="openTagModal('&lt;/p&gt;')">&lt;/p&gt;</span> tags to make the text display correctly. Each sentence must be on a new line.</p>
+        </div>
+
+        <div class="card">
+            <h2>Task B: Structure a web page using HTML</h2>
+            <p><strong>Open starter code:</strong> <a href="http://oak.link/all-about-me" target="_blank" style="color: var(--primary); font-weight: bold;">oak.link/all-about-me</a></p>
+            
+            <p>Use a <span class="html-tag" onclick="openTagModal('&lt;p&gt;')">&lt;p&gt;</span> tag to put each sentence on a new line.</p>
+            
+            <ul class="styled-list">
+                <li><strong>1)</strong> Write a short introduction about yourself.</li>
+                <li>Write a sentence about your favourite hobby. Use a <span class="html-tag" onclick="openTagModal('&lt;b&gt;')">&lt;b&gt;</span> tag to make your hobby bold.</li>
+                <li>Write a sentence about your favourite food. Use an <span class="html-tag" onclick="openTagModal('&lt;em&gt;')">&lt;em&gt;</span> tag to emphasise the food.</li>
+                <li><strong>2)</strong> Create an unordered list (<span class="html-tag" onclick="openTagModal('&lt;ul&gt;')">&lt;ul&gt;</span>) with at least three places you like to visit. Use <span class="html-tag" onclick="openTagModal('&lt;li&gt;')">&lt;li&gt;</span> for each list item.</li>
+                <li><strong>3)</strong> Write a line from a song. Use <span class="html-tag" onclick="openTagModal('&lt;q&gt;')">&lt;q&gt;</span> to put the song lyrics in quotation marks.</li>
+            </ul>
+
+            <h3 style="margin-top: 1.5rem;">Interactive Sandbox Preview</h3>
+            <p>Test your HTML snippets live below:</p>
+            <textarea class="code-editor" id="codeEditor" placeholder="Type HTML here, e.g. <p>Hello world!</p>"><h1>All About Me</h1>
+<p>Hi, my name is Alex.</p>
+<p>My favourite hobby is <b>coding interactive web apps</b>.</p>
+<p>I love eating <em>stone-baked pizza</em>.</p>
+<ul>
+    <li>Tokyo</li>
+    <li>Cornwall</li>
+    <li>The Scottish Highlands</li>
+</ul>
+<p>As the song goes, <q>Here comes the sun, do do do do!</q></p></textarea>
+            <button class="btn" style="margin-top: 10px;" onclick="renderPreview()">Render Preview</button>
+            
+            <div class="preview-box" id="previewBox"></div>
+        </div>
+    </div>
+
+    <!-- PAGE 2: Inline Styling Tags Cheat Sheet -->
+    <div class="page-section" id="page2">
+        <div class="card">
+            <h2>Inline Text Formatting & Styling Tags</h2>
+            <p>Inline tags style specific portions of text within a line without starting a new block. Click on any tag in the table to test its properties and see it in action!</p>
+            
+            <table class="inline-table">
+                <thead>
+                    <tr>
+                        <th>Tag</th>
+                        <th>Name / Description</th>
+                        <th>Live Example Render</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="html-tag" onclick="openTagModal('&lt;b&gt;')">&lt;b&gt;</span></td>
+                        <td><strong>Bold text</strong> (visual weight without extra importance)</td>
+                        <td>This is <b>bold</b> text.</td>
+                    </tr>
+                    <tr>
+                        <td><span class="html-tag" onclick="openTagModal('&lt;strong&gt;')">&lt;strong&gt;</span></td>
+                        <td><strong>Strong importance</strong> (rendered bold by default, indicates high importance)</td>
+                        <td>This is <strong>very important</strong> text.</td>
+                    </tr>
+                    <tr>
+                        <td><span class="html-tag" onclick="openTagModal('&lt;i&gt;')">&lt;i&gt;</span></td>
+                        <td><strong>Italic text</strong> (alternate voice or technical term in italics)</td>
+                        <td>The term <i>software</i> is crucial.</td>
+                    </tr>
+                    <tr>
+                        <td><span class="html-tag" onclick="openTagModal('&lt;em&gt;')">&lt;em&gt;</span></td>
+                        <td><strong>Emphasised text</strong> (stress emphasis, rendered in italics)</td>
+                        <td>Always <em>check your work</em> carefully.</td>
+                    </tr>
+                    <tr>
+                        <td><span class="html-tag" onclick="openTagModal('&lt;u&gt;')">&lt;u&gt;</span></td>
+                        <td><strong>Underlined text</strong> (unarticulated annotation or underline styling)</td>
+                        <td>Please note this <u>highlighted</u> section.</td>
+                    </tr>
+                    <tr>
+                        <td><span class="html-tag" onclick="openTagModal('&lt;mark&gt;')">&lt;mark&gt;</span></td>
+                        <td><strong>Highlighted/Marked text</strong> (yellow background highlight for reference)</td>
+                        <td>Remember to <mark>save your progress</mark> often.</td>
+                    </tr>
+                    <tr>
+                        <td><span class="html-tag" onclick="openTagModal('&lt;code&gt;')">&lt;code&gt;</span></td>
+                        <td><strong>Computer code snippet</strong> (monospace font for programming code)</td>
+                        <td>Use the <code>print()</code> function in Python.</td>
+                    </tr>
+                    <tr>
+                        <td><span class="html-tag" onclick="openTagModal('&lt;span&gt;')">&lt;span&gt;</span></td>
+                        <td><strong>Generic inline container</strong> (used with CSS for styling custom spans)</td>
+                        <td>This has a <span style="color: #4f46e5; font-weight: bold;">custom coloured</span> word.</td>
+                    </tr>
+                    <tr>
+                        <td><span class="html-tag" onclick="openTagModal('&lt;sub&gt;')">&lt;sub&gt;</span></td>
+                        <td><strong>Subscript text</strong> (lowered baseline text, e.g. chemical formulas)</td>
+                        <td>Water chemical formula is H<sub>2</sub>O.</td>
+                    </tr>
+                    <tr>
+                        <td><span class="html-tag" onclick="openTagModal('&lt;sup&gt;')">&lt;sup&gt;</span></td>
+                        <td><strong>Superscript text</strong> (raised baseline text, e.g. mathematical powers)</td>
+                        <td>Area in square meters: m<sup>2</sup>.</td>
+                    </tr>
+                    <tr>
+                        <td><span class="html-tag" onclick="openTagModal('&lt;small&gt;')">&lt;small&gt;</span></td>
+                        <td><strong>Smaller text</strong> (fine print or side comments)</td>
+                        <td>Terms apply <small>(see small print)</small>.</td>
+                    </tr>
+                    <tr>
+                        <td><span class="html-tag" onclick="openTagModal('&lt;del&gt;')">&lt;del&gt;</span></td>
+                        <td><strong>Deleted text</strong> (strikethrough text indicating deletion)</td>
+                        <td>Price: <del>£19.99</del> £14.99</td>
+                    </tr>
+                    <tr>
+                        <td><span class="html-tag" onclick="openTagModal('&lt;ins&gt;')">&lt;ins&gt;</span></td>
+                        <td><strong>Inserted text</strong> (underlined text indicating an addition)</td>
+                        <td>Updated status: <ins>Active</ins></td>
+                    </tr>
+                    <tr>
+                        <td><span class="html-tag" onclick="openTagModal('&lt;q&gt;')">&lt;q&gt;</span></td>
+                        <td><strong>Short quotation</strong> (inline quotation enclosed in quotation marks)</td>
+                        <td>She said <q>Code is poetry</q>.</td>
+                    </tr>
+                    <tr>
+                        <td><span class="html-tag" onclick="openTagModal('&lt;kbd&gt;')">&lt;kbd&gt;</span></td>
+                        <td><strong>Keyboard input</strong> (monospace styled representation of keyboard keys)</td>
+                        <td>Press <kbd>Ctrl</kbd> + <kbd>C</kbd> to copy.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Tag Demonstrations -->
+<div class="modal-overlay" id="tagModalOverlay" onclick="closeTagModal(event)">
+    <div class="modal" id="tagModal">
+        <button class="modal-close" onclick="closeTagModalForce()">&times;</button>
+        <h3 id="modalTitle">Tag Explorer</h3>
+        <p id="modalDescription">Description goes here.</p>
+        
+        <div class="demo-box">
+            <strong style="color: var(--primary);">Side-by-Side Effect Demonstration:</strong>
+            <p style="font-size: 0.9rem; color: #64748b; margin-top: 4px;">See raw HTML code vs. how the browser renders it in action:</p>
+            
+            <div class="comparison-grid">
+                <div class="compare-pane">
+                    <h4>Raw HTML Code</h4>
+                    <pre id="modalRawCode" style="margin:0; font-family:monospace; font-size:0.85rem; color:#0f172a; white-space:pre-wrap; background:#f1f5f9; padding:8px; border-radius:4px;"></pre>
+                </div>
+                <div class="compare-pane">
+                    <h4>Browser Rendered Output</h4>
+                    <div id="modalRenderOutput" style="background:white; padding:8px; border-radius:4px; min-height:40px;"></div>
+                </div>
+            </div>
+
+            <div class="interactive-playground" id="modalPlaygroundContainer" style="margin-top: 12px;"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    /* Tab Navigation */
+    function switchPage(pageNum) {
+        document.querySelectorAll('.nav-tab').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.page-section').forEach(sec => sec.classList.remove('active'));
+        
+        if (pageNum === 1) {
+            document.querySelectorAll('.nav-tab')[0].classList.add('active');
+            document.getElementById('page1').classList.add('active');
+        } else {
+            document.querySelectorAll('.nav-tab')[1].classList.add('active');
+            document.getElementById('page2').classList.add('active');
+        }
+    }
+
+    /* Drag and Drop Logic */
+    const draggables = document.querySelectorAll('.draggable-word');
+    const dropzones = document.querySelectorAll('.dropzone');
+
+    draggables.forEach(draggable => {
+        draggable.addEventListener('dragstart', () => {
+            draggable.classList.add('dragging');
+        });
+
+        draggable.addEventListener('dragend', () => {
+            draggable.classList.remove('dragging');
+        });
+    });
+
+    dropzones.forEach(dropzone => {
+        dropzone.addEventListener('dragover', e => {
+            e.preventDefault();
+            dropzone.classList.add('highlight');
+        });
+
+        dropzone.addEventListener('dragleave', () => {
+            dropzone.classList.remove('highlight');
+        });
+
+        dropzone.addEventListener('drop', e => {
+            e.preventDefault();
+            dropzone.classList.remove('highlight');
+            const draggingEl = document.querySelector('.dragging');
+            
+            if (dropzone.children.length > 0) {
+                document.getElementById('wordBank').appendChild(dropzone.children[0]);
+            }
+            
+            dropzone.appendChild(draggingEl);
+            dropzone.classList.add('filled');
+        });
+
+        dropzone.addEventListener('click', () => {
+            if (dropzone.children.length > 0) {
+                document.getElementById('wordBank').appendChild(dropzone.children[0]);
+                dropzone.classList.remove('filled');
+            }
+        });
+    });
+
+    function checkAnswers() {
+        let allCorrect = true;
+        dropzones.forEach(dropzone => {
+            const answer = dropzone.getAttribute('data-answer');
+            const child = dropzone.children[0];
+            if (!child || child.innerText.trim() !== answer) {
+                allCorrect = false;
+            }
+        });
+
+        const feedback = document.getElementById('feedbackA');
+        if (allCorrect) {
+            feedback.className = 'feedback success';
+            feedback.innerText = 'Fantastic work! All answers are correct. HTML uses tags as building blocks to structure and display web page content.';
+        } else {
+            feedback.className = 'feedback error';
+            feedback.innerText = 'Not quite right yet. Check your answers and try dragging the correct words into each blank space.';
+        }
+    }
+
+    /* Tag Demonstrations Data and Logic (15+ Inline Tags & Block Tags) */
+    const tagData = {
+        '<p>': {
+            title: 'Paragraph Tag (<p>)',
+            desc: 'The <p> tag defines a block of text as a paragraph. Web browsers automatically insert vertical margin spacing above and below it.',
+            rawHTML: '<p>This is sentence one.</p>\\n<p>This is sentence two on a new line.</p>',
+            renderHTML: '<p style="margin:0 0 8px 0; background:#e0e7ff; padding:4px;">This is sentence one.</p><p style="margin:0; background:#e0e7ff; padding:4px;">This is sentence two on a new line.</p>',
+            hasInput: true,
+            defaultText: 'Custom paragraph text here...',
+            inputLabel: 'Test paragraph text:',
+            builder: function(val) {
+                return '<p style="margin:0; background:#e0e7ff; padding:6px; border-radius:4px;">' + val + '</p><small style="color:#64748b; display:block; margin-top:4px;">Effect: Forms a distinct block with automatic top and bottom spacing.</small>';
+            }
+        },
+        '</p>': {
+            title: 'Closing Paragraph Tag (</p>)',
+            desc: 'The closing tag tells the browser where the paragraph block ends. Without it, formatting spills over to subsequent text.',
+            rawHTML: '<p>First paragraph.</p>\\n<p>Second paragraph.</p>',
+            renderHTML: '<div style="font-size:0.9rem;"><p style="margin:0 0 4px 0; background:#e0e7ff; padding:2px;">First paragraph.</p><p style="margin:0; background:#e0e7ff; padding:2px;">Second paragraph.</p></div>',
+            hasInput: false
+        },
+        '<b>': {
+            title: 'Bold Tag (<b>)',
+            desc: 'The <b> tag formats text in a bold typeface to highlight key terms or hobbies without implying extra structural importance.',
+            rawHTML: 'My hobby is <b>coding games</b> in Python.',
+            renderHTML: 'My hobby is <b>coding games</b> in Python.',
+            hasInput: true,
+            defaultText: 'learning HTML',
+            inputLabel: 'Test bold text:',
+            builder: function(val) {
+                return 'My favourite subject is <b>' + val + '</b>.<small style="color:#64748b; display:block; margin-top:4px;">Effect: Renders enclosed text in heavy bold weight.</small>';
+            }
+        },
+        '<strong>': {
+            title: 'Strong Importance Tag (<strong>)',
+            desc: 'The <strong> tag indicates text of strong importance, typically rendered in bold by default.',
+            rawHTML: 'Warning: <strong>Do not unplug</strong> the power supply.',
+            renderHTML: 'Warning: <strong>Do not unplug</strong> the power supply.',
+            hasInput: true,
+            defaultText: 'Save your files',
+            inputLabel: 'Test strong text:',
+            builder: function(val) {
+                return 'Alert: <strong>' + val + '</strong>.<small style="color:#64748b; display:block; margin-top:4px;">Effect: Conveys high importance with bold visual weighting.</small>';
+            }
+        },
+        '<i>': {
+            title: 'Italic Tag (<i>)',
+            desc: 'The <i> tag represents a range of text set off from normal prose for italic styling.',
+            rawHTML: 'The book title is <i>Python Programming Guide</i>.',
+            renderHTML: 'The book title is <i>Python Programming Guide</i>.',
+            hasInput: true,
+            defaultText: 'algorithm design',
+            inputLabel: 'Test italic text:',
+            builder: function(val) {
+                return 'Study topic: <i>' + val + '</i>.<small style="color:#64748b; display:block; margin-top:4px;">Effect: Slants text into an italic typeface.</small>';
+            }
+        },
+        '<em>': {
+            title: 'Emphasised Tag (<em>)',
+            desc: 'The <em> tag renders text with stress emphasis, which web browsers display in italics by default.',
+            rawHTML: 'Always remember to <em>save your file</em> before running.',
+            renderHTML: 'Always remember to <em>save your file</em> before running.',
+            hasInput: true,
+            defaultText: 'check your syntax',
+            inputLabel: 'Test emphasis text:',
+            builder: function(val) {
+                return 'Important rule: <em>' + val + '</em>.<small style="color:#64748b; display:block; margin-top:4px;">Effect: Renders enclosed text in slanted italics.</small>';
+            }
+        },
+        '<u>': {
+            title: 'Underline Tag (<u>)',
+            desc: 'The <u> tag renders inline text with an underline.',
+            rawHTML: 'Please review the <u>highlighted terms</u> carefully.',
+            renderHTML: 'Please review the <u>highlighted terms</u> carefully.',
+            hasInput: true,
+            defaultText: 'key definition',
+            inputLabel: 'Test underline text:',
+            builder: function(val) {
+                return 'Check this <u>' + val + '</u>.<small style="color:#64748b; display:block; margin-top:4px;">Effect: Draws a solid horizontal line underneath the text.</small>';
+            }
+        },
+        '<mark>': {
+            title: 'Mark Tag (<mark>)',
+            desc: 'The <mark> tag highlights text with a yellow background, indicating reference or relevance.',
+            rawHTML: 'Remember to <mark>complete the assessment</mark> by Friday.',
+            renderHTML: 'Remember to <mark>complete the assessment</mark> by Friday.',
+            hasInput: true,
+            defaultText: 'revision checklist',
+            inputLabel: 'Test mark text:',
+            builder: function(val) {
+                return 'Focus on <mark>' + val + '</mark>.<small style="color:#64748b; display:block; margin-top:4px;">Effect: Adds a fluorescent yellow highlight background.</small>';
+            }
+        },
+        '<code>': {
+            title: 'Code Tag (<code>)',
+            desc: 'The <code> tag displays a fragment of computer code using a fixed-width monospace font.',
+            rawHTML: 'Type <code>print("Hello World")</code> in the console.',
+            renderHTML: 'Type <code>print("Hello World")</code> in the console.',
+            hasInput: true,
+            defaultText: 'x = 100',
+            inputLabel: 'Test code snippet:',
+            builder: function(val) {
+                return 'Variable assignment: <code>' + val + '</code>.<small style="color:#64748b; display:block; margin-top:4px;">Effect: Switches typeface to monospace font.</small>';
+            }
+        },
+        '<span>': {
+            title: 'Span Tag (<span>)',
+            desc: 'The <span> tag is a generic inline container for phrasing content, often styled using CSS attributes.',
+            rawHTML: 'This has a <span style="color:#4f46e5; font-weight:bold;">custom coloured</span> word.',
+            renderHTML: 'This has a <span style="color:#4f46e5; font-weight:bold;">custom coloured</span> word.',
+            hasInput: true,
+            defaultText: 'highlighted inline element',
+            inputLabel: 'Test span text:',
+            builder: function(val) {
+                return 'Custom text: <span style="color:#e11d48; font-weight:bold; background:#ffe4e6; padding:2px 4px; border-radius:3px;">' + val + '</span>.<small style="color:#64748b; display:block; margin-top:4px;">Effect: Allows targeted inline styling without breaking text flow.</small>';
+            }
+        },
+        '<sub>': {
+            title: 'Subscript Tag (<sub>)',
+            desc: 'The <sub> tag defines subscript text, displayed half a character below the normal line.',
+            rawHTML: 'Water chemical formula is H<sub>2</sub>O.',
+            renderHTML: 'Water chemical formula is H<sub>2</sub>O.',
+            hasInput: true,
+            defaultText: 'CO',
+            inputLabel: 'Test subscript base:',
+            builder: function(val) {
+                return 'Chemical compound: ' + val + '<sub>2</sub><small style="color:#64748b; display:block; margin-top:4px;">Effect: Lowers text below the baseline.</small>';
+            }
+        },
+        '<sup>': {
+            title: 'Superscript Tag (<sup>)',
+            desc: 'The <sup> tag defines superscript text, displayed half a character above the normal line.',
+            rawHTML: 'Area in square meters: m<sup>2</sup>.',
+            renderHTML: 'Area in square meters: m<sup>2</sup>.',
+            hasInput: true,
+            defaultText: 'x',
+            inputLabel: 'Test superscript base:',
+            builder: function(val) {
+                return 'Mathematical power: ' + val + '<sup>3</sup><small style="color:#64748b; display:block; margin-top:4px;">Effect: Raises text above the baseline.</small>';
+            }
+        },
+        '<small>': {
+            title: 'Small Tag (<small>)',
+            desc: 'The <small> tag renders text in a smaller font size, representing side-comments or legal disclaimers.',
+            rawHTML: 'Standard terms apply <small>(see small print)</small>.',
+            renderHTML: 'Standard terms apply <small>(see small print)</small>.',
+            hasInput: true,
+            defaultText: 'Conditions apply',
+            inputLabel: 'Test small text:',
+            builder: function(val) {
+                return 'Note: <small>' + val + '</small>.<small style="color:#64748b; display:block; margin-top:4px;">Effect: Reduces font size relative to surrounding text.</small>';
+            }
+        },
+        '<del>': {
+            title: 'Deleted Tag (<del>)',
+            desc: 'The <del> tag represents text that has been deleted from a document, rendered with a strikethrough line.',
+            rawHTML: 'Price: <del>£19.99</del> £14.99',
+            renderHTML: 'Price: <del>£19.99</del> £14.99',
+            hasInput: true,
+            defaultText: '£10.00',
+            inputLabel: 'Test deleted price:',
+            builder: function(val) {
+                return 'Was <del>' + val + '</del> Now £7.50<small style="color:#64748b; display:block; margin-top:4px;">Effect: Draws a horizontal line through the deleted text.</small>';
+            }
+        },
+        '<ins>': {
+            title: 'Inserted Tag (<ins>)',
+            desc: 'The <ins> tag represents text that has been added to a document, displayed with an underline by default.',
+            rawHTML: 'Updated status: <ins>Active</ins>',
+            renderHTML: 'Updated status: <ins>Active</ins>',
+            hasInput: true,
+            defaultText: 'Verified & Approved',
+            inputLabel: 'Test inserted text:',
+            builder: function(val) {
+                return 'Status: <ins>' + val + '</ins>.<small style="color:#64748b; display:block; margin-top:4px;">Effect: Underlines newly inserted content.</small>';
+            }
+        },
+        '<q>': {
+            title: 'Short Quotation Tag (<q>)',
+            desc: 'The <q> tag indicates a short inline quotation. Browsers automatically wrap the text in quotation marks.',
+            rawHTML: '<q>Here comes the sun</q>',
+            renderHTML: 'As the song goes, <q>Here comes the sun</q>.',
+            hasInput: true,
+            defaultText: 'Keep it simple and logical',
+            inputLabel: 'Test quotation text:',
+            builder: function(val) {
+                return 'Famous saying: <q style="background:#e0e7ff; padding:1px 4px; border-radius:3px;">' + val + '</q><small style="color:#64748b; display:block; margin-top:4px;">Effect: Automatically injects quotation marks around your text.</small>';
+            }
+        },
+        '<kbd>': {
+            title: 'Keyboard Input Tag (<kbd>)',
+            desc: 'The <kbd> tag represents user keyboard input, styled in a monospace font resembling key caps.',
+            rawHTML: 'Press <kbd>Ctrl</kbd> + <kbd>C</kbd> to copy.',
+            renderHTML: 'Press <kbd>Ctrl</kbd> + <kbd>C</kbd> to copy.',
+            hasInput: true,
+            defaultText: 'Enter',
+            inputLabel: 'Test keyboard key:',
+            builder: function(val) {
+                return 'Press <kbd style="background:#f1f5f9; border:1px solid #cbd5e1; padding:2px 6px; border-radius:4px; font-family:monospace;">' + val + '</kbd> to continue.<small style="color:#64748b; display:block; margin-top:4px;">Effect: Renders text like a computer keyboard key.</small>';
+            }
+        },
+        '<ul>': {
+            title: 'Unordered List Tag (<ul>)',
+            desc: 'The <ul> tag acts as a container for bulleted list items.',
+            rawHTML: '<ul>\\n  <li>Tokyo</li>\\n  <li>Cornwall</li>\\n  <li>Highlands</li>\\n</ul>',
+            renderHTML: '<ul style="margin:0; padding-left:18px;"><li>Tokyo</li><li>Cornwall</li><li>Highlands</li></ul>',
+            hasInput: false
+        },
+        '<li>': {
+            title: 'List Item Tag (<li>)',
+            desc: 'The <li> tag defines an individual item within an ordered or unordered list, automatically adding bullet points or numbering.',
+            rawHTML: '<ul>\\n  <li>Single list item</li>\\n</ul>',
+            renderHTML: '<ul style="margin:0; padding-left:18px;"><li style="color:var(--primary); font-weight:bold;">Single list item</li></ul>',
+            hasInput: true,
+            defaultText: 'Visit science museum',
+            inputLabel: 'Test list item text:',
+            builder: function(val) {
+                return '<ul style="margin:0; padding-left:18px;"><li style="color:var(--primary); font-weight:bold;">' + val + '</li></ul><small style="color:#64748b; display:block; margin-top:4px;">Effect: Places a bullet point marker beside the item.</small>';
+            }
+        }
+    };
+
+    function openTagModal(tagKey) {
+        const data = tagData[tagKey] || {
+            title: tagKey,
+            desc: 'HTML tag demonstration.',
+            rawHTML: tagKey,
+            renderHTML: 'Sample output',
+            hasInput: false
+        };
+
+        document.getElementById('modalTitle').innerText = data.title;
+        document.getElementById('modalDescription').innerText = data.desc;
+        document.getElementById('modalRawCode').innerText = data.rawHTML;
+        document.getElementById('modalRenderOutput').innerHTML = data.renderHTML;
+
+        const container = document.getElementById('modalPlaygroundContainer');
+        container.innerHTML = '';
+
+        if (data.hasInput) {
+            const controls = document.createElement('div');
+            controls.className = 'playground-controls';
+            controls.innerHTML = '<label style="font-size:0.85rem; font-weight:bold;">' + data.inputLabel + '</label><input type="text" id="playgroundInput" value="' + data.defaultText + '">';
+            container.appendChild(controls);
+
+            const liveOut = document.createElement('div');
+            liveOut.className = 'compare-pane';
+            liveOut.style.marginTop = '8px';
+            liveOut.innerHTML = '<h4>Live Test Result</h4><div id="liveResultBox" style="background:white; padding:8px; border-radius:4px;">' + data.builder(data.defaultText) + '</div>';
+            container.appendChild(liveOut);
+
+            document.getElementById('playgroundInput').addEventListener('input', (e) => {
+                document.getElementById('liveResultBox').innerHTML = data.builder(e.target.value);
+            });
+        }
+
+        document.getElementById('tagModalOverlay').classList.add('active');
+    }
+
+    function closeTagModal(e) {
+        if (e.target.id === 'tagModalOverlay') {
+            document.getElementById('tagModalOverlay').classList.remove('active');
+        }
+    }
+
+    function closeTagModalForce() {
+        document.getElementById('tagModalOverlay').classList.remove('active');
+    }
+
+    /* Sandbox Preview */
+    function renderPreview() {
+        const code = document.getElementById('codeEditor').value;
+        document.getElementById('previewBox').innerHTML = code;
+    }
+
+    window.onload = function() {
+        renderPreview();
+    };
+</script>
+
+</body>
+</html>
+"""
