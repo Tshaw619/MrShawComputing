@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accessible HTML Learning Hub</title>
+    <style>
+        :root {
+            --bg-color: #f4f6f9;
+            --card-bg: #ffffff;
+            --text-color: #2c3e50;
+            --accent-color: #2563eb;
+            --accent-hover: #1d4ed8;
+            --border-color: #cbd5e1;
+            --code-bg: #0f172a;
+            --code-text: #e2e8f0;
+            --preview-bg: #ffffff;
+            --header-bg: #1e293b;
+            --header-text: #ffffff;
+            --success-color: #16a34a;
+            --font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body.dyslexia-font {
+            --font-family: "Comic Neue", "Comic Sans MS", cursive, sans-serif;
+            letter-spacing: 0.5px;
+            word-spacing: 1px;
+        }
+
+        body.high-contrast {
+            --bg-color: #000000;
+            --card-bg: #121212;
+            --text-color: #ffffff;
+            --accent-color: #fbbf24;
+            --accent-hover: #f59e0b;
+            --border-color: #ffffff;
+            --code-bg: #000000;
+            --code-text: #00ff00;
+            --preview-bg: #000000;
+            --header-bg: #000000;
+            --header-text: #ffff00;
+            --success-color: #00ff00;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        header {
+            background-color: var(--header-bg);
+            color: var(--header-text);
+            padding: 1rem 1.5rem;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid var(--border-color);
+            gap: 1rem;
+        }
+
+        .header-title h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .header-title p {
+            font-size: 0.9rem;
+            opacity: 0.85;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .tab-btn {
+            background: rgba(255, 255, 255, 0.15);
+            color: var(--header-text);
+            border: 2px solid transparent;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: var(--font-family);
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .tab-btn.active {
+            background: var(--accent-color);
+            border-color: #ffffff;
+        }
+
+        .accessibility-controls {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+        }
+
+        .access-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: var(--header-text);
+            border: 1px solid var(--border-color);
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: var(--font-family);
+        }
+
+        .access-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Main Layout */
+        .page-content {
+            display: none;
+            flex: 1;
+            grid-template-columns: 340px 1fr 1fr;
+            height: calc(100vh - 75px);
+            overflow: hidden;
+        }
+
+        .page-content.active {
+            display: grid;
+        }
+
+        @media (max-width: 1100px) {
+            .page-content {
+                grid-template-columns: 1fr;
+                height: auto;
+                overflow-y: auto;
+            }
+        }
+
+        /* Column Styles */
+        .column {
+            background-color: var(--card-bg);
+            border-right: 2px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .column:last-child {
+            border-right: none;
+        }
+
+        .col-header {
+            padding: 1rem;
+            background-color: var(--bg-color);
+            border-bottom: 2px solid var(--border-color);
+            font-weight: 700;
+            font-size: 1.1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .editor-header-controls {
+            display: flex;
+            gap: 0.4rem;
+            align-items: center;
+        }
+
+        .history-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: var(--font-family);
+        }
+
+        .history-btn:hover {
+            background: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+        }
+
+        /* Multi-file Tabs inside Editor */
+        .file-tabs-bar {
+            background: var(--bg-color);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            gap: 2px;
+            padding: 0.3rem 0.5rem 0 0.5rem;
+            align-items: center;
+            overflow-x: auto;
+        }
+
+        .file-tab {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-bottom: none;
+            color: var(--text-color);
+            padding: 0.3rem 0.8rem;
+            border-radius: 6px 6px 0 0;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: var(--font-family);
+            white-space: nowrap;
+        }
+
+        .file-tab.active {
+            background: var(--code-bg);
+            color: var(--code-text);
+            border-color: var(--code-bg);
+        }
+
+        .add-file-btn {
+            background: transparent;
+            border: 1px dashed var(--border-color);
+            color: var(--text-color);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            font-weight: 600;
+            margin-left: 5px;
+            white-space: nowrap;
+        }
+
+        .add-file-btn:hover {
+            background: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+        }
+
+        /* Left Sidebar - Tasks & References */
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .accordion-item {
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+            background: var(--card-bg);
+        }
+
+        .accordion-header {
+            width: 100%;
+            padding: 0.85rem 1rem;
+            background: var(--bg-color);
+            border: none;
+            text-align: left;
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--text-color);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: var(--font-family);
+        }
+
+        .accordion-header:hover {
+            background: rgba(37, 99, 235, 0.1);
+        }
+
+        .accordion-content {
+            padding: 1rem;
+            display: none;
+            border-top: 1px solid var(--border-color);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .accordion-item.open .accordion-content {
+            display: block;
+        }
+
+        .task-hint {
+            background: rgba(37, 99, 235, 0.08);
+            border-left: 4px solid var(--accent-color);
+            padding: 0.6rem;
+            margin: 0.5rem 0;
+            font-size: 0.9rem;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .action-btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 0.5rem;
+            font-family: var(--font-family);
+            width: 100%;
+            text-align: center;
+        }
+
+        .action-btn:hover {
+            background-color: var(--accent-hover);
+        }
+
+        /* Page 2 Specific Reference Styling */
+        .ref-snippet {
+            background-color: var(--code-bg);
+            color: var(--code-text);
+            padding: 0.5rem;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.85rem;
+            margin: 0.5rem 0;
+            white-space: pre-wrap;
+        }
+
+        .ref-mockup {
+            background-color: #ffffff;
+            color: #000000;
+            border: 2px dashed #94a3b8;
+            padding: 0.75rem;
+            border-radius: 6px;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        /* Middle Column - Editor */
+        .editor-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .quick-tags {
+            padding: 0.5rem 1rem;
+            background: var(--bg-color);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+        }
+
+        .tag-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: var(--font-family);
+        }
+
+        .tag-btn:hover {
+            background: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+        }
+
+        textarea.code-editor {
+            flex: 1;
+            width: 100%;
+            background-color: var(--code-bg);
+            color: var(--code-text);
+            font-family: "Courier New", Courier, monospace;
+            font-size: 1rem;
+            padding: 1rem;
+            border: none;
+            resize: none;
+            line-height: 1.5;
+            outline: none;
+        }
+
+        .editor-footer {
+            padding: 0.75rem 1rem;
+            background-color: var(--bg-color);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .file-upload-label {
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            color: var(--text-color);
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .file-upload-label:hover {
+            background: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        /* Right Column - Preview */
+        .preview-container {
+            flex: 1;
+            background-color: var(--preview-bg);
+            border: none;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Toast Notifications */
+        #toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--success-color);
+            color: white;
+            padding: 0.75rem 1.25rem;
+            border-radius: 8px;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            display: none;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-title">
+            <h1>HTML Learning Hub</h1>
+            <p>Interactive web coding for students & beginners</p>
+        </div>
+        <div class="nav-tabs">
+            <button class="tab-btn active" onclick="switchTab('page1')">1. Guided Tasks</button>
+            <button class="tab-btn" onclick="switchTab('page2')">2. HTML Playground</button>
+        </div>
+        <div class="accessibility-controls">
+            <button class="access-btn" onclick="toggleDyslexiaFont()">Dyslexia Font</button>
+            <button class="access-btn" onclick="toggleHighContrast()">High Contrast</button>
+        </div>
+    </header>
+
+    <!-- PAGE 1: GUIDED TASKS -->
+    <div id="page1" class="page-content active">
+        <!-- Left Column: Tasks -->
+        <div class="column">
+            <div class="col-header">
+                <span>Step-by-Step Tasks</span>
+                <span id="task-progress" style="font-size:0.85rem; font-weight:normal;">Task 1 of 15</span>
+            </div>
+            <div class="sidebar-content" id="tasks-container">
+                <!-- Tasks will be injected by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Middle Column: Editor -->
+        <div class="column">
+            <div class="col-header">
+                <span>Code Editor</span>
+                <div class="editor-header-controls">
+                    <button class="history-btn" onclick="undoCode('code1')">↶ Undo</button>
+                    <button class="history-btn" onclick="redoCode('code1')">↷ Redo</button>
+                    <label class="file-upload-label" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;">
+                        📁 Upload
+                        <input type="file" id="file-upload-1" accept=".html,.htm" onchange="uploadFile(event, 1)">
+                    </label>
+                    <button class="access-btn" style="background:var(--accent-color); color:white; border:none; padding:0.3rem 0.6rem; font-size:0.8rem;" onclick="checkTaskCompletion()">Check</button>
+                </div>
+            </div>
+            <!-- Multi-file Tabs Bar -->
+            <div class="file-tabs-bar" id="file-tabs-bar-1">
+                <button class="file-tab active" onclick="switchFileTab(1, 'index.html')">index.html</button>
+                <button class="add-file-btn" onclick="addNewFileTab(1)">+ Add Page</button>
+            </div>
+            <div class="editor-wrapper">
+                <div class="quick-tags">
+                    <span style="font-size:0.8rem; font-weight:700; align-self:center; margin-right:4px;">Quick Tags:</span>
+                    <button class="tag-btn" onclick="insertTag('&lt;h1&gt;', '&lt;/h1&gt;')">&lt;h1&gt;</button>
+                    <button class="tag-btn" onclick="insertTag('&lt;p&gt;', '&lt;/p&gt;')">&lt;p&gt;</button>
+                    <button class="tag-btn" onclick="insertTag('&lt;ul&gt;\n  &lt;li&gt;', '&lt;/li&gt;\n&lt;/ul&gt;')">&lt;ul&gt;</button>
+                    <button class="tag-btn" onclick="insertTag('&lt;a href=&quot;&quot;&gt;', '&lt;/a&gt;')">&lt;a&gt;</button>
+                    <button class="tag-btn" onclick="insertTag('&lt;img src=&quot;https://picsum.photos/300/200&quot; alt=&quot;&quot;&gt;', '')">&lt;img&gt;</button>
+                </div>
+                <textarea id="code1" class="code-editor" placeholder="Type your HTML code here..." oninput="handleEditorInput('code1', 'preview1')"></textarea>
+                <div class="editor-footer">
+                    <button class="action-btn" style="margin-top:0; width:auto;" onclick="downloadCurrentFile(1)">Save Current File (.html)</button>
+                    <span id="task-status-msg" style="font-size:0.85rem; font-weight:600; color:var(--success-color);"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Preview -->
+        <div class="column">
+            <div class="col-header">Live Preview</div>
+            <iframe id="preview1" class="preview-container" sandbox="allow-scripts allow-same-origin"></iframe>
+        </div>
+    </div>
+
+    <!-- PAGE 2: PLAYGROUND & REFERENCE -->
+    <div id="page2" class="page-content">
+        <!-- Left Column: Tag Reference Menu -->
+        <div class="column">
+            <div class="col-header">
+                <span>HTML Tag Reference</span>
+                <span style="font-size:0.85rem; font-weight:normal;">Examples & Illustrations</span>
+            </div>
+            <div class="sidebar-content" id="reference-container">
+                <!-- Reference items will be injected by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Middle Column: Editor & Uploader -->
+        <div class="column">
+            <div class="col-header">
+                <span>Online Code Editor</span>
+                <div class="editor-header-controls">
+                    <button class="history-btn" onclick="undoCode('code2')">↶ Undo</button>
+                    <button class="history-btn" onclick="redoCode('code2')">↷ Redo</button>
+                    <label class="file-upload-label" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;">
+                        📁 Upload
+                        <input type="file" id="file-upload-2" accept=".html,.htm" onchange="uploadFile(event, 2)">
+                    </label>
+                </div>
+            </div>
+            <!-- Multi-file Tabs Bar -->
+            <div class="file-tabs-bar" id="file-tabs-bar-2">
+                <button class="file-tab active" onclick="switchFileTab(2, 'index.html')">index.html</button>
+                <button class="add-file-btn" onclick="addNewFileTab(2)">+ Add Page</button>
+            </div>
+            <div class="editor-wrapper">
+                <div class="quick-tags">
+                    <span style="font-size:0.8rem; font-weight:700; align-self:center; margin-right:4px;">Quick Tags:</span>
+                    <button class="tag-btn" onclick="insertTagPage2('&lt;h1&gt;', '&lt;/h1&gt;')">&lt;h1&gt;</button>
+                    <button class="tag-btn" onclick="insertTagPage2('&lt;p&gt;', '&lt;/p&gt;')">&lt;p&gt;</button>
+                    <button class="tag-btn" onclick="insertTagPage2('&lt;img src=&quot;https://picsum.photos/300/200&quot; alt=&quot;&quot;&gt;', '')">&lt;img&gt;</button>
+                    <button class="tag-btn" onclick="insertTagPage2('&lt;a href=&quot;&quot;&gt;', '&lt;/a&gt;')">&lt;a&gt;</button>
+                    <button class="tag-btn" onclick="insertTagPage2('&lt;table&gt;\n  &lt;tr&gt;\n    &lt;th&gt;Header&lt;/th&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n    &lt;td&gt;Data&lt;/td&gt;\n  &lt;/tr&gt;\n&lt;/table&gt;', '')">Table</button>
+                </div>
+                <textarea id="code2" class="code-editor" placeholder="Type HTML or upload an existing .html file to edit..." oninput="handleEditorInput('code2', 'preview2')"></textarea>
+                <div class="editor-footer">
+                    <button class="action-btn" style="margin-top:0; width:auto;" onclick="downloadCurrentFile(2)">Save Current File (.html)</button>
+                    <span id="upload-status" style="font-size:0.85rem; font-weight:600; color:var(--success-color);"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Preview -->
+        <div class="column">
+            <div class="col-header">Live Preview</div>
+            <iframe id="preview2" class="preview-container" sandbox="allow-scripts allow-same-origin"></iframe>
+        </div>
+    </div>
+
+    <div id="toast">Notification message</div>
+
+    <script>
+        // Multi-file storage per context (Context 1 = Guided Tasks, Context 2 = Playground)
+        const projectFiles = {
+            1: {
+                "index.html": "<html>\n  <body>\n    \n  </body>\n</html>"
+            },
+            2: {
+                "index.html": "<html>\n  <body>\n    <h1>Welcome to Playground</h1>\n    <p>Upload or type code here.</p>\n  </body>\n</html>"
+            }
+        };
+
+        const activeFileNames = {
+            1: "index.html",
+            2: "index.html"
+        };
+
+        // Track active blob URLs per project context so local links navigate correctly within the iframe
+        const activeBlobUrls = {
+            1: {},
+            2: {}
+        };
+
+        // Data for 15 Scaffolded Tasks (Page 1)
+        const tasks = [
+            {
+                title: "1. Basic HTML Structure",
+                desc: "Every webpage needs a basic structure. Start with &lt;html&gt; and &lt;body&gt; tags.",
+                hint: "Type &lt;html&gt; at the very top, inside add &lt;body&gt;, and close both at the bottom.",
+                snippet: "<html>\n  <body>\n    \n  </body>\n</html>"
+            },
+            {
+                title: "2. Adding Headings",
+                desc: "Headings give titles to your page. The largest title is &lt;h1&gt;.",
+                hint: "Click 'Add to Project' to insert a main heading inside your body.",
+                snippet: "    <h1>My Awesome Webpage</h1>\n"
+            },
+            {
+                title: "3. Subheadings",
+                desc: "Use &lt;h2&gt; for smaller section titles underneath your main heading.",
+                hint: "Click 'Add to Project' to add a subsection title.",
+                snippet: "    <h2>About My Project</h2>\n"
+            },
+            {
+                title: "4. Writing Paragraphs",
+                desc: "Standard blocks of text go inside paragraph &lt;p&gt; tags.",
+                hint: "Click 'Add to Project' to add a descriptive paragraph.",
+                snippet: "    <p>Welcome to my website! I am learning how to code in HTML step by step.</p>\n"
+            },
+            {
+                title: "5. Bulleted Lists",
+                desc: "Use &lt;ul&gt; for unordered lists and &lt;li&gt; for each list item.",
+                hint: "Click 'Add to Project' to add a bulleted list of hobbies or items.",
+                snippet: "    <ul>\n      <li>Coding interactive websites</li>\n      <li>Playing video games</li>\n      <li>Listening to music</li>\n    </ul>\n"
+            },
+            {
+                title: "6. Numbered Lists",
+                desc: "Use &lt;ol&gt; for ordered lists where items are automatically numbered.",
+                hint: "Click 'Add to Project' to add a numbered list of steps.",
+                snippet: "    <ol>\n      <li>Plan out your design</li>\n      <li>Write clean HTML code</li>\n      <li>Test in live preview</li>\n    </ol>\n"
+            },
+            {
+                title: "7. Making Text Bold",
+                desc: "Emphasize key words by wrapping them in &lt;strong&gt; tags.",
+                hint: "Click 'Add to Project' to add a bolded sentence.",
+                snippet: "    <p>This project is going to be <strong>amazing</strong>!</p>\n"
+            },
+            {
+                title: "8. Italicizing Text",
+                desc: "Make text slant using &lt;em&gt; (emphasized) tags.",
+                hint: "Click 'Add to Project' to add an italicized note.",
+                snippet: "    <p><em>Note: Always remember to close your HTML tags properly.</em></p>\n"
+            },
+            {
+                title: "9. Inline Styling: Text Color",
+                desc: "Change text color using style='color: red;'. Try blue, green, or purple!",
+                hint: "Click 'Add to Project' to add a colorful heading.",
+                snippet: "    <h2 style='color: purple;'>Colorful Section Header</h2>\n"
+            },
+            {
+                title: "10. Inline Styling: Font Size",
+                desc: "Make text bigger or smaller using style='font-size: 24px;'.",
+                hint: "Click 'Add to Project' to add enlarged text.",
+                snippet: "    <p style='font-size: 22px;'>This text stands out because it is larger!</p>\n"
+            },
+            {
+                title: "11. Inline Styling: Background Color",
+                desc: "Highlight elements by adding a background color using style='background-color: yellow;'.",
+                hint: "Click 'Add to Project' to add a highlighted banner.",
+                snippet: "    <p style='background-color: #fef08a; padding: 8px;'>Important Notice: Highlighted background box.</p>\n"
+            },
+            {
+                title: "12. Inline Styling: Borders",
+                desc: "Draw a border around titles or boxes using style='border: 2px solid red;'.",
+                hint: "Click 'Add to Project' to add a framed box around your title.",
+                snippet: "    <h2 style='border: 2px solid #2563eb; padding: 10px;'>Framed Project Title</h2>\n"
+            },
+            {
+                title: "13. Adding Hyperlinks",
+                desc: "Create clickable links using &lt;a href='url'&gt;Link Text&lt;/a&gt;.",
+                hint: "Click 'Add to Project' to include a link to an external site or local page.",
+                snippet: "    <p>Check out official guidance at <a href='https://www.gov.uk' target='_blank'>GOV.UK</a>.</p>\n"
+            },
+            {
+                title: "14. Adding Images",
+                desc: "Pictures make pages come alive! Use &lt;img src='external-url' alt='description'&gt; with any valid web image link.",
+                hint: "Click 'Add to Project' to insert an external image link.",
+                snippet: "    <img src='https://picsum.photos/300/200' alt='A scenic landscape placeholder image'>\n"
+            },
+            {
+                title: "15. Linking Multiple Pages",
+                desc: "Create a multi-page website by linking directly to your project's index.html or secondary pages.",
+                hint: "Click 'Add to Project' to add local navigation links between project pages.",
+                snippet: "    <p><a href='index.html'>Home</a> | <a href='page2.html'>About Me</a></p>\n"
+            }
+        ];
+
+        // Data for Page 2 Tag Reference
+        const references = [
+            {
+                name: "1. Basic Structure",
+                snippet: "<html>\n  <body>\n    Your content goes here!\n  </body>\n</html>",
+                explanation: "Every webpage starts with these foundation tags. The <html> tag wraps the whole document, and the <body> tag holds everything you can see on the page.",
+                mockupText: "Your content goes here! (Inside the visible browser window)"
+            },
+            {
+                name: "2. Headings",
+                snippet: "<h1>Main Title</h1>\n<h2>Sub Section</h2>",
+                explanation: "Headings give your page titles and organization. <h1> is the largest title, down to <h6> which is the smallest.",
+                mockupText: "MAIN TITLE (Large bold text)\nSub Section (Medium bold text)"
+            },
+            {
+                name: "3. Paragraphs",
+                snippet: "<p>This is a normal paragraph of text on a webpage.</p>",
+                explanation: "The paragraph tag groups sentences together with clear spacing above and below so it is easy to read.",
+                mockupText: "This is a normal paragraph of text on a webpage."
+            },
+            {
+                name: "4. Bullet Lists",
+                snippet: "<ul>\n  <li>Apples</li>\n  <li>Bananas</li>\n</ul>",
+                explanation: "Creates an unordered list with bullet points. Each item in the list must be wrapped in <li> tags.",
+                mockupText: "• Apples\n• Bananas"
+            },
+            {
+                name: "5. Numbered Lists",
+                snippet: "<ol>\n  <li>First item</li>\n  <li>Second item</li>\n</ol>",
+                explanation: "Creates an ordered list where items are automatically numbered 1, 2, 3...",
+                mockupText: "1. First item\n2. Second item"
+            },
+            {
+                name: "6. Text Formatting",
+                snippet: "<p>This is <strong>important</strong> and this is <em>italic</em>.</p>",
+                explanation: "Use <strong> to make text bold and <em> to make text slant (italic) for emphasis.",
+                mockupText: "This is important and this is italic."
+            },
+            {
+                name: "7. Tables",
+                snippet: "<table>\n  <tr><th>Name</th><th>Score</th></tr>\n  <tr><td>Alice</td><td>95</td></tr>\n</table>",
+                explanation: "Organizes data into rows and columns. <tr> creates a row, <th> is a header cell, and <td> is standard data.",
+                mockupText: "Name | Score\nAlice | 95"
+            },
+            {
+                name: "8. Inline Styling: Text Color",
+                snippet: "<h1 style='color: red;'>Red Title</h1>",
+                explanation: "Change the color of any text by adding style='color: [colorname];' inside the opening tag.",
+                mockupText: "Red Title (In red text)"
+            },
+            {
+                name: "9. Inline Styling: Font Size",
+                snippet: "<p style='font-size: 24px;'>Big text</p>",
+                explanation: "Make text larger or smaller by specifying pixels using style='font-size: [number]px;'.",
+                mockupText: "Big text (Enlarged font)"
+            },
+            {
+                name: "10. Inline Styling: Background Color",
+                snippet: "<p style='background-color: yellow;'>Highlighted text</p>",
+                explanation: "Add a background color behind text or titles using style='background-color: [color];'.",
+                mockupText: "Highlighted text (With yellow background box)"
+            },
+            {
+                name: "11. Inline Styling: Borders & Padding",
+                snippet: "<h2 style='border: 2px solid blue; padding: 10px;'>Boxed Title</h2>",
+                explanation: "Draw a border around elements using style='border: [thickness] solid [color];' and add breathing room inside using 'padding'.",
+                mockupText: "[ Boxed Title with Border around it ]"
+            },
+            {
+                name: "12. Hyperlinks",
+                snippet: "<a href='https://www.gov.uk'>Visit GOV.UK</a>",
+                explanation: "Turns text into a clickable link that takes the user to another website or page using the 'href' attribute.",
+                mockupText: "Visit GOV.UK (Underlined Blue Link)"
+            },
+            {
+                name: "13. Images (External URL Support)",
+                snippet: "<img src='https://picsum.photos/200' alt='Scenic photo'>",
+                explanation: "Displays an image from any external web link (URL) using the 'src' attribute. Always include an 'alt' description so screen readers can describe the image.",
+                mockupText: "[ External Image Preview Box ]"
+            },
+            {
+                name: "14. Linking Multiple Pages (Project Index)",
+                snippet: "<!-- Inside page2.html linking back to project index -->\n<a href='index.html'>Back to Home (index.html)</a>",
+                explanation: "To link back to your project's home page from any additional page, use href='index.html'. This points directly to your student project's index file within the editor workspace.",
+                mockupText: "Back to Home (Local link connecting project files)"
+            }
+        ];
+
+        let currentTaskIndex = 0;
+
+        // Undo / Redo History Stacks per editor
+        const history = {
+            code1: { stack: [], pointer: -1 },
+            code2: { stack: [], pointer: -1 }
+        };
+
+        function recordHistory(editorId) {
+            const textarea = document.getElementById(editorId);
+            const h = history[editorId];
+            const val = textarea.value;
+            if (h.stack[h.pointer] === val) return;
+            h.stack = h.stack.slice(0, h.pointer + 1);
+            h.stack.push(val);
+            h.pointer = h.stack.length - 1;
+        }
+
+        function undoCode(editorId) {
+            const h = history[editorId];
+            if (h.pointer > 0) {
+                h.pointer--;
+                const textarea = document.getElementById(editorId);
+                textarea.value = h.stack[h.pointer];
+                const ctxNum = editorId === 'code1' ? 1 : 2;
+                projectFiles[ctxNum][activeFileNames[ctxNum]] = textarea.value;
+                const previewId = editorId === 'code1' ? 'preview1' : 'preview2';
+                updatePreview(ctxNum, previewId);
+                showToast("Undo applied");
+            }
+        }
+
+        function redoCode(editorId) {
+            const h = history[editorId];
+            if (h.pointer < h.stack.length - 1) {
+                h.pointer++;
+                const textarea = document.getElementById(editorId);
+                textarea.value = h.stack[h.pointer];
+                const ctxNum = editorId === 'code1' ? 1 : 2;
+                projectFiles[ctxNum][activeFileNames[ctxNum]] = textarea.value;
+                const previewId = editorId === 'code1' ? 'preview1' : 'preview2';
+                updatePreview(ctxNum, previewId);
+                showToast("Redo applied");
+            }
+        }
+
+        function handleEditorInput(editorId, previewId) {
+            const textarea = document.getElementById(editorId);
+            const ctxNum = editorId === 'code1' ? 1 : 2;
+            projectFiles[ctxNum][activeFileNames[ctxNum]] = textarea.value;
+            updatePreview(ctxNum, previewId);
+            recordHistory(editorId);
+        }
+
+        // Multi-file tab switching
+        function switchFileTab(ctxNum, fileName) {
+            const editorId = ctxNum === 1 ? 'code1' : 'code2';
+            const textarea = document.getElementById(editorId);
+            projectFiles[ctxNum][activeFileNames[ctxNum]] = textarea.value;
+
+            activeFileNames[ctxNum] = fileName;
+            textarea.value = projectFiles[ctxNum][fileName] || "";
+            
+            history[editorId] = { stack: [textarea.value], pointer: 0 };
+
+            renderFileTabs(ctxNum);
+
+            const previewId = ctxNum === 1 ? 'preview1' : 'preview2';
+            updatePreview(ctxNum, previewId);
+            showToast(`Switched to ${fileName}`);
+        }
+
+        function renderFileTabs(ctxNum) {
+            const barId = ctxNum === 1 ? 'file-tabs-bar-1' : 'file-tabs-bar-2';
+            const bar = document.getElementById(barId);
+            bar.innerHTML = '';
+
+            const files = Object.keys(projectFiles[ctxNum]);
+            files.forEach(fname => {
+                const btn = document.createElement('button');
+                btn.className = `file-tab ${activeFileNames[ctxNum] === fname ? 'active' : ''}`;
+                btn.innerText = fname;
+                btn.onclick = () => switchFileTab(ctxNum, fname);
+                bar.appendChild(btn);
+            });
+
+            const addBtn = document.createElement('button');
+            addBtn.className = 'add-file-btn';
+            addBtn.innerText = '+ Add Page';
+            addBtn.onclick = () => addNewFileTab(ctxNum);
+            bar.appendChild(addBtn);
+        }
+
+        function addNewFileTab(ctxNum) {
+            const newName = prompt("Enter new filename (e.g., page2.html):", `page${Object.keys(projectFiles[ctxNum]).length + 1}.html`);
+            if (!newName) return;
+            const sanitized = newName.trim();
+            if (projectFiles[ctxNum][sanitized]) {
+                alert("File already exists!");
+                return;
+            }
+
+            // Default template linking back to index.html within the student project workspace
+            projectFiles[ctxNum][sanitized] = `<html>\n  <body>\n    <h1>${sanitized}</h1>\n    <p>Welcome to this new page!</p>\n    <p><a href='index.html'>Back to Home (index.html)</a></p>\n  </body>\n</html>`;
+            switchFileTab(ctxNum, sanitized);
+            showToast(`Created new page: ${sanitized}`);
+        }
+
+        // Initialize Application
+        window.onload = function() {
+            renderTasks();
+            
+            // Init Context 1
+            document.getElementById('code1').value = projectFiles[1]["index.html"];
+            history.code1.stack.push(projectFiles[1]["index.html"]);
+            history.code1.pointer = 0;
+            updatePreview(1, 'preview1');
+            renderFileTabs(1);
+
+            // Init Context 2
+            document.getElementById('code2').value = projectFiles[2]["index.html"];
+            history.code2.stack.push(projectFiles[2]["index.html"]);
+            history.code2.pointer = 0;
+            updatePreview(2, 'preview2');
+            renderFileTabs(2);
+
+            renderReferences();
+        };
+
+        // Tab Switching between Guided Tasks & Playground
+        function switchTab(pageId) {
+            document.querySelectorAll('.page-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(pageId).classList.add('active');
+            if(pageId === 'page1') {
+                document.querySelectorAll('.tab-btn')[0].classList.add('active');
+                updatePreview(1, 'preview1');
+            } else {
+                document.querySelectorAll('.tab-btn')[1].classList.add('active');
+                updatePreview(2, 'preview2');
+            }
+        }
+
+        // Accessibility Toggles
+        function toggleDyslexiaFont() {
+            document.body.classList.toggle('dyslexia-font');
+            showToast(document.body.classList.contains('dyslexia-font') ? "Dyslexia-friendly font enabled" : "Default font restored");
+        }
+
+        function toggleHighContrast() {
+            document.body.classList.toggle('high-contrast');
+            showToast(document.body.classList.contains('high-contrast') ? "High contrast mode enabled" : "Standard theme restored");
+        }
+
+        // Render Page 1 Tasks
+        function renderTasks() {
+            const container = document.getElementById('tasks-container');
+            container.innerHTML = '';
+            tasks.forEach((task, index) => {
+                const item = document.createElement('div');
+                item.className = `accordion-item ${index === 0 ? 'open' : ''}`;
+                item.id = `task-item-${index}`;
+                item.innerHTML = `
+                    <button class="accordion-header" onclick="toggleAccordion(${index})">
+                        <span>${task.title}</span>
+                        <span>▼</span>
+                    </button>
+                    <div class="accordion-content">
+                        <p>${task.desc}</p>
+                        <div class="task-hint"><strong>Hint:</strong><br>${task.hint}</div>
+                        <button class="action-btn" onclick="addToProject(${index})">Add to Project</button>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function toggleAccordion(index) {
+            const item = document.getElementById(`task-item-${index}`);
+            item.classList.toggle('open');
+        }
+
+        // Add snippet cumulatively to active file in Context 1
+        function addToProject(index) {
+            currentTaskIndex = index;
+            document.getElementById('task-progress').innerText = `Task ${index + 1} of ${tasks.length}`;
+            const textarea = document.getElementById('code1');
+            const snippet = tasks[index].snippet;
+
+            if (index === 0) {
+                textarea.value = snippet;
+            } else {
+                let code = textarea.value;
+                if (code.includes("</body>")) {
+                    code = code.replace("</body>", snippet + "  </body>");
+                    textarea.value = code;
+                } else {
+                    textarea.value += "\n" + snippet;
+                }
+            }
+
+            projectFiles[1][activeFileNames[1]] = textarea.value;
+            updatePreview(1, 'preview1');
+            recordHistory('code1');
+            document.getElementById('task-status-msg').innerText = `✓ Added: ${tasks[index].title}`;
+            showToast(`Added ${tasks[index].title} to ${activeFileNames[1]}!`);
+
+            document.querySelectorAll('.accordion-item').forEach((el, i) => {
+                if(i === index) el.classList.add('open');
+                else el.classList.remove('open');
+            });
+        }
+
+        function checkTaskCompletion() {
+            const code = document.getElementById('code1').value;
+            const statusMsg = document.getElementById('task-status-msg');
+            if (code.trim().length > 10) {
+                statusMsg.style.color = "var(--success-color)";
+                statusMsg.innerText = "✓ Project looking great!";
+                showToast("Great job working on your project!");
+            } else {
+                statusMsg.style.color = "#d97706";
+                statusMsg.innerText = "Add some tasks to build your project.";
+            }
+        }
+
+        // Render Page 2 References
+        function renderReferences() {
+            const container = document.getElementById('reference-container');
+            container.innerHTML = '';
+            references.forEach((ref, index) => {
+                const item = document.createElement('div');
+                item.className = `accordion-item ${index === 0 ? 'open' : ''}`;
+                item.id = `ref-item-${index}`;
+                item.innerHTML = `
+                    <button class="accordion-header" onclick="toggleRefAccordion(${index})">
+                        <span>${ref.name}</span>
+                        <span>▼</span>
+                    </button>
+                    <div class="accordion-content">
+                        <p><strong>Explanation:</strong><br>${ref.explanation}</p>
+                        <div class="ref-snippet"><code>${escapeHtml(ref.snippet)}</code></div>
+                        <p style="font-size:0.85rem; font-weight:600; margin-top:0.5rem;">Visual Output Mockup:</p>
+                        <div class="ref-mockup">${ref.mockupText}</div>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function toggleRefAccordion(index) {
+            const item = document.getElementById(`ref-item-${index}`);
+            item.classList.toggle('open');
+        }
+
+        // Live Preview Update using ObjectURLs for seamless multi-page tab routing inside the preview iframe
+        function updatePreview(ctxNum, previewId) {
+            const iframe = document.getElementById(previewId);
+            const files = projectFiles[ctxNum];
+            const currentFileName = activeFileNames[ctxNum];
+            
+            // Revoke old blob URLs for this context to prevent memory leaks
+            if (activeBlobUrls[ctxNum]) {
+                Object.values(activeBlobUrls[ctxNum]).forEach(url => URL.revokeObjectURL(url));
+            }
+            activeBlobUrls[ctxNum] = {};
+
+            // Generate blob URLs for every file currently in this project workspace
+            for (let fname in files) {
+                let htmlContent = files[fname];
+                const blob = new Blob([htmlContent], { type: 'text/html' });
+                activeBlobUrls[ctxNum][fname] = URL.createObjectURL(blob);
+            }
+
+            // Prepare the active HTML code and map all project file references to their runtime blob URLs
+            let activeHtml = files[currentFileName] || "";
+            for (let fname in files) {
+                const targetBlob = activeBlobUrls[ctxNum][fname];
+                // Replace both double/single quoted references to local project files
+                activeHtml = activeHtml.replace(new RegExp(`href=["']${fname}["']`, 'g'), `href="${targetBlob}"`);
+                activeHtml = activeHtml.replace(new RegExp(`href=["']\.\/${fname}["']`, 'g'), `href="${targetBlob}"`);
+            }
+
+            iframe.srcdoc = activeHtml;
+        }
+
+        // Quick Tag Insertion
+        function insertTag(openTag, closeTag) {
+            const textarea = document.getElementById('code1');
+            insertTextAtCursor(textarea, openTag, closeTag);
+            projectFiles[1][activeFileNames[1]] = textarea.value;
+            updatePreview(1, 'preview1');
+            recordHistory('code1');
+        }
+
+        function insertTagPage2(openTag, closeTag) {
+            const textarea = document.getElementById('code2');
+            insertTextAtCursor(textarea, openTag, closeTag);
+            projectFiles[2][activeFileNames[2]] = textarea.value;
+            updatePreview(2, 'preview2');
+            recordHistory('code2');
+        }
+
+        function insertTextAtCursor(textarea, openTag, closeTag) {
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const text = textarea.value;
+            const selectedText = text.substring(start, end);
+            
+            textarea.value = text.substring(0, start) + openTag + selectedText + closeTag + text.substring(end);
+            textarea.focus();
+            textarea.setSelectionRange(start + openTag.length, end + openTag.length);
+        }
+
+        // File Upload Handling (Supports both Page 1 and Page 2)
+        function uploadFile(event, ctxNum) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const fname = file.name;
+                projectFiles[ctxNum][fname] = e.target.result;
+                switchFileTab(ctxNum, fname);
+                
+                if (ctxNum === 1) {
+                    document.getElementById('task-status-msg').innerText = `✓ Loaded: ${fname}`;
+                } else {
+                    document.getElementById('upload-status').innerText = `✓ Loaded: ${fname}`;
+                }
+                showToast(`Successfully loaded ${fname}`);
+                
+                // Reset file input value so uploading the same file again triggers onchange
+                event.target.value = '';
+            };
+            reader.readAsText(file);
+        }
+
+        // Download Current Active File
+        function downloadCurrentFile(ctxNum) {
+            const editorId = ctxNum === 1 ? 'code1' : 'code2';
+            const filename = activeFileNames[ctxNum];
+            const code = document.getElementById(editorId).value;
+            const blob = new Blob([code], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast(`Downloaded ${filename} successfully!`);
+        }
+
+        // Utility helper
+        function escapeHtml(text) {
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.innerText = message;
+            toast.style.display = 'block';
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
