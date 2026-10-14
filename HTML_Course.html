@@ -1033,4 +1033,145 @@
 
         // Render Page 2 References
         function renderReferences() {
-            const container = document.getElementById('reference-container
+            const container = document.getElementById('reference-container');
+            container.innerHTML = '';
+            references.forEach((ref, index) => {
+                const item = document.createElement('div');
+                item.className = `accordion-item ${index === 0 ? 'open' : ''}`;
+                item.id = `ref-item-${index}`;
+                item.innerHTML = `
+                    <button class="accordion-header" onclick="toggleRefAccordion(${index})">
+                        <span>${ref.name}</span>
+                        <span>▼</span>
+                    </button>
+                    <div class="accordion-content">
+                        <p><strong>Explanation:</strong><br>${ref.explanation}</p>
+                        <div class="ref-snippet"><code>${escapeHtml(ref.snippet)}</code></div>
+                        <p style="font-size:0.85rem; font-weight:600; margin-top:0.5rem;">Visual Output Mockup:</p>
+                        <div class="ref-mockup">${ref.mockupText}</div>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function toggleRefAccordion(index) {
+            const item = document.getElementById(`ref-item-${index}`);
+            item.classList.toggle('open');
+        }
+
+        // Live Preview Update using ObjectURLs for seamless multi-page tab routing inside the preview iframe
+        function updatePreview(ctxNum, previewId) {
+            const iframe = document.getElementById(previewId);
+            const files = projectFiles[ctxNum];
+            const currentFileName = activeFileNames[ctxNum];
+            
+            // Revoke old blob URLs for this context to prevent memory leaks
+            if (activeBlobUrls[ctxNum]) {
+                Object.values(activeBlobUrls[ctxNum]).forEach(url => URL.revokeObjectURL(url));
+            }
+            activeBlobUrls[ctxNum] = {};
+
+            // Generate blob URLs for every file currently in this project workspace
+            for (let fname in files) {
+                let htmlContent = files[fname];
+                const blob = new Blob([htmlContent], { type: 'text/html' });
+                activeBlobUrls[ctxNum][fname] = URL.createObjectURL(blob);
+            }
+
+            // Prepare the active HTML code and map all project file references to their runtime blob URLs
+            let activeHtml = files[currentFileName] || "";
+            for (let fname in files) {
+                const targetBlob = activeBlobUrls[ctxNum][fname];
+                // Replace both double/single quoted references to local project files
+                activeHtml = activeHtml.replace(new RegExp(`href=["']${fname}["']`, 'g'), `href="${targetBlob}"`);
+                activeHtml = activeHtml.replace(new RegExp(`href=["']\.\/${fname}["']`, 'g'), `href="${targetBlob}"`);
+            }
+
+            iframe.srcdoc = activeHtml;
+        }
+
+        // Quick Tag Insertion
+        function insertTag(openTag, closeTag) {
+            const textarea = document.getElementById('code1');
+            insertTextAtCursor(textarea, openTag, closeTag);
+            projectFiles[1][activeFileNames[1]] = textarea.value;
+            updatePreview(1, 'preview1');
+            recordHistory('code1');
+        }
+
+        function insertTagPage2(openTag, closeTag) {
+            const textarea = document.getElementById('code2');
+            insertTextAtCursor(textarea, openTag, closeTag);
+            projectFiles[2][activeFileNames[2]] = textarea.value;
+            updatePreview(2, 'preview2');
+            recordHistory('code2');
+        }
+
+        function insertTextAtCursor(textarea, openTag, closeTag) {
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const text = textarea.value;
+            const selectedText = text.substring(start, end);
+            
+            textarea.value = text.substring(0, start) + openTag + selectedText + closeTag + text.substring(end);
+            textarea.focus();
+            textarea.setSelectionRange(start + openTag.length, end + openTag.length);
+        }
+
+        // File Upload Handling (Supports both Page 1 and Page 2)
+        function uploadFile(event, ctxNum) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const fname = file.name;
+                projectFiles[ctxNum][fname] = e.target.result;
+                switchFileTab(ctxNum, fname);
+                
+                if (ctxNum === 1) {
+                    document.getElementById('task-status-msg').innerText = `✓ Loaded: ${fname}`;
+                } else {
+                    document.getElementById('upload-status').innerText = `✓ Loaded: ${fname}`;
+                }
+                showToast(`Successfully loaded ${fname}`);
+                
+                event.target.value = '';
+            };
+            reader.readAsText(file);
+        }
+
+        // Download Current Active File
+        function downloadCurrentFile(ctxNum) {
+            const editorId = ctxNum === 1 ? 'code1' : 'code2';
+            const filename = activeFileNames[ctxNum];
+            const code = document.getElementById(editorId).value;
+            const blob = new Blob([code], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast(`Downloaded ${filename} successfully!`);
+        }
+
+        // Utility helper
+        function escapeHtml(text) {
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.innerText = message;
+            toast.style.display = 'block';
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
