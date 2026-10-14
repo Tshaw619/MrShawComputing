@@ -514,7 +514,7 @@
                     <button class="tag-btn" onclick="insertTag('&lt;p&gt;', '&lt;/p&gt;')">&lt;p&gt;</button>
                     <button class="tag-btn" onclick="insertTag('&lt;ul&gt;\n  &lt;li&gt;', '&lt;/li&gt;\n&lt;/ul&gt;')">&lt;ul&gt;</button>
                     <button class="tag-btn" onclick="insertTag('&lt;a href=&quot;&quot;&gt;', '&lt;/a&gt;')">&lt;a&gt;</button>
-                    <button class="tag-btn" onclick="insertTag('&lt;img src=&quot;https://picsum.photos/300/200&quot; alt=&quot;&quot;&gt;', '')">&lt;img&gt;</button>
+                    <button class="tag-btn" onclick="insertTag('&lt;img src=&quot;https://picsum.photos/300/200&quot; alt=&quot;&quot; style=&quot;width: 300px;&quot;&gt;', '')">&lt;img&gt;</button>
                 </div>
                 <textarea id="code1" class="code-editor" placeholder="Type your HTML code here..." oninput="handleEditorInput('code1', 'preview1')"></textarea>
                 <div class="editor-footer">
@@ -567,7 +567,7 @@
                     <span style="font-size:0.8rem; font-weight:700; align-self:center; margin-right:4px;">Quick Tags:</span>
                     <button class="tag-btn" onclick="insertTagPage2('&lt;h1&gt;', '&lt;/h1&gt;')">&lt;h1&gt;</button>
                     <button class="tag-btn" onclick="insertTagPage2('&lt;p&gt;', '&lt;/p&gt;')">&lt;p&gt;</button>
-                    <button class="tag-btn" onclick="insertTagPage2('&lt;img src=&quot;https://picsum.photos/300/200&quot; alt=&quot;&quot;&gt;', '')">&lt;img&gt;</button>
+                    <button class="tag-btn" onclick="insertTagPage2('&lt;img src=&quot;https://picsum.photos/300/200&quot; alt=&quot;&quot; style=&quot;width: 300px;&quot;&gt;', '')">&lt;img&gt;</button>
                     <button class="tag-btn" onclick="insertTagPage2('&lt;a href=&quot;&quot;&gt;', '&lt;/a&gt;')">&lt;a&gt;</button>
                     <button class="tag-btn" onclick="insertTagPage2('&lt;table&gt;\n  &lt;tr&gt;\n    &lt;th&gt;Header&lt;/th&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n    &lt;td&gt;Data&lt;/td&gt;\n  &lt;/tr&gt;\n&lt;/table&gt;', '')">Table</button>
                 </div>
@@ -610,7 +610,7 @@
             2: {}
         };
 
-        // Data for 15 Scaffolded Tasks (Page 1)
+        // Data for 15 Scaffolded Tasks (Page 1) - Reordered: Styling moved up, Hyperlinks, Images, and Multi-page placed at end
         const tasks = [
             {
                 title: "1. Basic HTML Structure",
@@ -691,10 +691,10 @@
                 snippet: "    <p>Check out official guidance at <a href='https://www.gov.uk' target='_blank'>GOV.UK</a>.</p>\n"
             },
             {
-                title: "14. Adding Images",
-                desc: "Pictures make pages come alive! Use &lt;img src='external-url' alt='description'&gt; with any valid web image link.",
-                hint: "Click 'Add to Project' to insert an external image link.",
-                snippet: "    <img src='https://picsum.photos/300/200' alt='A scenic landscape placeholder image'>\n"
+                title: "14. Adding & Resizing Images",
+                desc: "Pictures make pages come alive! Use &lt;img src='url' alt='description' style='width: 300px;'&gt; to control display size.",
+                hint: "Click 'Add to Project' to insert an external image with inline sizing.",
+                snippet: "    <img src='https://picsum.photos/400/300' alt='A scenic landscape placeholder image' style='width: 250px; border-radius: 8px;'>\n"
             },
             {
                 title: "15. Linking Multiple Pages",
@@ -704,7 +704,7 @@
             }
         ];
 
-        // Data for Page 2 Tag Reference
+        // Data for Page 2 Tag Reference - Reordered: Styling moved up, Hyperlinks, Images, and Multi-page placed at end
         const references = [
             {
                 name: "1. Basic Structure",
@@ -779,10 +779,10 @@
                 mockupText: "Visit GOV.UK (Underlined Blue Link)"
             },
             {
-                name: "13. Images (External URL Support)",
-                snippet: "<img src='https://picsum.photos/200' alt='Scenic photo'>",
-                explanation: "Displays an image from any external web link (URL) using the 'src' attribute. Always include an 'alt' description so screen readers can describe the image.",
-                mockupText: "[ External Image Preview Box ]"
+                name: "13. Images & Inline Resizing",
+                snippet: "<img src='https://picsum.photos/300/200' alt='Scenic photo' style='width: 200px;'>",
+                explanation: "Resize images right in HTML by adding style='width: 200px;' or style='max-width: 100%; height: auto;' so they fit nicely on the screen.",
+                mockupText: "[ Resized Image Preview Box ]"
             },
             {
                 name: "14. Linking Multiple Pages (Project Index)",
@@ -1125,7 +1125,6 @@
                 }
                 showToast(`Successfully loaded ${fname}`);
                 
-                // Reset file input value so uploading the same file again triggers onchange
                 event.target.value = '';
             };
             reader.readAsText(file);
