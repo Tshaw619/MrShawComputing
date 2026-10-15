@@ -428,12 +428,53 @@
         }
 
         /* Right Column - Preview */
+        .preview-column {
+            position: relative;
+        }
+
         .preview-container {
             flex: 1;
             background-color: var(--preview-bg);
             border: none;
             width: 100%;
             height: 100%;
+        }
+
+        /* Full Screen Webpage View Overlay Mode */
+        body.fullscreen-preview header,
+        body.fullscreen-preview .column:not(.preview-column) {
+            display: none !important;
+        }
+
+        body.fullscreen-preview .page-content.active {
+            display: block !important;
+            height: 100vh !important;
+        }
+
+        body.fullscreen-preview .preview-column {
+            position: fixed !important;
+            top: 0;
+            left: 0;
+            width: 100vw !important;
+            height: 100vh !important;
+            z-index: 9999;
+            border: none;
+        }
+
+        .fullscreen-toggle-btn {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: var(--font-family);
+        }
+
+        .fullscreen-toggle-btn:hover {
+            background: var(--accent-hover);
         }
 
         /* Toast Notifications */
@@ -448,7 +489,7 @@
             font-weight: 600;
             box-shadow: 0 4px 12px rgba(0,0,0,0.2);
             display: none;
-            z-index: 1000;
+            z-index: 10000;
             animation: slideIn 0.3s ease;
         }
 
@@ -481,7 +522,7 @@
         <div class="column">
             <div class="col-header">
                 <span>Step-by-Step Tasks</span>
-                <span id="task-progress" style="font-size:0.85rem; font-weight:normal;">Task 1 of 16</span>
+                <span id="task-progress" style="font-size:0.85rem; font-weight:normal;">Task 1 of 17</span>
             </div>
             <div class="sidebar-content" id="tasks-container">
                 <!-- Tasks will be injected by JavaScript -->
@@ -525,8 +566,11 @@
         </div>
 
         <!-- Right Column: Preview -->
-        <div class="column">
-            <div class="col-header">Live Preview</div>
+        <div class="column preview-column">
+            <div class="col-header">
+                <span>Live Preview</span>
+                <button class="fullscreen-toggle-btn" id="fs-btn-1" onclick="toggleFullScreen()">🔍 Full Screen Webpage</button>
+            </div>
             <iframe id="preview1" class="preview-container" sandbox="allow-scripts allow-same-origin"></iframe>
         </div>
     </div>
@@ -580,8 +624,11 @@
         </div>
 
         <!-- Right Column: Preview -->
-        <div class="column">
-            <div class="col-header">Live Preview</div>
+        <div class="column preview-column">
+            <div class="col-header">
+                <span>Live Preview</span>
+                <button class="fullscreen-toggle-btn" id="fs-btn-2" onclick="toggleFullScreen()">🔍 Full Screen Webpage</button>
+            </div>
             <iframe id="preview2" class="preview-container" sandbox="allow-scripts allow-same-origin"></iframe>
         </div>
     </div>
@@ -610,7 +657,7 @@
             2: {}
         };
 
-        // Data for 16 Scaffolded Tasks (Page 1) - Reordered: Styling moved up, Font Family added, Hyperlinks, Images, and Multi-page placed at end
+        // Data for 17 Scaffolded Tasks (Page 1) - Includes Image Triple-Frame component task
         const tasks = [
             {
                 title: "1. Basic HTML Structure",
@@ -703,14 +750,20 @@
                 snippet: "    <img src='https://picsum.photos/400/300' alt='A scenic landscape placeholder image' style='width: 250px; border-radius: 8px;'>\n"
             },
             {
-                title: "16. Linking Multiple Pages",
+                title: "16. Image Triple-Frame Gallery (with Individual Links)",
+                desc: "Create a styled gallery frame containing 3 smaller images side by side, where each individual image wraps inside an &lt;a&gt; hyperlink tag.",
+                hint: "Click 'Add to Project' to insert a 3-image frame with custom links and hover effects.",
+                snippet: "    <div style='display: flex; gap: 15px; background: #e2e8f0; padding: 15px; border-radius: 10px; border: 2px solid #cbd5e1;'>\n      <a href='https://www.gov.uk' target='_blank'><img src='https://picsum.photos/200/150?random=1' alt='Gallery image 1' style='width: 100px; height: 80px; object-fit: cover; border-radius: 6px;'></a>\n      <a href='https://www.gov.uk' target='_blank'><img src='https://picsum.photos/200/150?random=2' alt='Gallery image 2' style='width: 100px; height: 80px; object-fit: cover; border-radius: 6px;'></a>\n      <a href='https://www.gov.uk' target='_blank'><img src='https://picsum.photos/200/150?random=3' alt='Gallery image 3' style='width: 100px; height: 80px; object-fit: cover; border-radius: 6px;'></a>\n    </div>\n"
+            },
+            {
+                title: "17. Linking Multiple Pages",
                 desc: "Create a multi-page website by linking directly to your project's index.html or secondary pages.",
                 hint: "Click 'Add to Project' to add local navigation links between project pages.",
                 snippet: "    <p><a href='index.html'>Home</a> | <a href='page2.html'>About Me</a></p>\n"
             }
         ];
 
-        // Data for Page 2 Tag Reference - Reordered: Styling moved up, Font Family added, Hyperlinks, Images, and Multi-page placed at end
+        // Data for Page 2 Tag Reference - Includes Image Triple-Frame reference
         const references = [
             {
                 name: "1. Basic Structure",
@@ -797,7 +850,13 @@
                 mockupText: "[ Resized Image Preview Box ]"
             },
             {
-                name: "15. Linking Multiple Pages (Project Index)",
+                name: "15. Image Triple-Frame Gallery (with Individual Links)",
+                snippet: "<div style='display: flex; gap: 10px; background: #f1f5f9; padding: 10px; border-radius: 8px;'>\n  <a href='page1.html'><img src='img1.jpg' alt='1' style='width: 90px;'></a>\n  <a href='page2.html'><img src='img2.jpg' alt='2' style='width: 90px;'></a>\n  <a href='page3.html'><img src='img3.jpg' alt='3' style='width: 90px;'></a>\n</div>",
+                explanation: "Group 3 images inside a container div with display: flex. Wrapping each individual <img> inside its own <a> tag creates clickable links for every separate thumbnail.",
+                mockupText: "[ Thumb 1 (Link) ] [ Thumb 2 (Link) ] [ Thumb 3 (Link) ]"
+            },
+            {
+                name: "16. Linking Multiple Pages (Project Index)",
                 snippet: "<!-- Inside page2.html linking back to project index -->\n<a href='index.html'>Back to Home (index.html)</a>",
                 explanation: "To link back to your project's home page from any additional page, use href='index.html'. This points directly to your student project's index file within the editor workspace.",
                 mockupText: "Back to Home (Local link connecting project files)"
@@ -935,6 +994,11 @@
 
         // Tab Switching between Guided Tasks & Playground
         function switchTab(pageId) {
+            // Exit full screen if active when switching tabs
+            if (document.body.classList.contains('fullscreen-preview')) {
+                toggleFullScreen();
+            }
+
             document.querySelectorAll('.page-content').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
             
@@ -945,6 +1009,26 @@
             } else {
                 document.querySelectorAll('.tab-btn')[1].classList.add('active');
                 updatePreview(2, 'preview2');
+            }
+        }
+
+        // Full Screen Toggle Functionality
+        function toggleFullScreen() {
+            const isFullscreen = document.body.classList.toggle('fullscreen-preview');
+            const activePageId = document.getElementById('page1').classList.contains('active') ? 1 : 2;
+            const btn1 = document.getElementById('fs-btn-1');
+            const btn2 = document.getElementById('fs-btn-2');
+
+            if (isFullscreen) {
+                const text = "❌ Back to Editor";
+                btn1.innerText = text;
+                btn2.innerText = text;
+                showToast("Switched to Full Screen Webpage View");
+            } else {
+                const text = "🔍 Full Screen Webpage";
+                btn1.innerText = text;
+                btn2.innerText = text;
+                showToast("Returned to Editing Screen");
             }
         }
 
