@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HTML Match & Pair | Year 8</title>
+  <style>
+    :root {--ink:#24314c;--muted:#526079;--bg:#f5f7fc;--white:#fff;--blue:#e3eeff;--mint:#e4f5e9;--peach:#fff0dc;--purple:#eee8fc;--outline:#ced7e5;--accent:#2357a5;}
+    * {box-sizing:border-box}
+    body {margin:0;font:17px/1.5 Arial, Helvetica, sans-serif;color:var(--ink);background:var(--bg)}
+    header {background:#233d70;color:white;padding:30px 20px}
+    .wrap {max-width:1060px;margin:auto;padding:0 20px}
+    h1 {font-size:2rem;margin:0 0 7px} h2 {font-size:1.4rem;margin:0 0 10px} h3 {font-size:1.1rem;margin:0 0 8px}
+    p {margin:8px 0 13px} .lead {color:#eaf1ff}
+    main {padding-top:24px;padding-bottom:48px} section {background:var(--white);border:1px solid var(--outline);border-radius:15px;padding:22px;margin-bottom:20px}
+    .intro {background:var(--blue)} .task {background:var(--mint)} .stretch {background:var(--purple)}
+    .pill {display:inline-block;background:#e8eefb;border-radius:30px;padding:3px 12px;font-size:.86rem;font-weight:bold;margin-bottom:8px}
+    .match-grid {display:grid;grid-template-columns:1fr 1fr;gap:15px}
+    .match-row {display:grid;grid-template-columns:105px 1fr;align-items:center;gap:10px;padding:12px;border-radius:10px;border:2px solid #dae1ec;background:white}
+    .match-row.correct {border-color:#2b8450;background:#f0fff4} .match-row.incorrect {border-color:#ba5a48;background:#fff5f1}
+    code {font-family:Consolas, 'Courier New', monospace;background:#e9edf4;border-radius:4px;padding:2px 5px;font-size:.95em}
+    .tag {font-size:1.1em;font-weight:bold;white-space:nowrap}
+    select, textarea {width:100%;font:inherit;border:2px solid #9daec7;border-radius:8px;background:white;padding:10px;color:var(--ink)}
+    select:focus, textarea:focus,button:focus-visible {outline:3px solid #efb84b;outline-offset:2px}
+    button {background:#2357a5;color:white;border:0;border-radius:9px;font:inherit;font-weight:bold;padding:11px 18px;cursor:pointer}
+    button:hover {background:#173e7b} button.secondary {background:#ebeff7;color:#1c3f75}
+    .controls {display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:18px}
+    .feedback {font-weight:bold;min-height:28px} .hint {font-size:.94rem;color:var(--muted)}
+    .challenge {padding:16px;border-radius:10px;background:white;border:1px solid #d1c8ec;margin-top:13px}
+    .challenge pre {overflow-x:auto;background:#1e2c42;color:#f5f7ff;padding:13px;border-radius:8px;line-height:1.7;font-size:.9rem}
+    .challenge textarea {min-height:95px;resize:vertical}
+    details {margin-top:10px;background:#faf8ff;border:1px solid #ddd5f0;border-radius:8px;padding:10px}
+    summary {font-weight:bold;cursor:pointer}
+    .tiny {font-size:.86rem;color:var(--muted)}
+    .options {display:flex;flex-wrap:wrap;gap:9px;margin:9px 0 16px}
+    .option {background:#eef3fc;color:#233d70;border:2px solid #bacbe5;text-align:left;font-weight:normal}
+    .option.selected {border-color:#204d95;background:#dfeaff;font-weight:bold}
+    .option.correct {border-color:#26764b;background:#e4f5e9;color:#164f31}
+    .option.incorrect {border-color:#bd5c4f;background:#fff0eb;color:#81372f}
+    .question {border-bottom:1px solid #e5eaf3;margin-bottom:16px;padding-bottom:8px}
+    .mark-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:6px 14px;margin-top:12px}
+    .mark-item {padding:7px 10px;background:#f3f5fb;border-radius:7px}
+    .mark-item.ok {background:#e5f5e9}.mark-item.no {background:#fff0eb}
+    footer {text-align:center;padding:0 20px 30px;color:var(--muted)}
+    @media(max-width:740px){.match-grid{grid-template-columns:1fr}.match-row{grid-template-columns:90px 1fr}header{padding:22px 0}h1{font-size:1.7rem}}
+  </style>
+</head>
+<body>
+<header><div class="wrap"><div class="pill" style="color:#24314c">YEAR 8 COMPUTING</div><h1>HTML Match &amp; Pair</h1><p class="lead">Can you match HTML tags to their jobs, then spot mistakes like a web developer?</p></div></header>
+<main class="wrap">
+  <section class="intro"><h2>Learning goal</h2><p>Identify common HTML tags and explain how they are used to build a webpage.</p><p><strong>Instructions:</strong> Choose the correct meaning for each tag. Select <strong>Check my matches</strong> when you are ready. You can try again!</p></section>
+  <section class="task"><span class="pill">ACTIVITY 1 · MATCH &amp; PAIR</span><h2>Which tag does what?</h2><p>Match each tag to its purpose using the dropdown menus.</p><div id="matches" class="match-grid"></div><div class="controls"><button id="check" type="button">Check my matches</button><button id="reset" class="secondary" type="button">Try again</button><span id="score" class="feedback" role="status" aria-live="polite"></span></div><p class="hint">Remember: an opening tag often has a matching closing tag, for example <code>&lt;p&gt;</code> and <code>&lt;/p&gt;</code>.</p></section>
+  <section><span class="pill">ACTIVITY 2 · PREDICT</span><h2>What will the browser show?</h2><p>Look at the code, then <strong>click one answer</strong> for each question. No writing needed!</p>
+    <pre style="overflow:auto;background:#eef3fa;padding:16px;border-radius:10px"><code>&lt;h1&gt;My Favourite Food&lt;/h1&gt;
+&lt;p&gt;I enjoy making pizza.&lt;/p&gt;
+&lt;img src="pizza.jpg" alt="A pizza"&gt;</code></pre>
+    <div class="question"><p><strong>1.</strong> Which text will be displayed as the main heading?</p><div id="predict1" class="options" role="group" aria-label="Choose the main heading"></div></div>
+    <div class="question"><p><strong>2.</strong> What might happen if <code>pizza.jpg</code> cannot be found?</p><div id="predict2" class="options" role="group" aria-label="Choose what happens when the image does not load"></div></div>
+    <div class="controls"><button type="button" id="predictCheck">Check my answers</button><button type="button" class="secondary" id="predictReset">Try again</button><span id="predictScore" role="status" aria-live="polite" class="feedback"></span></div>
+    <p class="hint">Tip: Heading tags show headings. The <code>alt</code> attribute provides alternative text for an image.</p>
+  </section>
+  <section class="stretch"><span class="pill">STRETCH CHALLENGE</span><h2>Become an HTML debugger</h2><p>These challenges are harder than matching meanings. Find the mistakes, write corrections, and explain <em>why</em> your changes matter.</p>
+    <div class="challenge"><h3>Challenge A — Fix the broken HTML</h3><p>This page has at least <strong>four</strong> things to improve. Rewrite it correctly in the box.</p><pre>&lt;html&gt;
+&lt;body&gt;
+  &lt;h1&gt;My Crochet Website&lt;h1&gt;
+  &lt;p&gt;I love making scarves.
+  &lt;img scr="scarf.jpg"&gt;
+  &lt;a href="patterns.html"&gt;See patterns
+&lt;/body&gt;
+&lt;/html&gt;</pre><label for="answerA"><strong>My corrected code:</strong></label><textarea id="answerA" spellcheck="false" placeholder="Type your corrected HTML here..."></textarea><div class="controls"><button type="button" id="markCode">Mark my corrected code</button><button type="button" id="codeReset" class="secondary">Clear answer</button><span id="codeScore" role="status" aria-live="polite" class="feedback"></span></div><div id="codeCriteria" class="mark-grid" aria-live="polite"></div><p class="tiny">Your code is checked for the five main fixes. You can change your code and mark it again. You should still test your page in an HTML editor.</p><details><summary>Hint (open only if needed)</summary><p>Check the closing <code>&lt;/h1&gt;</code>, closing <code>&lt;/p&gt;</code>, the image attribute <code>src</code>, the link’s closing <code>&lt;/a&gt;</code>, and an image description using <code>alt</code>.</p></details></div>
+    <div class="challenge"><h3>Challenge B — Improve your own website</h3><p>Choose your website topic (sport, crochet, food or anything else). Add all of these:</p><label><input type="checkbox"> A main heading and two subheadings</label><br><label><input type="checkbox"> Two paragraphs explaining your topic</label><br><label><input type="checkbox"> Three images with useful <code>alt</code> text</label><br><label><input type="checkbox"> A link to another page or website</label><br><label><input type="checkbox"> A list using <code>&lt;ul&gt;</code> and <code>&lt;li&gt;</code></label><p class="tiny">Extra stretch: explain why descriptive link text and image alt text make your site more accessible.</p></div>
+    <div class="challenge"><h3>Challenge C — Explain the difference</h3><p>Why is <code>&lt;h1&gt;Football&lt;/h1&gt;</code> not the same as <code>&lt;p&gt;Football&lt;/p&gt;</code>? Explain what each tag means and why headings help organise a page.</p><label for="answerC"><strong>My explanation:</strong></label><textarea id="answerC" placeholder="They are different because..."></textarea></div>
+  </section>
+</main>
+<script>
+  // Activity 2: click-only multiple choice.
+  const predictions = [
+    {id:'predict1', choices:['I enjoy making pizza.', 'My Favourite Food', 'A pizza'], correct:1},
+    {id:'predict2', choices:['The whole page disappears', 'The picture always loads anyway', 'The browser may show the alternative text “A pizza”'], correct:2}
+  ];
+  predictions.forEach((q) => {
+    const place = document.getElementById(q.id);
+    q.choices.forEach((choice,i) => {
+      const btn=document.createElement('button');
+      btn.type='button';btn.className='option';btn.textContent=choice;
+      btn.setAttribute('aria-pressed','false');
+      btn.addEventListener('click',()=>{
+        place.querySelectorAll('button').forEach(b=>{b.classList.remove('selected','correct','incorrect');b.setAttribute('aria-pressed','false');});
+        btn.classList.add('selected');btn.setAttribute('aria-pressed','true');
+        document.getElementById('predictScore').textContent='';
+      });
+      place.appendChild(btn);
+    });
+  });
+  document.getElementById('predictCheck').addEventListener('click',()=>{
+    let count=0;
+    predictions.forEach(q=>{
+      const buttons=[...document.getElementById(q.id).querySelectorAll('button')];
+      const selected=buttons.findIndex(b=>b.classList.contains('selected'));
+      if(selected===q.correct){count++;buttons[selected].classList.add('correct');}
+      else if(selected>=0){buttons[selected].classList.add('incorrect');}
+    });
+    document.getElementById('predictScore').textContent=`${count} out of 2 correct${count===2?' — Great work!':' — Have another try!'}`;
+  });
+  document.getElementById('predictReset').addEventListener('click',()=>{
+    document.querySelectorAll('.options button').forEach(b=>{b.classList.remove('selected','correct','incorrect');b.setAttribute('aria-pressed','false');});
+    document.getElementById('predictScore').textContent='';
+  });
+  // Debugger: check the *student's actual code*, not a model answer typed into the page.
+  document.getElementById('markCode').addEventListener('click',()=>{
+    const source=document.getElementById('answerA').value;
+    const checks=[
+      ['Main heading is closed', /<h1\b[^>]*>[^<]*<\/h1\s*>/i.test(source)],
+      ['Paragraph is closed', /<p\b[^>]*>[^<]*<\/p\s*>/i.test(source)],
+      ['Image uses src correctly', /<img\b(?=[^>]*\bsrc\s*=\s*["']scarf\.jpg["'])[^>]*>/i.test(source)],
+      ['Image has useful alt text', /<img\b[^>]*\balt\s*=\s*["']\s*[^"'\s][^"']*["'][^>]*>/i.test(source)],
+      ['Hyperlink is closed', /<a\b[^>]*href\s*=\s*["']patterns\.html["'][^>]*>[^<]*<\/a\s*>/i.test(source)]
+    ];
+    const points=checks.filter(([,ok])=>ok).length;
+    document.getElementById('codeScore').textContent=`${points} out of 5 fixes found${points===5?' — Well done!':' — Check the feedback below.'}`;
+    const panel=document.getElementById('codeCriteria');panel.replaceChildren();
+    checks.forEach(([label,ok])=>{
+      const item=document.createElement('div');item.className=`mark-item ${ok?'ok':'no'}`;
+      item.textContent=`${ok?'✓':'✗'} ${label}`;panel.appendChild(item);
+    });
+  });
+  document.getElementById('codeReset').addEventListener('click',()=>{
+    document.getElementById('answerA').value='';document.getElementById('codeScore').textContent='';document.getElementById('codeCriteria').replaceChildren();
+  });
+  const items = [
+    {tag:'<h1>', meaning:'Main heading'},
+    {tag:'<p>', meaning:'Paragraph of text'},
+    {tag:'<img>', meaning:'Displays an image'},
+    {tag:'<a>', meaning:'Creates a hyperlink'},
+    {tag:'<h2>', meaning:'Subheading'},
+    {tag:'<ul>', meaning:'Unordered (bullet) list'},
+    {tag:'<li>', meaning:'One item in a list'},
+    {tag:'<br>', meaning:'Line break'}
+  ];
+  // Choices appear alphabetically, not in the same order as the tags.
+  const meanings = items.map(x => x.meaning).sort((a,b) => a.localeCompare(b));
+  const container = document.getElementById('matches');
+  items.forEach((item, i) => {
+    const row = document.createElement('div');
+    row.className = 'match-row';
+    const label = document.createElement('label');
+    label.htmlFor = 'match-' + i;
+    label.className = 'tag';
+    label.textContent = item.tag;
+    const dropdown = document.createElement('select');
+    dropdown.id = 'match-' + i;
+    dropdown.setAttribute('aria-label', 'Meaning of ' + item.tag);
+    const placeholder = new Option('Choose meaning...', '');
+    dropdown.appendChild(placeholder);
+    meanings.forEach(meaning => dropdown.appendChild(new Option(meaning, meaning)));
+    dropdown.addEventListener('change', () => { row.classList.remove('correct','incorrect'); document.getElementById('score').textContent = ''; });
+    row.append(label, dropdown);
+    container.appendChild(row);
+  });
+  document.getElementById('check').addEventListener('click', () => {
+    let correct = 0;
+    items.forEach((item, i) => {
+      const dropdown = document.getElementById('match-' + i);
+      const row = dropdown.parentElement;
+      const ok = dropdown.value === item.meaning;
+      row.classList.toggle('correct', ok);
+      row.classList.toggle('incorrect', !ok);
+      if (ok) correct++;
+    });
+    document.getElementById('score').textContent = `${correct} out of ${items.length} correct${correct === items.length ? ' — Excellent work!' : ' — Have another try!'}`;
+  });
+  document.getElementById('reset').addEventListener('click', () => {
+    items.forEach((item, i) => {
+      const select = document.getElementById('match-' + i);
+      select.value = '';
+      select.parentElement.classList.remove('correct','incorrect');
+    });
+    document.getElementById('score').textContent = '';
+  });
+</script>
+</body>
+</html>
