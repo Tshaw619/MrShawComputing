@@ -1203,28 +1203,47 @@
             textarea.setSelectionRange(start + openTag.length, end + openTag.length);
         }
 
-        // File Upload Handling (Supports both Page 1 and Page 2)
-        function uploadFile(event, ctxNum) {
-            const file = event.target.files[0];
-            if (!file) return;
+        // File Upload Handling (Robust classroom fix)
+function uploadFile(event, ctxNum) {
+    const file = event.target.files[0];
+    if (!file) return;
 
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const fname = file.name;
-                projectFiles[ctxNum][fname] = e.target.result;
-                switchFileTab(ctxNum, fname);
-                
-                if (ctxNum === 1) {
-                    document.getElementById('task-status-msg').innerText = `✓ Loaded: ${fname}`;
-                } else {
-                    document.getElementById('upload-status').innerText = `✓ Loaded: ${fname}`;
-                }
-                showToast(`Successfully loaded ${fname}`);
-                
-                event.target.value = '';
-            };
-            reader.readAsText(file);
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const fname = file.name.trim();
+        const fileContent = e.target.result;
+
+        // Store file content in project workspace
+        projectFiles[ctxNum][fname] = fileContent;
+
+        // Force switch to the uploaded file tab
+        switchFileTab(ctxNum, fname);
+
+        // Ensure the editor textarea immediately displays the loaded content
+        const editorId = ctxNum === 1 ? 'code1' : 'code2';
+        const textarea = document.getElementById(editorId);
+        textarea.value = fileContent;
+
+        // Force immediate preview update
+        const previewId = ctxNum === 1 ? 'preview1' : 'preview2';
+        updatePreview(ctxNum, previewId);
+
+        // Reset history stack for clean undo state on uploaded file
+        history[editorId] = { stack: [fileContent], pointer: 0 };
+
+        if (ctxNum === 1) {
+            document.getElementById('task-status-msg').innerText = `✓ Loaded: ${fname}`;
+        } else {
+            document.getElementById('upload-status').innerText = `✓ Loaded: ${fname}`;
         }
+        
+        showToast(`Successfully loaded ${fname}`);
+        
+        // Reset file input value so re-uploading the same file triggers onchange
+        event.target.value = '';
+    };
+    reader.readAsText(file);
+}
 
         // Download Current Active File
         function downloadCurrentFile(ctxNum) {
