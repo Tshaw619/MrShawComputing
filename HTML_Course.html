@@ -247,7 +247,7 @@
             border-color: var(--accent-color);
         }
 
-        /* Left Sidebar - Tasks & References */
+        /* Left Sidebar - Tasks & Challenges */
         .sidebar-content {
             flex: 1;
             overflow-y: auto;
@@ -323,26 +323,70 @@
             background-color: var(--accent-hover);
         }
 
-        /* Page 2 Specific Reference Styling */
-        .ref-snippet {
-            background-color: var(--code-bg);
-            color: var(--code-text);
-            padding: 0.5rem;
-            border-radius: 4px;
-            font-family: monospace;
-            font-size: 0.85rem;
-            margin: 0.5rem 0;
-            white-space: pre-wrap;
+        /* Challenge Mode Specific UI */
+        .challenge-brief-box {
+            background: rgba(37, 99, 235, 0.05);
+            border: 2px solid var(--accent-color);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
         }
 
-        .ref-mockup {
-            background-color: #ffffff;
-            color: #000000;
-            border: 2px dashed #94a3b8;
-            padding: 0.75rem;
-            border-radius: 6px;
-            margin-top: 0.5rem;
+        .challenge-brief-box h3 {
+            font-size: 1.1rem;
+            color: var(--accent-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .challenge-brief-box p {
+            font-size: 0.95rem;
+            margin-bottom: 0.75rem;
+            line-height: 1.4;
+        }
+
+        .challenge-checklist {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .challenge-checklist li {
             font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .challenge-select-bar {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .challenge-select-btn {
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            color: var(--text-color);
+            padding: 0.6rem 1rem;
+            border-radius: 6px;
+            font-weight: 600;
+            text-align: left;
+            cursor: pointer;
+            font-family: var(--font-family);
+            transition: all 0.2s;
+        }
+
+        .challenge-select-btn:hover {
+            border-color: var(--accent-color);
+            background: rgba(37, 99, 235, 0.05);
+        }
+
+        .challenge-select-btn.active {
+            background: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
         }
 
         /* Middle Column - Editor */
@@ -508,7 +552,7 @@
         </div>
         <div class="nav-tabs">
             <button class="tab-btn active" onclick="switchTab('page1')">1. Guided Tasks</button>
-            <button class="tab-btn" onclick="switchTab('page2')">2. HTML Playground</button>
+            <button class="tab-btn" onclick="switchTab('page2')">2. Challenge Mode</button>
         </div>
         <div class="accessibility-controls">
             <button class="access-btn" onclick="toggleDyslexiaFont()">Dyslexia Font</button>
@@ -552,8 +596,12 @@
                 <div class="quick-tags">
                     <span style="font-size:0.8rem; font-weight:700; align-self:center; margin-right:4px;">Quick Tags:</span>
                     <button class="tag-btn" onclick="insertTag('&lt;h1&gt;', '&lt;/h1&gt;')">&lt;h1&gt;</button>
+                    <button class="tag-btn" onclick="insertTag('&lt;h2&gt;', '&lt;/h2&gt;')">&lt;h2&gt;</button>
                     <button class="tag-btn" onclick="insertTag('&lt;p&gt;', '&lt;/p&gt;')">&lt;p&gt;</button>
                     <button class="tag-btn" onclick="insertTag('&lt;ul&gt;\n  &lt;li&gt;', '&lt;/li&gt;\n&lt;/ul&gt;')">&lt;ul&gt;</button>
+                    <button class="tag-btn" onclick="insertTag('&lt;ol&gt;\n  &lt;li&gt;', '&lt;/li&gt;\n&lt;/ol&gt;')">&lt;ol&gt;</button>
+                    <button class="tag-btn" onclick="insertTag('&lt;strong&gt;', '&lt;/strong&gt;')">&lt;strong&gt;</button>
+                    <button class="tag-btn" onclick="insertTag('&lt;em&gt;', '&lt;/em&gt;')">&lt;em&gt;</button>
                     <button class="tag-btn" onclick="insertTag('&lt;a href=&quot;&quot;&gt;', '&lt;/a&gt;')">&lt;a&gt;</button>
                     <button class="tag-btn" onclick="insertTag('&lt;img src=&quot;https://picsum.photos/300/200&quot; alt=&quot;&quot; style=&quot;width: 300px;&quot;&gt;', '')">&lt;img&gt;</button>
                 </div>
@@ -575,23 +623,30 @@
         </div>
     </div>
 
-    <!-- PAGE 2: PLAYGROUND & REFERENCE -->
+    <!-- PAGE 2: CHALLENGE MODE -->
     <div id="page2" class="page-content">
-        <!-- Left Column: Tag Reference Menu -->
+        <!-- Left Column: Challenge Brief & Selector -->
         <div class="column">
             <div class="col-header">
-                <span>HTML Tag Reference</span>
-                <span style="font-size:0.85rem; font-weight:normal;">Examples & Illustrations</span>
+                <span>Challenge Briefs</span>
+                <span style="font-size:0.85rem; font-weight:normal;">Independent Practice</span>
             </div>
-            <div class="sidebar-content" id="reference-container">
-                <!-- Reference items will be injected by JavaScript -->
+            <div class="sidebar-content">
+                <div class="challenge-select-bar">
+                    <button class="challenge-select-btn active" id="ch-btn-0" onclick="loadChallenge(0)">Challenge 1: Recipe Card</button>
+                    <button class="challenge-select-btn" id="ch-btn-1" onclick="loadChallenge(1)">Challenge 2: Hobbies & Interests</button>
+                    <button class="challenge-select-btn" id="ch-btn-2" onclick="loadChallenge(2)">Challenge 3: Animal Fact File</button>
+                </div>
+                <div class="challenge-brief-box" id="challenge-brief-box">
+                    <!-- Dynamic Brief Content injected here -->
+                </div>
             </div>
         </div>
 
         <!-- Middle Column: Editor & Uploader -->
         <div class="column">
             <div class="col-header">
-                <span>Online Code Editor</span>
+                <span>Challenge Code Editor</span>
                 <div class="editor-header-controls">
                     <button class="history-btn" onclick="undoCode('code2')">↶ Undo</button>
                     <button class="history-btn" onclick="redoCode('code2')">↷ Redo</button>
@@ -610,12 +665,16 @@
                 <div class="quick-tags">
                     <span style="font-size:0.8rem; font-weight:700; align-self:center; margin-right:4px;">Quick Tags:</span>
                     <button class="tag-btn" onclick="insertTagPage2('&lt;h1&gt;', '&lt;/h1&gt;')">&lt;h1&gt;</button>
+                    <button class="tag-btn" onclick="insertTagPage2('&lt;h2&gt;', '&lt;/h2&gt;')">&lt;h2&gt;</button>
                     <button class="tag-btn" onclick="insertTagPage2('&lt;p&gt;', '&lt;/p&gt;')">&lt;p&gt;</button>
-                    <button class="tag-btn" onclick="insertTagPage2('&lt;img src=&quot;https://picsum.photos/300/200&quot; alt=&quot;&quot; style=&quot;width: 300px;&quot;&gt;', '')">&lt;img&gt;</button>
+                    <button class="tag-btn" onclick="insertTagPage2('&lt;ul&gt;\n  &lt;li&gt;', '&lt;/li&gt;\n&lt;/ul&gt;')">&lt;ul&gt;</button>
+                    <button class="tag-btn" onclick="insertTagPage2('&lt;ol&gt;\n  &lt;li&gt;', '&lt;/li&gt;\n&lt;/ol&gt;')">&lt;ol&gt;</button>
+                    <button class="tag-btn" onclick="insertTagPage2('&lt;strong&gt;', '&lt;/strong&gt;')">&lt;strong&gt;</button>
+                    <button class="tag-btn" onclick="insertTagPage2('&lt;em&gt;', '&lt;/em&gt;')">&lt;em&gt;</button>
                     <button class="tag-btn" onclick="insertTagPage2('&lt;a href=&quot;&quot;&gt;', '&lt;/a&gt;')">&lt;a&gt;</button>
-                    <button class="tag-btn" onclick="insertTagPage2('&lt;table&gt;\n  &lt;tr&gt;\n    &lt;th&gt;Header&lt;/th&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n    &lt;td&gt;Data&lt;/td&gt;\n  &lt;/tr&gt;\n&lt;/table&gt;', '')">Table</button>
+                    <button class="tag-btn" onclick="insertTagPage2('&lt;img src=&quot;https://picsum.photos/300/200&quot; alt=&quot;&quot; style=&quot;width: 300px;&quot;&gt;', '')">&lt;img&gt;</button>
                 </div>
-                <textarea id="code2" class="code-editor" placeholder="Type HTML or upload an existing .html file to edit..." oninput="handleEditorInput('code2', 'preview2')"></textarea>
+                <textarea id="code2" class="code-editor" placeholder="Type your challenge code here..." oninput="handleEditorInput('code2', 'preview2')"></textarea>
                 <div class="editor-footer">
                     <button class="action-btn" style="margin-top:0; width:auto;" onclick="downloadCurrentFile(2)">Save Current File (.html)</button>
                     <span id="upload-status" style="font-size:0.85rem; font-weight:600; color:var(--success-color);"></span>
@@ -636,13 +695,13 @@
     <div id="toast">Notification message</div>
 
     <script>
-        // Multi-file storage per context (Context 1 = Guided Tasks, Context 2 = Playground)
+        // Multi-file storage per context (Context 1 = Guided Tasks, Context 2 = Challenge Mode)
         const projectFiles = {
             1: {
                 "index.html": "<html>\n  <body>\n    \n  </body>\n</html>"
             },
             2: {
-                "index.html": "<html>\n  <body>\n    <h1>Welcome to Playground</h1>\n    <p>Upload or type code here.</p>\n  </body>\n</html>"
+                "index.html": "<html>\n  <body>\n    <h1>Challenge 1: Recipe Card</h1>\n    <p>Build your webpage according to the checklist on the left.</p>\n  </body>\n</html>"
             }
         };
 
@@ -657,7 +716,7 @@
             2: {}
         };
 
-        // Data for 17 Scaffolded Tasks (Page 1) - Includes Image Triple-Frame component task
+        // Data for 17 Scaffolded Tasks (Page 1)
         const tasks = [
             {
                 title: "1. Basic HTML Structure",
@@ -763,107 +822,50 @@
             }
         ];
 
-        // Data for Page 2 Tag Reference - Includes Image Triple-Frame reference
-        const references = [
+        // Challenge Mode Briefs
+        const challenges = [
             {
-                name: "1. Basic Structure",
-                snippet: "<html>\n  <body>\n    Your content goes here!\n  </body>\n</html>",
-                explanation: "Every webpage starts with these foundation tags. The <html> tag wraps the whole document, and the <body> tag holds everything you can see on the page.",
-                mockupText: "Your content goes here! (Inside the visible browser window)"
+                title: "Challenge 1: Delicious Recipe Card",
+                desc: "Design a simple webpage displaying your favorite meal recipe. Make sure it has a clear title, a description paragraph, and an ingredient list.",
+                checklist: [
+                    "✓ Include <html> and <body> tags",
+                    "✓ One main heading (&lt;h1&gt;) for the recipe name",
+                    "✓ A short description paragraph (&lt;p&gt;)",
+                    "✓ A bulleted list (&lt;ul&gt;) of ingredients",
+                    "✓ A numbered list (&lt;ol&gt;) of cooking steps",
+                    "✓ One photo of the dish using an &lt;img&gt; tag with inline width sizing"
+                ],
+                starterCode: "<html>\n  <body>\n    <h1>My Favorite Recipe</h1>\n    <p>Describe your dish here...</p>\n  </body>\n</html>"
             },
             {
-                name: "2. Headings",
-                snippet: "<h1>Main Title</h1>\n<h2>Sub Section</h2>",
-                explanation: "Headings give your page titles and organization. <h1> is the largest title, down to <h6> which is the smallest.",
-                mockupText: "MAIN TITLE (Large bold text)\nSub Section (Medium bold text)"
+                title: "Challenge 2: Hobbies & Interests Hub",
+                desc: "Create a personal hobby profile page highlighting three of your favorite things to do outside of school.",
+                checklist: [
+                    "✓ Include <html> and <body> tags",
+                    "✓ A main heading (&lt;h1&gt;) with your name or title",
+                    "✓ Subheadings (&lt;h2&gt;) for each hobby",
+                    "✓ Bulleted list (&lt;ul&gt;) or paragraphs describing each hobby",
+                    "✓ Use <strong> or <em> tags to emphasize key words",
+                    "✓ At least one image (&lt;img&gt;) with a resized width"
+                ],
+                starterCode: "<html>\n  <body>\n    <h1>My Hobbies Profile</h1>\n    <p>Welcome to my personal interest page!</p>\n  </body>\n</html>"
             },
             {
-                name: "3. Paragraphs",
-                snippet: "<p>This is a normal paragraph of text on a webpage.</p>",
-                explanation: "The paragraph tag groups sentences together with clear spacing above and below so it is easy to read.",
-                mockupText: "This is a normal paragraph of text on a webpage."
-            },
-            {
-                name: "4. Bullet Lists",
-                snippet: "<ul>\n  <li>Apples</li>\n  <li>Bananas</li>\n</ul>",
-                explanation: "Creates an unordered list with bullet points. Each item in the list must be wrapped in <li> tags.",
-                mockupText: "• Apples\n• Bananas"
-            },
-            {
-                name: "5. Numbered Lists",
-                snippet: "<ol>\n  <li>First item</li>\n  <li>Second item</li>\n</ol>",
-                explanation: "Creates an ordered list where items are automatically numbered 1, 2, 3...",
-                mockupText: "1. First item\n2. Second item"
-            },
-            {
-                name: "6. Text Formatting",
-                snippet: "<p>This is <strong>important</strong> and this is <em>italic</em>.</p>",
-                explanation: "Use <strong> to make text bold and <em> to make text slant (italic) for emphasis.",
-                mockupText: "This is important and this is italic."
-            },
-            {
-                name: "7. Tables",
-                snippet: "<table>\n  <tr><th>Name</th><th>Score</th></tr>\n  <tr><td>Alice</td><td>95</td></tr>\n</table>",
-                explanation: "Organizes data into rows and columns. <tr> creates a row, <th> is a header cell, and <td> is standard data.",
-                mockupText: "Name | Score\nAlice | 95"
-            },
-            {
-                name: "8. Inline Styling: Text Color",
-                snippet: "<h1 style='color: red;'>Red Title</h1>",
-                explanation: "Change the color of any text by adding style='color: [colorname];' inside the opening tag.",
-                mockupText: "Red Title (In red text)"
-            },
-            {
-                name: "9. Inline Styling: Font Size",
-                snippet: "<p style='font-size: 24px;'>Big text</p>",
-                explanation: "Make text larger or smaller by specifying pixels using style='font-size: [number]px;'.",
-                mockupText: "Big text (Enlarged font)"
-            },
-            {
-                name: "10. Inline Styling: Background Color",
-                snippet: "<p style='background-color: yellow;'>Highlighted text</p>",
-                explanation: "Add a background color behind text or titles using style='background-color: [color];'.",
-                mockupText: "Highlighted text (With yellow background box)"
-            },
-            {
-                name: "11. Inline Styling: Borders & Padding",
-                snippet: "<h2 style='border: 2px solid blue; padding: 10px;'>Boxed Title</h2>",
-                explanation: "Draw a border around elements using style='border: [thickness] solid [color];' and add breathing room inside using 'padding'.",
-                mockupText: "[ Boxed Title with Border around it ]"
-            },
-            {
-                name: "12. Inline Styling: Font Family",
-                snippet: "<p style='font-family: Georgia, serif;'>Georgia Serif Text</p>",
-                explanation: "Change the typeface of any text using style='font-family: [fontname], sans-serif;'. Popular choices include Arial, Georgia, Courier New, and Comic Sans MS.",
-                mockupText: "Georgia Serif Text (Styled Typeface)"
-            },
-            {
-                name: "13. Hyperlinks",
-                snippet: "<a href='https://www.gov.uk'>Visit GOV.UK</a>",
-                explanation: "Turns text into a clickable link that takes the user to another website or page using the 'href' attribute.",
-                mockupText: "Visit GOV.UK (Underlined Blue Link)"
-            },
-            {
-                name: "14. Images & Inline Resizing",
-                snippet: "<img src='https://picsum.photos/300/200' alt='Scenic photo' style='width: 200px;'>",
-                explanation: "Resize images right in HTML by adding style='width: 200px;' or style='max-width: 100%; height: auto;' so they fit nicely on the screen.",
-                mockupText: "[ Resized Image Preview Box ]"
-            },
-            {
-                name: "15. Image Triple-Frame Gallery (with Individual Links)",
-                snippet: "<div style='display: flex; gap: 10px; background: #f1f5f9; padding: 10px; border-radius: 8px;'>\n  <a href='page1.html'><img src='img1.jpg' alt='1' style='width: 90px;'></a>\n  <a href='page2.html'><img src='img2.jpg' alt='2' style='width: 90px;'></a>\n  <a href='page3.html'><img src='img3.jpg' alt='3' style='width: 90px;'></a>\n</div>",
-                explanation: "Group 3 images inside a container div with display: flex. Wrapping each individual <img> inside its own <a> tag creates clickable links for every separate thumbnail.",
-                mockupText: "[ Thumb 1 (Link) ] [ Thumb 2 (Link) ] [ Thumb 3 (Link) ]"
-            },
-            {
-                name: "16. Linking Multiple Pages (Project Index)",
-                snippet: "<!-- Inside page2.html linking back to project index -->\n<a href='index.html'>Back to Home (index.html)</a>",
-                explanation: "To link back to your project's home page from any additional page, use href='index.html'. This points directly to your student project's index file within the editor workspace.",
-                mockupText: "Back to Home (Local link connecting project files)"
+                title: "Challenge 3: Animal Fact File",
+                desc: "Build an informative fact file about an animal of your choice. Include fascinating facts, diet details, and an external reference link.",
+                checklist: [
+                    "✓ Include <html> and <body> tags",
+                    "✓ Main heading (&lt;h1&gt;) for the animal name",
+                    "✓ A descriptive paragraph (&lt;p&gt;) with background highlight or color style",
+                    "✓ A numbered list (&lt;ol&gt;) of top 3 facts",
+                    "✓ An image (&lt;img&gt;) of the animal",
+                    "✓ A clickable hyperlink (&lt;a href&gt;) to an external source for more information"
+                ],
+                starterCode: "<html>\n  <body>\n    <h1>Animal Fact File</h1>\n    <p>Let's learn about amazing wildlife!</p>\n  </body>\n</html>"
             }
         ];
 
-        let currentTaskIndex = 0;
+        let currentChallengeIndex = 0;
 
         // Undo / Redo History Stacks per editor
         const history = {
@@ -965,7 +967,6 @@
                 return;
             }
 
-            // Default template linking back to index.html within the student project workspace
             projectFiles[ctxNum][sanitized] = `<html>\n  <body>\n    <h1>${sanitized}</h1>\n    <p>Welcome to this new page!</p>\n    <p><a href='index.html'>Back to Home (index.html)</a></p>\n  </body>\n</html>`;
             switchFileTab(ctxNum, sanitized);
             showToast(`Created new page: ${sanitized}`);
@@ -975,26 +976,67 @@
         window.onload = function() {
             renderTasks();
             
-            // Init Context 1
+            // Init Context 1 (Guided Tasks)
             document.getElementById('code1').value = projectFiles[1]["index.html"];
             history.code1.stack.push(projectFiles[1]["index.html"]);
             history.code1.pointer = 0;
             updatePreview(1, 'preview1');
             renderFileTabs(1);
 
-            // Init Context 2
-            document.getElementById('code2').value = projectFiles[2]["index.html"];
-            history.code2.stack.push(projectFiles[2]["index.html"]);
-            history.code2.pointer = 0;
-            updatePreview(2, 'preview2');
-            renderFileTabs(2);
-
-            renderReferences();
+            // Init Context 2 (Challenge Mode)
+            loadChallenge(0);
         };
 
-        // Tab Switching between Guided Tasks & Playground
+        // Load Challenge Brief into Page 2 sidebar & editor
+        function loadChallenge(index) {
+            currentChallengeIndex = index;
+            const ch = challenges[index];
+
+            for (let i = 0; i < challenges.length; i++) {
+                const btn = document.getElementById(`ch-btn-${i}`);
+                if (btn) {
+                    if (i === index) btn.classList.add('active');
+                    else btn.classList.remove('active');
+                }
+            }
+
+            const briefBox = document.getElementById('challenge-brief-box');
+            let checklistHtml = '';
+            ch.checklist.forEach(item => {
+                checklistHtml += `<li>${item}</li>`;
+            });
+
+            briefBox.innerHTML = `
+                <h3>${ch.title}</h3>
+                <p>${ch.desc}</p>
+                <p style="font-weight:600; font-size:0.85rem; margin-top:0.5rem; margin-bottom:0.25rem;">Requirements Checklist:</p>
+                <ul class="challenge-checklist">
+                    ${checklistHtml}
+                </ul>
+                <button class="action-btn" onclick="resetChallengeCode(${index})">Load Starter Code</button>
+            `;
+
+            projectFiles[2]["index.html"] = ch.starterCode;
+            activeFileNames[2] = "index.html";
+            document.getElementById('code2').value = ch.starterCode;
+            history.code2 = { stack: [ch.starterCode], pointer: 0 };
+
+            renderFileTabs(2);
+            updatePreview(2, 'preview2');
+            showToast(`Loaded ${ch.title}`);
+        }
+
+        function resetChallengeCode(index) {
+            const ch = challenges[index];
+            projectFiles[2]["index.html"] = ch.starterCode;
+            document.getElementById('code2').value = ch.starterCode;
+            history.code2 = { stack: [ch.starterCode], pointer: 0 };
+            updatePreview(2, 'preview2');
+            showToast("Starter code reloaded");
+        }
+
+        // Tab Switching between Guided Tasks & Challenge Mode
         function switchTab(pageId) {
-            // Exit full screen if active when switching tabs
             if (document.body.classList.contains('fullscreen-preview')) {
                 toggleFullScreen();
             }
@@ -1015,7 +1057,6 @@
         // Full Screen Toggle Functionality
         function toggleFullScreen() {
             const isFullscreen = document.body.classList.toggle('fullscreen-preview');
-            const activePageId = document.getElementById('page1').classList.contains('active') ? 1 : 2;
             const btn1 = document.getElementById('fs-btn-1');
             const btn2 = document.getElementById('fs-btn-2');
 
@@ -1115,59 +1156,26 @@
             }
         }
 
-        // Render Page 2 References
-        function renderReferences() {
-            const container = document.getElementById('reference-container');
-            container.innerHTML = '';
-            references.forEach((ref, index) => {
-                const item = document.createElement('div');
-                item.className = `accordion-item ${index === 0 ? 'open' : ''}`;
-                item.id = `ref-item-${index}`;
-                item.innerHTML = `
-                    <button class="accordion-header" onclick="toggleRefAccordion(${index})">
-                        <span>${ref.name}</span>
-                        <span>▼</span>
-                    </button>
-                    <div class="accordion-content">
-                        <p><strong>Explanation:</strong><br>${ref.explanation}</p>
-                        <div class="ref-snippet"><code>${escapeHtml(ref.snippet)}</code></div>
-                        <p style="font-size:0.85rem; font-weight:600; margin-top:0.5rem;">Visual Output Mockup:</p>
-                        <div class="ref-mockup">${ref.mockupText}</div>
-                    </div>
-                `;
-                container.appendChild(item);
-            });
-        }
-
-        function toggleRefAccordion(index) {
-            const item = document.getElementById(`ref-item-${index}`);
-            item.classList.toggle('open');
-        }
-
         // Live Preview Update using ObjectURLs for seamless multi-page tab routing inside the preview iframe
         function updatePreview(ctxNum, previewId) {
             const iframe = document.getElementById(previewId);
             const files = projectFiles[ctxNum];
             const currentFileName = activeFileNames[ctxNum];
             
-            // Revoke old blob URLs for this context to prevent memory leaks
             if (activeBlobUrls[ctxNum]) {
                 Object.values(activeBlobUrls[ctxNum]).forEach(url => URL.revokeObjectURL(url));
             }
             activeBlobUrls[ctxNum] = {};
 
-            // Generate blob URLs for every file currently in this project workspace
             for (let fname in files) {
                 let htmlContent = files[fname];
                 const blob = new Blob([htmlContent], { type: 'text/html' });
                 activeBlobUrls[ctxNum][fname] = URL.createObjectURL(blob);
             }
 
-            // Prepare the active HTML code and map all project file references to their runtime blob URLs
             let activeHtml = files[currentFileName] || "";
             for (let fname in files) {
                 const targetBlob = activeBlobUrls[ctxNum][fname];
-                // Replace both double/single quoted references to local project files
                 activeHtml = activeHtml.replace(new RegExp(`href=["']${fname}["']`, 'g'), `href="${targetBlob}"`);
                 activeHtml = activeHtml.replace(new RegExp(`href=["']\.\/${fname}["']`, 'g'), `href="${targetBlob}"`);
             }
@@ -1203,47 +1211,39 @@
             textarea.setSelectionRange(start + openTag.length, end + openTag.length);
         }
 
-        // File Upload Handling (Robust classroom fix)
-function uploadFile(event, ctxNum) {
-    const file = event.target.files[0];
-    if (!file) return;
+        // File Upload Handling
+        function uploadFile(event, ctxNum) {
+            const file = event.target.files[0];
+            if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        const fname = file.name.trim();
-        const fileContent = e.target.result;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const fname = file.name.trim();
+                const fileContent = e.target.result;
 
-        // Store file content in project workspace
-        projectFiles[ctxNum][fname] = fileContent;
+                projectFiles[ctxNum][fname] = fileContent;
+                switchFileTab(ctxNum, fname);
 
-        // Force switch to the uploaded file tab
-        switchFileTab(ctxNum, fname);
+                const editorId = ctxNum === 1 ? 'code1' : 'code2';
+                const textarea = document.getElementById(editorId);
+                textarea.value = fileContent;
 
-        // Ensure the editor textarea immediately displays the loaded content
-        const editorId = ctxNum === 1 ? 'code1' : 'code2';
-        const textarea = document.getElementById(editorId);
-        textarea.value = fileContent;
+                const previewId = ctxNum === 1 ? 'preview1' : 'preview2';
+                updatePreview(ctxNum, previewId);
 
-        // Force immediate preview update
-        const previewId = ctxNum === 1 ? 'preview1' : 'preview2';
-        updatePreview(ctxNum, previewId);
+                history[editorId] = { stack: [fileContent], pointer: 0 };
 
-        // Reset history stack for clean undo state on uploaded file
-        history[editorId] = { stack: [fileContent], pointer: 0 };
-
-        if (ctxNum === 1) {
-            document.getElementById('task-status-msg').innerText = `✓ Loaded: ${fname}`;
-        } else {
-            document.getElementById('upload-status').innerText = `✓ Loaded: ${fname}`;
+                if (ctxNum === 1) {
+                    document.getElementById('task-status-msg').innerText = `✓ Loaded: ${fname}`;
+                } else {
+                    document.getElementById('upload-status').innerText = `✓ Loaded: ${fname}`;
+                }
+                
+                showToast(`Successfully loaded ${fname}`);
+                event.target.value = '';
+            };
+            reader.readAsText(file);
         }
-        
-        showToast(`Successfully loaded ${fname}`);
-        
-        // Reset file input value so re-uploading the same file triggers onchange
-        event.target.value = '';
-    };
-    reader.readAsText(file);
-}
 
         // Download Current Active File
         function downloadCurrentFile(ctxNum) {
