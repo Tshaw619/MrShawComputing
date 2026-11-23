@@ -1,0 +1,1425 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Python RPG Studio: From Simple Class to Battle Arena</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            slate: {
+              850: '#151e2e',
+              900: '#0f172a',
+              950: '#090d16',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+
+    /* Custom Python Syntax Highlighting Classes */
+    .py-kw { color: #c084fc; font-weight: 500; }      /* def, class, return, if, else, while, import, random */
+    .py-cls { color: #38bdf8; font-weight: 600; }     /* Class names */
+    .py-fn { color: #60a5fa; }                        /* Function/method definitions */
+    .py-self { color: #fb7185; font-style: italic; }  /* self, super */
+    .py-str { color: #4ade80; }                       /* Strings */
+    .py-num { color: #fbbf24; }                       /* Numbers & booleans */
+    .py-com { color: #64748b; font-style: italic; }   /* Comments */
+    .py-todo { color: #f59e0b; font-weight: 600; background: rgba(245, 158, 11, 0.12); padding: 1px 4px; border-radius: 3px; }
+
+    /* Smooth transitions */
+    .tab-panel {
+      animation: fadeIn 0.25s ease-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Battle Arena Animations */
+    @keyframes hitShake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-6px); }
+      50% { transform: translateX(6px); }
+      75% { transform: translateX(-4px); }
+    }
+    .shake {
+      animation: hitShake 0.35s ease-in-out;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-200 font-sans antialiased min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white">
+
+  <!-- Toast Notification (Replaces alert()) -->
+  <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+    <div class="bg-slate-800 border border-indigo-500/50 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3">
+      <span id="toast-icon" class="text-emerald-400">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+      </span>
+      <span id="toast-message" class="text-sm font-medium">Copied to clipboard!</span>
+    </div>
+  </div>
+
+  <!-- Top Header & Global Progress Bar -->
+  <header class="sticky top-0 z-30 bg-slate-900/90 backdrop-blur-md border-b border-slate-800">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-4">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <!-- Title & Badge -->
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20 shrink-0">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5"></path>
+            </svg>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="text-lg sm:text-xl font-bold text-white tracking-tight">Python RPG Studio</h1>
+              <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-500/15 text-indigo-300 border border-indigo-500/30">OOP Track</span>
+            </div>
+            <p class="text-xs sm:text-sm text-slate-400">From Simple Class Blueprint to Turn-Based Battle Arena</p>
+          </div>
+        </div>
+
+        <!-- Progress Bar Tracker -->
+        <div class="flex items-center gap-4 bg-slate-950/70 px-4 py-2.5 rounded-xl border border-slate-800">
+          <div class="flex-1 min-w-[140px] sm:min-w-[180px]">
+            <div class="flex justify-between text-xs mb-1.5">
+              <span class="text-slate-400 font-medium">Quest Progress</span>
+              <span id="progress-text" class="text-indigo-400 font-bold">0 / 12 Tasks</span>
+            </div>
+            <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+              <div id="progress-bar" class="h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-emerald-400 transition-all duration-500 rounded-full" style="width: 0%"></div>
+            </div>
+          </div>
+          <span id="progress-percent" class="text-sm font-mono font-bold text-slate-200 w-10 text-right">0%</span>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav aria-label="Course Chapters" class="mt-4 flex overflow-x-auto pb-1 gap-2 no-scrollbar">
+        <button onclick="switchTab('ch1')" id="tab-ch1" class="nav-tab active flex items-center gap-2 px-3.5 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all bg-indigo-600 text-white shadow-md shadow-indigo-600/20">
+          <span class="w-5 h-5 rounded-md bg-white/20 text-xs flex items-center justify-center font-bold">1</span>
+          <span>Blueprint</span>
+        </button>
+        <button onclick="switchTab('ch2')" id="tab-ch2" class="nav-tab flex items-center gap-2 px-3.5 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all bg-slate-800/70 text-slate-300 hover:bg-slate-800 hover:text-white">
+          <span class="w-5 h-5 rounded-md bg-slate-700 text-xs flex items-center justify-center font-bold">2</span>
+          <span>Combat &amp; Heal</span>
+        </button>
+        <button onclick="switchTab('ch3')" id="tab-ch3" class="nav-tab flex items-center gap-2 px-3.5 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all bg-slate-800/70 text-slate-300 hover:bg-slate-800 hover:text-white">
+          <span class="w-5 h-5 rounded-md bg-slate-700 text-xs flex items-center justify-center font-bold">3</span>
+          <span>Hero Subclasses</span>
+        </button>
+        <button onclick="switchTab('ch4')" id="tab-ch4" class="nav-tab flex items-center gap-2 px-3.5 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all bg-slate-800/70 text-slate-300 hover:bg-slate-800 hover:text-white">
+          <span class="w-5 h-5 rounded-md bg-slate-700 text-xs flex items-center justify-center font-bold">4</span>
+          <span>Battle Arena</span>
+        </button>
+        <button onclick="switchTab('ref')" id="tab-ref" class="nav-tab flex items-center gap-2 px-3.5 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all bg-slate-800/70 text-slate-300 hover:bg-slate-800 hover:text-white ml-auto">
+          <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+          <span>OOP Cheat Sheet &amp; Tools</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-8">
+
+    <!-- ========================================================= -->
+    <!-- CHAPTER 1: THE BASIC CHARACTER BLUEPRINT                  -->
+    <!-- ========================================================= -->
+    <section id="panel-ch1" class="tab-panel space-y-8">
+      <!-- Chapter Banner -->
+      <div class="bg-gradient-to-r from-slate-900 to-slate-900/60 border border-slate-800 rounded-2xl p-6 sm:p-8">
+        <div class="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-wider text-indigo-400 mb-2">
+          <span>Chapter 01</span>
+          <span>•</span>
+          <span>Classes, Attributes &amp; Methods</span>
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-bold text-white mb-3">The Basic Character Blueprint</h2>
+        <p class="text-slate-300 leading-relaxed max-w-3xl">
+          Just like our simple <code class="text-indigo-300 bg-slate-800 px-1.5 py-0.5 rounded font-mono text-sm">Dog</code> class had a <code class="text-indigo-300 bg-slate-800 px-1.5 py-0.5 rounded font-mono text-sm">name</code> and a <code class="text-indigo-300 bg-slate-800 px-1.5 py-0.5 rounded font-mono text-sm">bark()</code> method, every RPG character needs core stats (<strong>attributes</strong>) and actions (<strong>methods</strong>). In this chapter, you will create a reusable <code class="text-sky-300 bg-slate-800 px-1.5 py-0.5 rounded font-mono text-sm">Character</code> blueprint.
+        </p>
+
+        <!-- Key Concept Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
+          <div class="bg-slate-950/70 border border-slate-800/80 p-4 rounded-xl">
+            <div class="text-indigo-400 font-mono text-sm font-semibold mb-1">__init__(self, ...)</div>
+            <p class="text-xs text-slate-400 leading-relaxed">The constructor method. Python runs this automatically whenever you create a new character object.</p>
+          </div>
+          <div class="bg-slate-950/70 border border-slate-800/80 p-4 rounded-xl">
+            <div class="text-rose-400 font-mono text-sm font-semibold mb-1">self.attribute</div>
+            <p class="text-xs text-slate-400 leading-relaxed">Attaches data directly to <em>that specific</em> character so Hero A's HP doesn't overwrite Hero B's HP.</p>
+          </div>
+          <div class="bg-slate-950/70 border border-slate-800/80 p-4 rounded-xl">
+            <div class="text-emerald-400 font-mono text-sm font-semibold mb-1">def method(self):</div>
+            <p class="text-xs text-slate-400 leading-relaxed">Functions living inside a class that read or update the object's internal attributes.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Skeleton Code Block -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+        <div class="flex items-center justify-between px-4 sm:px-6 py-3.5 bg-slate-850 border-b border-slate-800">
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full bg-rose-500/80"></span>
+            <span class="w-3 h-3 rounded-full bg-amber-500/80"></span>
+            <span class="w-3 h-3 rounded-full bg-emerald-500/80"></span>
+            <span class="ml-2 text-xs font-mono text-slate-400">rpg_chapter1.py — Skeleton Code</span>
+          </div>
+          <button onclick="copyCode('code-ch1')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-200 border border-slate-700 transition">
+            <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+            <span>Copy Starter Code</span>
+          </button>
+        </div>
+        <div class="p-4 sm:p-6 overflow-x-auto">
+          <pre id="code-ch1" class="font-mono text-xs sm:text-sm leading-relaxed text-slate-200"><code><span class="py-kw">class</span> <span class="py-cls">Character</span>:
+    <span class="py-kw">def</span> <span class="py-fn">__init__</span>(<span class="py-self">self</span>, name, hp, attack_power):
+        <span class="py-self">self</span>.name = name
+        <span class="py-self">self</span>.hp = hp
+        <span class="py-self">self</span>.attack_power = attack_power
+
+    <span class="py-kw">def</span> <span class="py-fn">take_damage</span>(<span class="py-self">self</span>, amount):
+        <span class="py-com"># <span class="py-todo">TODO 1:</span> Subtract 'amount' from self.hp.</span>
+        <span class="py-com"># Make sure self.hp never drops below 0!</span>
+        <span class="py-kw">pass</span>
+
+    <span class="py-kw">def</span> <span class="py-fn">is_alive</span>(<span class="py-self">self</span>):
+        <span class="py-com"># <span class="py-todo">TODO 2:</span> Return True if self.hp > 0, otherwise return False.</span>
+        <span class="py-kw">pass</span>
+
+    <span class="py-kw">def</span> <span class="py-fn">status</span>(<span class="py-self">self</span>):
+        <span class="py-com"># <span class="py-todo">TODO 3:</span> Return a formatted string showing name, hp, and attack_power.</span>
+        <span class="py-com"># Example: "Aria | HP: 100 | ATK: 15"</span>
+        <span class="py-kw">pass</span>
+
+
+<span class="py-com"># --- Test Your Blueprint ---</span>
+hero = <span class="py-cls">Character</span>(<span class="py-str">"Aria"</span>, <span class="py-num">100</span>, <span class="py-num">15</span>)
+goblin = <span class="py-cls">Character</span>(<span class="py-str">"Goblin"</span>, <span class="py-num">40</span>, <span class="py-num">8</span>)
+
+<span class="py-fn">print</span>(hero.status())
+goblin.take_damage(<span class="py-num">25</span>)
+<span class="py-fn">print</span>(goblin.status())
+<span class="py-fn">print</span>(<span class="py-str">"Is Goblin alive?"</span>, goblin.is_alive())</code></pre>
+        </div>
+      </div>
+
+      <!-- Stepped Hints System -->
+      <div class="space-y-3">
+        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+          <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
+          <span>Stepped Hints (Open one at a time if stuck!)</span>
+        </h3>
+
+        <!-- Hint 1 -->
+        <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
+          <button onclick="toggleHint('ch1-h1')" class="w-full px-5 py-3.5 text-left flex items-center justify-between hover:bg-slate-800/50 transition">
+            <span class="text-sm font-semibold text-indigo-300">Hint 1: Conceptual Nudge</span>
+            <span id="icon-ch1-h1" class="text-slate-400 text-xs font-mono">+ Reveal</span>
+          </button>
+          <div id="ch1-h1" class="hidden px-5 pb-4 pt-1 text-sm text-slate-300 border-t border-slate-800/70 space-y-2">
+            <p>• Remember to always use <code class="text-rose-400 font-mono">self.hp</code> when modifying health—if you just write <code class="font-mono">hp</code>, Python creates a temporary variable instead of updating the character.</p>
+            <p>• In <code class="font-mono">take_damage</code>, after subtracting <code class="font-mono">amount</code>, check if <code class="font-mono">self.hp &lt; 0</code>. If it is, reset <code class="font-mono">self.hp = 0</code>.</p>
+          </div>
+        </div>
+
+        <!-- Hint 2 -->
+        <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
+          <button onclick="toggleHint('ch1-h2')" class="w-full px-5 py-3.5 text-left flex items-center justify-between hover:bg-slate-800/50 transition">
+            <span class="text-sm font-semibold text-purple-300">Hint 2: Logic Structure</span>
+            <span id="icon-ch1-h2" class="text-slate-400 text-xs font-mono">+ Reveal</span>
+          </button>
+          <div id="ch1-h2" class="hidden px-5 pb-4 pt-1 text-sm text-slate-300 border-t border-slate-800/70 space-y-2">
+            <p>• For <code class="font-mono">is_alive(self)</code>, a comparison expression like <code class="text-emerald-300 font-mono">return self.hp &gt; 0</code> automatically evaluates to <code class="font-mono">True</code> or <code class="font-mono">False</code>!</p>
+            <p>• For <code class="font-mono">status(self)</code>, use a Python f-string: <code class="text-emerald-300 font-mono">f"{self.name} | HP: {self.hp} | ATK: {self.attack_power}"</code>.</p>
+          </div>
+        </div>
+
+        <!-- Hint 3 -->
+        <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
+          <button onclick="toggleHint('ch1-h3')" class="w-full px-5 py-3.5 text-left flex items-center justify-between hover:bg-slate-800/50 transition">
+            <span class="text-sm font-semibold text-emerald-300">Hint 3: Reference Solution</span>
+            <span id="icon-ch1-h3" class="text-slate-400 text-xs font-mono">+ Reveal</span>
+          </button>
+          <div id="ch1-h3" class="hidden px-5 pb-4 pt-2 border-t border-slate-800/70">
+            <pre class="font-mono text-xs sm:text-sm bg-slate-950 p-4 rounded-lg overflow-x-auto text-slate-200"><code>    <span class="py-kw">def</span> <span class="py-fn">take_damage</span>(<span class="py-self">self</span>, amount):
+        <span class="py-self">self</span>.hp -= amount
+        <span class="py-kw">if</span> <span class="py-self">self</span>.hp &lt; <span class="py-num">0</span>:
+            <span class="py-self">self</span>.hp = <span class="py-num">0</span>
+
+    <span class="py-kw">def</span> <span class="py-fn">is_alive</span>(<span class="py-self">self</span>):
+        <span class="py-kw">return</span> <span class="py-self">self</span>.hp &gt; <span class="py-num">0</span>
+
+    <span class="py-kw">def</span> <span class="py-fn">status</span>(<span class="py-self">self</span>):
+        <span class="py-kw">return</span> <span class="py-str">f"{self.name} | HP: {self.hp} | ATK: {self.attack_power}"</span></code></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chapter 1 Checklist -->
+      <div class="bg-slate-900/90 border border-indigo-500/30 rounded-2xl p-6">
+        <h3 class="text-base font-bold text-white mb-4 flex items-center gap-2">
+          <span class="text-indigo-400">✓</span> Chapter 1 Checkpoint
+        </h3>
+        <div class="space-y-3">
+          <label class="flex items-start gap-3 cursor-pointer group">
+            <input type="checkbox" data-task="ch1-t1" onchange="toggleTask(this)" class="mt-1 w-4 h-4 rounded border-slate-600 bg-slate-800 text-indigo-500 focus:ring-indigo-500">
+            <span class="text-sm text-slate-300 group-hover:text-white transition">Implemented <code class="font-mono text-indigo-300">take_damage()</code> with a floor of <code class="font-mono">0</code> HP.</span>
+          </label>
+          <label class="flex items-start gap-3 cursor-pointer group">
+            <input type="checkbox" data-task="ch1-t2" onchange="toggleTask(this)" class="mt-1 w-4 h-4 rounded border-slate-600 bg-slate-800 text-indigo-500 focus:ring-indigo-500">
+            <span class="text-sm text-slate-300 group-hover:text-white transition">Implemented <code class="font-mono text-indigo-300">is_alive()</code> and <code class="font-mono text-indigo-300">status()</code> methods.</span>
+          </label>
+          <label class="flex items-start gap-3 cursor-pointer group">
+            <input type="checkbox" data-task="ch1-t3" onchange="toggleTask(this)" class="mt-1 w-4 h-4 rounded border-slate-600 bg-slate-800 text-indigo-500 focus:ring-indigo-500">
+            <span class="text-sm text-slate-300 group-hover:text-white transition">Instantiated at least two <code class="font-mono text-sky-300">Character</code> objects and verified their stats update independently.</span>
+          </label>
+        </div>
+        <div class="mt-6 flex justify-end">
+          <button onclick="switchTab('ch2')" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold transition flex items-center gap-2">
+            <span>Next: Chapter 2 — Combat &amp; Heal</span>
+            <span>→</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- CHAPTER 2: COMBAT & INTERACTION                           -->
+    <!-- ========================================================= -->
+    <section id="panel-ch2" class="tab-panel hidden space-y-8">
+      <div class="bg-gradient-to-r from-slate-900 to-slate-900/60 border border-slate-800 rounded-2xl p-6 sm:p-8">
+        <div class="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-wider text-purple-400 mb-2">
+          <span>Chapter 02</span>
+          <span>•</span>
+          <span>Object Interaction &amp; State Guardrails</span>
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-bold text-white mb-3">Combat &amp; Object Interaction</h2>
+        <p class="text-slate-300 leading-relaxed max-w-3xl">
+          Objects become truly powerful when they interact with <em>other objects</em>. In this step, you will pass an entire enemy <code class="text-sky-300 bg-slate-800 px-1.5 py-0.5 rounded font-mono text-sm">Character</code> object into an <code class="text-indigo-300 bg-slate-800 px-1.5 py-0.5 rounded font-mono text-sm">attack(self, target)</code> method, and introduce <code class="text-emerald-300 bg-slate-800 px-1.5 py-0.5 rounded font-mono text-sm">max_hp</code> so healing never overflows!
+        </p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
+          <div class="bg-slate-950/70 border border-slate-800/80 p-4 rounded-xl">
+            <div class="text-purple-400 font-mono text-sm font-semibold mb-1">hero.attack(goblin)</div>
+            <p class="text-xs text-slate-400 leading-relaxed">Inside <code class="font-mono">attack(self, target)</code>, <code class="font-mono">self</code> is the attacker and <code class="font-mono">target</code> is the victim object—so you can call <code class="font-mono text-slate-200">target.take_damage(self.attack_power)</code>!</p>
+          </div>
+          <div class="bg-slate-950/70 border border-slate-800/80 p-4 rounded-xl">
+            <div class="text-emerald-400 font-mono text-sm font-semibold mb-1">self.max_hp</div>
+            <p class="text-xs text-slate-400 leading-relaxed">Tracking maximum HP allows <code class="font-mono">heal(amount)</code> to cap health cleanly without over-healing past full strength.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Skeleton Code -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+        <div class="flex items-center justify-between px-4 sm:px-6 py-3.5 bg-slate-850 border-b border-slate-800">
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full bg-rose-500/80"></span>
+            <span class="w-3 h-3 rounded-full bg-amber-500/80"></span>
+            <span class="w-3 h-3 rounded-full bg-emerald-500/80"></span>
+            <span class="ml-2 text-xs font-mono text-slate-400">rpg_chapter2.py — Expanding Character</span>
+          </div>
+          <button onclick="copyCode('code-ch2')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-200 border border-slate-700 transition">
+            <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+            <span>Copy Starter Code</span>
+          </button>
+        </div>
+        <div class="p-4 sm:p-6 overflow-x-auto">
+          <pre id="code-ch2" class="font-mono text-xs sm:text-sm leading-relaxed text-slate-200"><code><span class="py-kw">class</span> <span class="py-cls">Character</span>:
+    <span class="py-kw">def</span> <span class="py-fn">__init__</span>(<span class="py-self">self</span>, name, hp, attack_power):
+        <span class="py-self">self</span>.name = name
+        <span class="py-self">self</span>.max_hp = hp      <span class="py-com"># Stores the ceiling for healing</span>
+        <span class="py-self">self</span>.hp = hp
+        <span class="py-self">self</span>.attack_power = attack_power
+
+    <span class="py-kw">def</span> <span class="py-fn">take_damage</span>(<span class="py-self">self</span>, amount):
+        <span class="py-self">self</span>.hp = <span class="py-fn">max</span>(<span class="py-num">0</span>, <span class="py-self">self</span>.hp - amount)
+
+    <span class="py-kw">def</span> <span class="py-fn">is_alive</span>(<span class="py-self">self</span>):
+        <span class="py-kw">return</span> <span class="py-self">self</span>.hp &gt; <span class="py-num">0</span>
+
+    <span class="py-kw">def</span> <span class="py-fn">attack</span>(<span class="py-self">self</span>, target):
+        <span class="py-com"># <span class="py-todo">TODO 1:</span> Deal self.attack_power damage to 'target' using target.take_damage().</span>
+        <span class="py-com"># Print a battle message, e.g., "Aria attacks Goblin for 15 damage!"</span>
+        <span class="py-kw">pass</span>
+
+    <span class="py-kw">def</span> <span class="py-fn">heal</span>(<span class="py-self">self</span>, amount):
+        <span class="py-com"># <span class="py-todo">TODO 2:</span> Add 'amount' to self.hp, but do NOT exceed self.max_hp.</span>
+        <span class="py-com"># Print how much HP was restored.</span>
+        <span class="py-kw">pass</span>
+
+    <span class="py-kw">def</span> <span class="py-fn">status</span>(<span class="py-self">self</span>):
+        <span class="py-kw">return</span> <span class="py-str">f"{self.name} | HP: {self.hp}/{self.max_hp} | ATK: {self.attack_power}"</span>
+
+
+<span class="py-com"># --- Test Combat Interaction ---</span>
+hero = <span class="py-cls">Character</span>(<span class="py-str">"Aria"</span>, <span class="py-num">100</span>, <span class="py-num">18</span>)
+orc = <span class="py-cls">Character</span>(<span class="py-str">"Orc"</span>, <span class="py-num">60</span>, <span class="py-num">12</span>)
+
+hero.attack(orc)
+orc.attack(hero)
+hero.heal(<span class="py-num">20</span>)  <span class="py-com"># Should cap at 100/100!</span>
+<span class="py-fn">print</span>(hero.status())
+<span class="py-fn">print</span>(orc.status())</code></pre>
+        </div>
+      </div>
+
+      <!-- Stepped Hints -->
+      <div class="space-y-3">
+        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+          <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
+          <span>Stepped Hints</span>
+        </h3>
+
+        <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
+          <button onclick="toggleHint('ch2-h1')" class="w-full px-5 py-3.5 text-left flex items-center justify-between hover:bg-slate-800/50 transition">
+            <span class="text-sm font-semibold text-indigo-300">Hint 1: Calling Methods on Another Object</span>
+            <span id="icon-ch2-h1" class="text-slate-400 text-xs font-mono">+ Reveal</span>
+          </button>
+          <div id="ch2-h1" class="hidden px-5 pb-4 pt-1 text-sm text-slate-300 border-t border-slate-800/70">
+            <p>Because <code class="font-mono">target</code> is also a <code class="font-mono">Character</code> object, it already has its own <code class="font-mono">.take_damage()</code> method! Let <code class="font-mono">target</code> manage its own HP by calling <code class="text-indigo-300 font-mono">target.take_damage(self.attack_power)</code>.</p>
+          </div>
+        </div>
+
+        <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
+          <button onclick="toggleHint('ch2-h2')" class="w-full px-5 py-3.5 text-left flex items-center justify-between hover:bg-slate-800/50 transition">
+            <span class="text-sm font-semibold text-purple-300">Hint 2: Capping Healing with min() or if</span>
+            <span id="icon-ch2-h2" class="text-slate-400 text-xs font-mono">+ Reveal</span>
+          </button>
+          <div id="ch2-h2" class="hidden px-5 pb-4 pt-1 text-sm text-slate-300 border-t border-slate-800/70">
+            <p>You can cap <code class="font-mono">self.hp</code> with an <code class="font-mono">if self.hp &gt; self.max_hp: self.hp = self.max_hp</code> check, or cleanly in one line using Python's built-in <code class="text-emerald-300 font-mono">min(self.max_hp, self.hp + amount)</code>.</p>
+          </div>
+        </div>
+
+        <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
+          <button onclick="toggleHint('ch2-h3')" class="w-full px-5 py-3.5 text-left flex items-center justify-between hover:bg-slate-800/50 transition">
+            <span class="text-sm font-semibold text-emerald-300">Hint 3: Reference Solution</span>
+            <span id="icon-ch2-h3" class="text-slate-400 text-xs font-mono">+ Reveal</span>
+          </button>
+          <div id="ch2-h3" class="hidden px-5 pb-4 pt-2 border-t border-slate-800/70">
+            <pre class="font-mono text-xs sm:text-sm bg-slate-950 p-4 rounded-lg overflow-x-auto text-slate-200"><code>    <span class="py-kw">def</span> <span class="py-fn">attack</span>(<span class="py-self">self</span>, target):
+        <span class="py-fn">print</span>(<span class="py-str">f"{self.name} attacks {target.name} for {self.attack_power} damage!"</span>)
+        target.take_damage(<span class="py-self">self</span>.attack_power)
+
+    <span class="py-kw">def</span> <span class="py-fn">heal</span>(<span class="py-self">self</span>, amount):
+        <span class="py-self">self</span>.hp = <span class="py-fn">min</span>(<span class="py-self">self</span>.max_hp, <span class="py-self">self</span>.hp + amount)
+        <span class="py-fn">print</span>(<span class="py-str">f"{self.name} heals! Current HP: {self.hp}/{self.max_hp}"</span>)</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chapter 2 Checklist -->
+      <div class="bg-slate-900/90 border border-purple-500/30 rounded-2xl p-6">
+        <h3 class="text-base font-bold text-white mb-4 flex items-center gap-2">
+          <span class="text-purple-400">✓</span> Chapter 2 Checkpoint
+        </h3>
+        <div class="space-y-3">
+          <label class="flex items-start gap-3 cursor-pointer group">
+            <input type="checkbox" data-task="ch2-t1" onchange="toggleTask(this)" class="mt-1 w-4 h-4 rounded border-slate-600 bg-slate-800 text-purple-500 focus:ring-purple-500">
+            <span class="text-sm text-slate-300 group-hover:text-white transition">Implemented <code class="font-mono text-purple-300">attack(self, target)</code> so one character object damages another.</span>
+          </label>
+          <label class="flex items-start gap-3 cursor-pointer group">
+            <input type="checkbox" data-task="ch2-t2" onchange="toggleTask(this)" class="mt-1 w-4 h-4 rounded border-slate-600 bg-slate-800 text-purple-500 focus:ring-purple-500">
+            <span class="text-sm text-slate-300 group-hover:text-white transition">Implemented <code class="font-mono text-purple-300">heal(self, amount)</code> and verified HP never exceeds <code class="font-mono">max_hp</code>.</span>
+          </label>
+          <label class="flex items-start gap-3 cursor-pointer group">
+            <input type="checkbox" data-task="ch2-t3" onchange="toggleTask(this)" class="mt-1 w-4 h-4 rounded border-slate-600 bg-slate-800 text-purple-500 focus:ring-purple-500">
+            <span class="text-sm text-slate-300 group-hover:text-white transition">Tested a multi-turn exchange between two characters in your Python console.</span>
+          </label>
+        </div>
+        <div class="mt-6 flex justify-between">
+          <button onclick="switchTab('ch1')" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-medium transition">← Previous</button>
+          <button onclick="switchTab('ch3')" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold transition flex items-center gap-2">
+            <span>Next: Chapter 3 — Hero Subclasses</span>
+            <span>→</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- CHAPTER 3: INHERITANCE & CUSTOM HERO CLASSES              -->
+    <!-- ========================================================= -->
+    <section id="panel-ch3" class="tab-panel hidden space-y-8">
+      <div class="bg-gradient-to-r from-slate-900 to-slate-900/60 border border-slate-800 rounded-2xl p-6 sm:p-8">
+        <div class="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-wider text-emerald-400 mb-2">
+          <span>Chapter 03</span>
+          <span>•</span>
+          <span>Inheritance, super() &amp; Creative Design</span>
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-bold text-white mb-3">Inheritance &amp; Custom Hero Classes</h2>
+        <p class="text-slate-300 leading-relaxed max-w-3xl">
+          Instead of rewriting <code class="font-mono text-slate-200">take_damage</code>, <code class="font-mono text-slate-200">heal</code>, and <code class="font-mono text-slate-200">is_alive</code> for every hero archetype, we use <strong>Inheritance</strong>! Child classes (<code class="text-sky-300 font-mono text-sm">Warrior</code>, <code class="text-sky-300 font-mono text-sm">Mage</code>, <code class="text-sky-300 font-mono text-sm">Rogue</code>) inherit everything from <code class="text-sky-300 font-mono text-sm">Character</code> while adding their own unique attributes and special abilities.
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+          <div class="bg-slate-950/80 border border-amber-500/30 p-4 rounded-xl">
+            <div class="flex items-center justify-between mb-1">
+              <span class="font-bold text-amber-400">🛡️ Warrior</span>
+              <span class="text-xs font-mono text-slate-400">High HP • Armor</span>
+            </div>
+            <p class="text-xs text-slate-400">Adds an <code class="text-amber-300 font-mono">armor</code> attribute that reduces incoming damage, plus a heavy <code class="text-amber-300 font-mono">power_strike()</code> ability.</p>
+          </div>
+          <div class="bg-slate-950/80 border border-sky-500/30 p-4 rounded-xl">
+            <div class="flex items-center justify-between mb-1">
+              <span class="font-bold text-sky-400">🔮 Mage</span>
+              <span class="text-xs font-mono text-slate-400">Mana • Spell Burst</span>
+            </div>
+            <p class="text-xs text-slate-400">Adds a <code class="text-sky-300 font-mono">mana</code> resource pool and a high-damage <code class="text-sky-300 font-mono">cast_fireball(target)</code> method.</p>
+          </div>
+          <div class="bg-slate-950/80 border border-rose-500/30 p-4 rounded-xl">
+            <div class="flex items-center justify-between mb-1">
+              <span class="font-bold text-rose-400">🗡️ Your Custom Class!</span>
+              <span class="text-xs font-mono text-slate-400">Rogue / Paladin / Ranger</span>
+            </div>
+            <p class="text-xs text-slate-400">Invent your own 3rd class! Give it a custom stat (like <code class="text-rose-300 font-mono">crit_chance</code> or <code class="text-rose-300 font-mono">energy</code>) and unique special move.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Interactive Student "Design Your Own Hero Class" Brainstormer -->
+      <div class="bg-slate-900 border border-emerald-500/30 rounded-2xl p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+          <div>
+            <h3 class="text-base font-bold text-white flex items-center gap-2">
+              <span class="text-emerald-400">✦</span> Hero Class Blueprint Generator (Design Your Own!)
+            </h3>
+            <p class="text-xs text-slate-400">Brainstorm a custom subclass below—we'll generate ready-to-paste Python skeleton code for your idea!</p>
+          </div>
+          <button onclick="generateCustomClassCode()" class="px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition shrink-0">
+            Copy Generated Subclass
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Class Name (PascalCase)</label>
+            <input id="custom-cls-name" oninput="updateCustomPreview()" type="text" value="Rogue" placeholder="e.g. Rogue, Paladin" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white font-mono focus:outline-none focus:border-emerald-500">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Unique Attribute Name</label>
+            <input id="custom-attr-name" oninput="updateCustomPreview()" type="text" value="energy" placeholder="e.g. energy, rage" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white font-mono focus:outline-none focus:border-emerald-500">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Starting Attribute Value</label>
+            <input id="custom-attr-val" oninput="updateCustomPreview()" type="text" value="50" placeholder="e.g. 50" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white font-mono focus:outline-none focus:border-emerald-500">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Special Ability Method</label>
+            <input id="custom-method-name" oninput="updateCustomPreview()" type="text" value="shadow_strike" placeholder="e.g. backstab" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white font-mono focus:outline-none focus:border-emerald-500">
+          </div>
+        </div>
+
+        <pre id="custom-class-preview" class="font-mono text-xs bg-slate-950 border border-slate-800 p-4 rounded-xl text-emerald-300 overflow-x-auto"></pre>
+      </div>
+
+      <!-- Skeleton Code -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+        <div class="flex items-center justify-between px-4 sm:px-6 py-3.5 bg-slate-850 border-b border-slate-800">
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full bg-rose-500/80"></span>
+            <span class="w-3 h-3 rounded-full bg-amber-500/80"></span>
+            <span class="w-3 h-3 rounded-full bg-emerald-500/80"></span>
+            <span class="ml-2 text-xs font-mono text-slate-400">rpg_chapter3.py — Subclasses &amp; super()</span>
+          </div>
+          <button onclick="copyCode('code-ch3')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-200 border border-slate-700 transition">
+            <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+            <span>Copy Starter Code</span>
+          </button>
+        </div>
+        <div class="p-4 sm:p-6 overflow-x-auto">
+          <pre id="code-ch3" class="font-mono text-xs sm:text-sm leading-relaxed text-slate-200"><code><span class="py-com"># Assume Character class from Chapter 2 is defined above!</span>
+
+<span class="py-kw">class</span> <span class="py-cls">Warrior</span>(<span class="py-cls">Character</span>):
+    <span class="py-kw">def</span> <span class="py-fn">__init__</span>(<span class="py-self">self</span>, name):
+        <span class="py-com"># Call parent constructor with Warrior stats: 130 HP, 16 ATK</span>
+        <span class="py-self">super</span>().__init__(name, hp=<span class="py-num">130</span>, attack_power=<span class="py-num">16</span>)
+        <span class="py-self">self</span>.armor = <span class="py-num">4</span>  <span class="py-com"># Unique Warrior attribute</span>
+
+    <span class="py-kw">def</span> <span class="py-fn">take_damage</span>(<span class="py-self">self</span>, amount):
+        <span class="py-com"># <span class="py-todo">TODO 1:</span> Override take_damage so self.armor reduces 'amount'</span>
+        <span class="py-com"># (Make sure reduced damage is at least 0, then call super().take_damage(...))</span>
+        <span class="py-kw">pass</span>
+
+    <span class="py-kw">def</span> <span class="py-fn">special_move</span>(<span class="py-self">self</span>, target):
+        <span class="py-com"># <span class="py-todo">TODO 2:</span> Shield Bash! Deal 1.5x attack_power to target.</span>
+        <span class="py-kw">pass</span>
+
+
+<span class="py-kw">class</span> <span class="py-cls">Mage</span>(<span class="py-cls">Character</span>):
+    <span class="py-kw">def</span> <span class="py-fn">__init__</span>(<span class="py-self">self</span>, name):
+        <span class="py-self">super</span>().__init__(name, hp=<span class="py-num">85</span>, attack_power=<span class="py-num">12</span>)
+        <span class="py-self">self</span>.mana = <span class="py-num">60</span>
+
+    <span class="py-kw">def</span> <span class="py-fn">special_move</span>(<span class="py-self">self</span>, target):
+        <span class="py-com"># <span class="py-todo">TODO 3:</span> Cast Fireball! If self.mana >= 20, spend 20 mana and deal 32 damage.</span>
+        <span class="py-com"># Otherwise, print "Not enough mana!"</span>
+        <span class="py-kw">pass</span>
+
+
+<span class="py-com"># <span class="py-todo">TODO 4:</span> Create your own 3rd subclass (e.g., Rogue, Paladin, Ranger)</span>
+<span class="py-com"># Give it a unique attribute and its own special_move(self, target) method!</span></code></pre>
+        </div>
+      </div>
+
+      <!-- Stepped Hints -->
+      <div class="space-y-3">
+        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+          <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
+          <span>Stepped Hints</span>
+        </h3>
+
+        <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
+          <button onclick="toggleHint('ch3-h1')" class="w-full px-5 py-3.5 text-left flex items-center justify-between hover:bg-slate-800/50 transition">
+            <span class="text-sm font-semibold text-indigo-300">Hint 1: How super() Works</span>
+            <span id="icon-ch3-h1" class="text-slate-400 text-xs font-mono">+ Reveal</span>
+          </button>
+          <div id="ch3-h1" class="hidden px-5 pb-4 pt-1 text-sm text-slate-300 border-t border-slate-800/70">
+            <p><code class="text-rose-400 font-mono">super()</code> lets a child class call a method from its parent class (<code class="font-mono">Character</code>). In <code class="font-mono">Warrior.take_damage</code>, calculate <code class="font-mono">reduced = max(0, amount - self.armor)</code> and then pass <code class="font-mono">reduced</code> up to <code class="font-mono">super().take_damage(reduced)</code>!</p>
+          </div>
+        </div>
+
+        <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
+          <button onclick="toggleHint('ch3-h2')" class="w-full px-5 py-3.5 text-left flex items-center justify-between hover:bg-slate-800/50 transition">
+            <span class="text-sm font-semibold text-purple-300">Hint 2: Why Name Both Methods special_move()?</span>
+            <span id="icon-ch3-h2" class="text-slate-400 text-xs font-mono">+ Reveal</span>
+          </button>
+          <div id="ch3-h2" class="hidden px-5 pb-4 pt-1 text-sm text-slate-300 border-t border-slate-800/70">
+            <p>Giving every hero subclass a method with the exact same name—<code class="text-emerald-300 font-mono">special_move(self, target)</code>—sets up <strong>Polymorphism</strong>! In Chapter 4, the battle loop can simply call <code class="font-mono">player.special_move(boss)</code> without caring whether the player picked Warrior, Mage, or Rogue.</p>
+          </div>
+        </div>
+
+        <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
+          <button onclick="toggleHint('ch3-h3')" class="w-full px-5 py-3.5 text-left flex items-center justify-between hover:bg-slate-800/50 transition">
+            <span class="text-sm font-semibold text-emerald-300">Hint 3: Reference Solution (Warrior &amp; Mage)</span>
+            <span id="icon-ch3-h3" class="text-slate-400 text-xs font-mono">+ Reveal</span>
+          </button>
+          <div id="ch3-h3" class="hidden px-5 pb-4 pt-2 border-t border-slate-800/70">
+            <pre class="font-mono text-xs sm:text-sm bg-slate-950 p-4 rounded-lg overflow-x-auto text-slate-200"><code><span class="py-kw">class</span> <span class="py-cls">Warrior</span>(<span class="py-cls">Character</span>):
+    <span class="py-kw">def</span> <span class="py-fn">__init__</span>(<span class="py-self">self</span>, name):
+        <span class="py-self">super</span>().__init__(name, hp=<span class="py-num">130</span>, attack_power=<span class="py-num">16</span>)
+        <span class="py-self">self</span>.armor = <span class="py-num">4</span>
+
+    <span class="py-kw">def</span> <span class="py-fn">take_damage</span>(<span class="py-self">self</span>, amount):
+        reduced = <span class="py-fn">max</span>(<span class="py-num">0</span>, amount - <span class="py-self">self</span>.armor)
+        <span class="py-fn">print</span>(<span class="py-str">f"{self.name}'s armor blocks {self.armor} damage!"</span>)
+        <span class="py-self">super</span>().take_damage(reduced)
+
+    <span class="py-kw">def</span> <span class="py-fn">special_move</span>(<span class="py-self">self</span>, target):
+        dmg = <span class="py-fn">int</span>(<span class="py-self">self</span>.attack_power * <span class="py-num">1.5</span>)
+        <span class="py-fn">print</span>(<span class="py-str">f"{self.name} uses SHIELD BASH on {target.name} for {dmg} damage!"</span>)
+        target.take_damage(dmg)
+
+
+<span class="py-kw">class</span> <span class="py-cls">Mage</span>(<span class="py-cls">Character</span>):
+    <span class="py-kw">def</span> <span class="py-fn">__init__</span>(<span class="py-self">self</span>, name):
+        <span class="py-self">super</span>().__init__(name, hp=<span class="py-num">85</span>, attack_power=<span class="py-num">12</span>)
+        <span class="py-self">self</span>.mana = <span class="py-num">60</span>
+
+    <span class="py-kw">def</span> <span class="py-fn">special_move</span>(<span class="py-self">self</span>, target):
+        <span class="py-kw">if</span> <span class="py-self">self</span>.mana &gt;= <span class="py-num">20</span>:
+            <span class="py-self">self</span>.mana -= <span class="py-num">20</span>
+            <span class="py-fn">print</span>(<span class="py-str">f"{self.name} casts FIREBALL for 32 damage! (Mana left: {self.mana})"</span>)
+            target.take_damage(<span class="py-num">32</span>)
+        <span class="py-kw">else</span>:
+            <span class="py-fn">print</span>(<span class="py-str">"Not enough mana! Basic attack used instead."</span>)
+            <span class="py-self">self</span>.attack(target)</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chapter 3 Checklist -->
+      <div class="bg-slate-900/90 border border-emerald-500/30 rounded-2xl p-6">
+        <h3 class="text-base font-bold text-white mb-4 flex items-center gap-2">
+          <span class="text-emerald-400">✓</span> Chapter 3 Checkpoint
+        </h3>
+        <div class="space-y-3">
+          <label class="flex items-start gap-3 cursor-pointer group">
+            <input type="checkbox" data-task="ch3-t1" onchange="toggleTask(this)" class="mt-1 w-4 h-4 rounded border-slate-600 bg-slate-800 text-emerald-500 focus:ring-emerald-500">
+            <span class="text-sm text-slate-300 group-hover:text-white transition">Completed <code class="font-mono text-sky-300">Warrior</code> with <code class="font-mono">super().__init__()</code> and overridden <code class="font-mono">take_damage()</code>.</span>
+          </label>
+          <label class="flex items-start gap-3 cursor-pointer group">
+            <input type="checkbox" data-task="ch3-t2" onchange="toggleTask(this)" class="mt-1 w-4 h-4 rounded border-slate-600 bg-slate-800 text-emerald-500 focus:ring-emerald-500">
+            <span class="text-sm text-slate-300 group-hover:text-white transition">Completed <code class="font-mono text-sky-300">Mage</code> with a <code class="font-mono">mana</code> attribute and <code class="font-mono">special_move()</code>.</span>
+          </label>
+          <label class="flex items-start gap-3 cursor-pointer group">
+            <input type="checkbox" data-task="ch3-t3" onchange="toggleTask(this)" class="mt-1 w-4 h-4 rounded border-slate-600 bg-slate-800 text-emerald-500 focus:ring-emerald-500">
+            <span class="text-sm text-slate-300 group-hover:text-white transition">Created your own custom 3rd hero subclass with unique attributes and special ability!</span>
+          </label>
+        </div>
+        <div class="mt-6 flex justify-between">
+          <button onclick="switchTab('ch2')" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-medium transition">← Previous</button>
+          <button onclick="switchTab('ch4')" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold transition flex items-center gap-2">
+            <span>Next: Chapter 4 — Battle Arena</span>
+            <span>→</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- CHAPTER 4: THE BATTLE ARENA & GAMEPLAY LOOP               -->
+    <!-- ========================================================= -->
+    <section id="panel-ch4" class="tab-panel hidden space-y-8">
+      <div class="bg-gradient-to-r from-slate-900 to-slate-900/60 border border-slate-800 rounded-2xl p-6 sm:p-8">
+        <div class="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-wider text-amber-400 mb-2">
+          <span>Chapter 04</span>
+          <span>•</span>
+          <span>Polymorphism &amp; Turn-Based Game Loop</span>
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-bold text-white mb-3">The Battle Arena &amp; Gameplay Loop</h2>
+        <p class="text-slate-300 leading-relaxed max-w-3xl">
+          Now bring all your classes together! Because <code class="font-mono text-sky-300">Warrior</code>, <code class="font-mono text-sky-300">Mage</code>, and your custom hero all inherit from <code class="font-mono text-sky-300">Character</code> and share <code class="font-mono text-indigo-300">.attack()</code>, <code class="font-mono text-indigo-300">.special_move()</code>, <code class="font-mono text-indigo-300">.heal()</code>, and <code class="font-mono text-indigo-300">.is_alive()</code>, a single <code class="font-mono text-purple-300">while</code> loop can run the entire game regardless of which hero the user picks!
+        </p>
+      </div>
+
+      <!-- Interactive Playable Battle Arena Preview Simulator -->
+      <div class="bg-slate-900 border border-amber-500/40 rounded-2xl p-6 shadow-2xl">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 mb-5 border-b border-slate-800">
+          <div>
+            <span class="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-amber-400">
+              <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+              Interactive Preview Simulator
+            </span>
+            <h3 class="text-lg font-bold text-white">Test the OOP Battle Loop Right Here</h3>
+          </div>
+          <button onclick="resetArena()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-300 border border-slate-700 transition self-start sm:self-auto">
+            Change Hero / Reset
+          </button>
+        </div>
+
+        <!-- Step A: Hero Picker -->
+        <div id="arena-select" class="space-y-4">
+          <p class="text-sm text-slate-300">Choose a hero subclass to instantiate and enter the arena against the <strong>Shadow Dragon</strong>:</p>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <button onclick="startArena('Warrior')" class="text-left p-4 rounded-xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-amber-500/60 transition group">
+              <div class="text-base font-bold text-amber-400 group-hover:translate-x-0.5 transition">🛡️ Warrior</div>
+              <div class="text-xs font-mono text-slate-400 mt-1">HP: 130 | ATK: 16 | Armor: 4</div>
+              <div class="text-xs text-slate-500 mt-2">Special: Shield Bash (1.5x DMG)</div>
+            </button>
+            <button onclick="startArena('Mage')" class="text-left p-4 rounded-xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-sky-500/60 transition group">
+              <div class="text-base font-bold text-sky-400 group-hover:translate-x-0.5 transition">🔮 Mage</div>
+              <div class="text-xs font-mono text-slate-400 mt-1">HP: 85 | ATK: 12 | Mana: 60</div>
+              <div class="text-xs text-slate-500 mt-2">Special: Fireball (32 DMG, 20 Mana)</div>
+            </button>
+            <button onclick="startArena('Rogue')" class="text-left p-4 rounded-xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-rose-500/60 transition group">
+              <div class="text-base font-bold text-rose-400 group-hover:translate-x-0.5 transition">🗡️ Rogue</div>
+              <div class="text-xs font-mono text-slate-400 mt-1">HP: 100 | ATK: 15 | Energy: 60</div>
+              <div class="text-xs text-slate-500 mt-2">Special: Shadow Strike (28 DMG, 20 Energy)</div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Step B: Active Combat View -->
+        <div id="arena-combat" class="hidden space-y-5">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Player Card -->
+            <div id="card-player" class="bg-slate-950 border border-indigo-500/40 rounded-xl p-4">
+              <div class="flex justify-between items-center mb-2">
+                <span id="sim-player-name" class="font-bold text-white">Hero (Warrior)</span>
+                <span id="sim-player-resource" class="text-xs font-mono px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300">Armor: 4</span>
+              </div>
+              <div class="flex justify-between text-xs font-mono text-slate-400 mb-1">
+                <span>HP</span>
+                <span id="sim-player-hp-text">130 / 130</span>
+              </div>
+              <div class="w-full h-3 bg-slate-800 rounded-full overflow-hidden">
+                <div id="sim-player-hp-bar" class="h-full bg-emerald-500 transition-all duration-300" style="width: 100%"></div>
+              </div>
+            </div>
+
+            <!-- Boss Card -->
+            <div id="card-boss" class="bg-slate-950 border border-rose-500/40 rounded-xl p-4">
+              <div class="flex justify-between items-center mb-2">
+                <span class="font-bold text-rose-400">🐉 Shadow Dragon (Boss)</span>
+                <span class="text-xs font-mono px-2 py-0.5 rounded bg-rose-500/20 text-rose-300">ATK: 17</span>
+              </div>
+              <div class="flex justify-between text-xs font-mono text-slate-400 mb-1">
+                <span>HP</span>
+                <span id="sim-boss-hp-text">140 / 140</span>
+              </div>
+              <div class="w-full h-3 bg-slate-800 rounded-full overflow-hidden">
+                <div id="sim-boss-hp-bar" class="h-full bg-rose-500 transition-all duration-300" style="width: 100%"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div id="sim-controls" class="flex flex-wrap gap-3">
+            <button onclick="arenaTurn('attack')" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 text-sm font-semibold text-white transition">
+              ⚔️ 1. Basic Attack
+            </button>
+            <button onclick="arenaTurn('special')" class="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-sm font-semibold text-white transition">
+              ✨ 2. Special Move
+            </button>
+            <button onclick="arenaTurn('heal')" class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-sm font-semibold text-white transition">
+              🧪 3. Heal (+22 HP)
+            </button>
+          </div>
+
+          <!-- Terminal Log -->
+          <div id="sim-log" class="bg-slate-950 border border-slate-800 rounded-xl p-4 font-mono text-xs text-slate-300 h-40 overflow-y-auto space-y-1.5"></div>
+        </div>
+      </div>
+
+      <!-- Skeleton Code -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+        <div class="flex items-center justify-between px-4 sm:px-6 py-3.5 bg-slate-850 border-b border-slate-800">
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full bg-rose-500/80"></span>
+            <span class="w-3 h-3 rounded-full bg-amber-500/80"></span>
+            <span class="w-3 h-3 rounded-full bg-emerald-500/80"></span>
+            <span class="ml-2 text-xs font-mono text-slate-400">rpg_chapter4.py — Complete Battle Loop</span>
+          </div>
+          <button onclick="copyCode('code-ch4')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-200 border border-slate-700 transition">
+            <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+            <span>Copy Starter Code</span>
+          </button>
+        </div>
+        <div class="p-4 sm:p-6 overflow-x-auto">
+          <pre id="code-ch4" class="font-mono text-xs sm:text-sm leading-relaxed text-slate-200"><code><span class="py-com"># Place your Character, Warrior, Mage, and Custom Subclass above!</span>
+
+<span class="py-kw">def</span> <span class="py-fn">choose_hero</span>():
+    name = <span class="py-fn">input</span>(<span class="py-str">"Enter your hero's name: "</span>)
+    <span class="py-fn">print</span>(<span class="py-str">"Choose your class: [1] Warrior  [2] Mage  [3] Custom Hero"</span>)
+    choice = <span class="py-fn">input</span>(<span class="py-str">"&gt; "</span>)
+
+    <span class="py-com"># <span class="py-todo">TODO 1:</span> Return an instance of Warrior, Mage, or your 3rd class based on 'choice'</span>
+    <span class="py-kw">if</span> choice == <span class="py-str">"1"</span>:
+        <span class="py-kw">return</span> <span class="py-cls">Warrior</span>(name)
+    <span class="py-kw">elif</span> choice == <span class="py-str">"2"</span>:
+        <span class="py-kw">return</span> <span class="py-cls">Mage</span>(name)
+    <span class="py-kw">else</span>:
+        <span class="py-kw">return</span> <span class="py-cls">Warrior</span>(name)  <span class="py-com"># Replace with your 3rd hero class!</span>
+
+
+<span class="py-kw">def</span> <span class="py-fn">battle</span>(player, boss):
+    <span class="py-fn">print</span>(<span class="py-str">f"\n⚔️ A wild {boss.name} appears! ⚔️"</span>)
+
+    <span class="py-com"># <span class="py-todo">TODO 2:</span> Loop while BOTH player.is_alive() and boss.is_alive() are True</span>
+    <span class="py-kw">while</span> player.is_alive() <span class="py-kw">and</span> boss.is_alive():
+        <span class="py-fn">print</span>(<span class="py-str">"\n"</span> + player.status())
+        <span class="py-fn">print</span>(boss.status())
+        action = <span class="py-fn">input</span>(<span class="py-str">"Choose action: [1] Attack  [2] Special Move  [3] Heal: "</span>)
+
+        <span class="py-com"># <span class="py-todo">TODO 3:</span> Call player.attack(boss), player.special_move(boss), or player.heal(20)</span>
+        <span class="py-kw">pass</span>
+
+        <span class="py-com"># <span class="py-todo">TODO 4:</span> If boss is still alive, boss attacks player!</span>
+        <span class="py-kw">if</span> boss.is_alive():
+            boss.attack(player)
+
+    <span class="py-com"># <span class="py-todo">TODO 5:</span> Print victory or defeat message after the loop ends!</span>
+
+
+<span class="py-com"># --- Start the Game ---</span>
+hero = choose_hero()
+dragon = <span class="py-cls">Character</span>(<span class="py-str">"Shadow Dragon"</span>, hp=<span class="py-num">140</span>, attack_power=<span class="py-num">17</span>)
+battle(hero, dragon)</code></pre>
+        </div>
+      </div>
+
+      <!-- Stepped Hints -->
+      <div class="space-y-3">
+        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+          <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
+          <span>Stepped Hints</span>
+        </h3>
+
+        <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
+          <button onclick="toggleHint('ch4-h1')" class="w-full px-5 py-3.5 text-left flex items-center justify-between hover:bg-slate-800/50 transition">
+            <span class="text-sm font-semibold text-indigo-300">Hint 1: Polymorphism in Action</span>
+            <span id="icon-ch4-h1" class="text-slate-400 text-xs font-mono">+ Reveal</span>
+          </button>
+          <div id="ch4-h1" class="hidden px-5 pb-4 pt-1 text-sm text-slate-300 border-t border-slate-800/70">
+            <p>Notice that <code class="font-mono">battle(player, boss)</code> doesn't need <code class="font-mono">if isinstance(player, Warrior): ... elif isinstance(player, Mage): ...</code>! Because all hero classes share the exact same method names (<code class="font-mono">attack</code>, <code class="font-mono">special_move</code>, <code class="font-mono">heal</code>), Python automatically calls the right version for whichever object is stored in <code class="font-mono">player</code>.</p>
+          </div>
+        </div>
+
+        <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
+          <button onclick="toggleHint('ch4-h2')" class="w-full px-5 py-3.5 text-left flex items-center justify-between hover:bg-slate-800/50 transition">
+            <span class="text-sm font-semibold text-emerald-300">Hint 2: Reference Solution (Battle Loop)</span>
+            <span id="icon-ch4-h2" class="text-slate-400 text-xs font-mono">+ Reveal</span>
+          </button>
+          <div id="ch4-h2" class="hidden px-5 pb-4 pt-2 border-t border-slate-800/70">
+            <pre class="font-mono text-xs sm:text-sm bg-slate-950 p-4 rounded-lg overflow-x-auto text-slate-200"><code>        <span class="py-kw">if</span> action == <span class="py-str">"1"</span>:
+            player.attack(boss)
+        <span class="py-kw">elif</span> action == <span class="py-str">"2"</span>:
+            player.special_move(boss)
+        <span class="py-kw">elif</span> action == <span class="py-str">"3"</span>:
+            player.heal(<span class="py-num">20</span>)
+        <span class="py-kw">else</span>:
+            <span class="py-fn">print</span>(<span class="py-str">"Invalid choice—you hesitated!"</span>)
+
+        <span class="py-kw">if</span> boss.is_alive():
+            boss.attack(player)
+
+    <span class="py-kw">if</span> player.is_alive():
+        <span class="py-fn">print</span>(<span class="py-str">f"\n🏆 Victory! {player.name} defeated {boss.name}!"</span>)
+    <span class="py-kw">else</span>:
+        <span class="py-fn">print</span>(<span class="py-str">f"\n💀 {player.name} has fallen in battle..."</span>)</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chapter 4 Checklist -->
+      <div class="bg-slate-900/90 border border-amber-500/30 rounded-2xl p-6">
+        <h3 class="text-base font-bold text-white mb-4 flex items-center gap-2">
+          <span class="text-amber-400">✓</span> Chapter 4 Checkpoint (Final Boss!)
+        </h3>
+        <div class="space-y-3">
+          <label class="flex items-start gap-3 cursor-pointer group">
+            <input type="checkbox" data-task="ch4-t1" onchange="toggleTask(this)" class="mt-1 w-4 h-4 rounded border-slate-600 bg-slate-800 text-amber-500 focus:ring-amber-500">
+            <span class="text-sm text-slate-300 group-hover:text-white transition">Wired up <code class="font-mono text-amber-300">choose_hero()</code> so players can instantiate any of the 3 hero classes.</span>
+          </label>
+          <label class="flex items-start gap-3 cursor-pointer group">
+            <input type="checkbox" data-task="ch4-t2" onchange="toggleTask(this)" class="mt-1 w-4 h-4 rounded border-slate-600 bg-slate-800 text-amber-500 focus:ring-amber-500">
+            <span class="text-sm text-slate-300 group-hover:text-white transition">Completed the <code class="font-mono text-amber-300">battle()</code> turn-based loop and defeated the boss!</span>
+          </label>
+          <label class="flex items-start gap-3 cursor-pointer group">
+            <input type="checkbox" data-task="ch4-t3" onchange="toggleTask(this)" class="mt-1 w-4 h-4 rounded border-slate-600 bg-slate-800 text-amber-500 focus:ring-amber-500">
+            <span class="text-sm text-slate-300 group-hover:text-white transition"><strong>Bonus Challenge:</strong> Created a custom <code class="font-mono text-rose-300">Boss(Character)</code> subclass with its own special attack every 3rd turn!</span>
+          </label>
+        </div>
+        <div class="mt-6 flex justify-between">
+          <button onclick="switchTab('ch3')" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-medium transition">← Previous</button>
+          <button onclick="switchTab('ref')" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold transition flex items-center gap-2">
+            <span>View OOP Cheat Sheet &amp; Download Bundle</span>
+            <span>→</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- REFERENCE CHEAT SHEET & EDUCATOR/STUDENT TOOLS            -->
+    <!-- ========================================================= -->
+    <section id="panel-ref" class="tab-panel hidden space-y-8">
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-8">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+          <div>
+            <span class="text-xs font-semibold uppercase tracking-wider text-amber-400">Quick Reference</span>
+            <h2 class="text-2xl font-bold text-white mt-1">Python OOP Cheat Sheet</h2>
+            <p class="text-sm text-slate-400 mt-1">Keep this vocabulary handy while coding your RPG project.</p>
+          </div>
+          <div class="flex flex-wrap gap-3">
+            <button onclick="downloadStarterBundle()" class="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs sm:text-sm font-semibold transition flex items-center gap-2 shadow-lg shadow-indigo-600/20">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+              <span>Download Starter Bundle (.py)</span>
+            </button>
+            <button onclick="resetAllProgress()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-rose-950/60 text-slate-300 hover:text-rose-300 border border-slate-700 hover:border-rose-500/40 text-xs sm:text-sm font-medium transition">
+              Reset Saved Progress
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="bg-slate-950 border border-slate-800 p-5 rounded-xl">
+            <div class="font-mono text-sm font-bold text-sky-400 mb-1">Class vs. Object (Instance)</div>
+            <p class="text-xs text-slate-300 leading-relaxed mb-3">A <strong>Class</strong> is the blueprint (e.g., <code class="font-mono">Character</code>). An <strong>Object</strong> is a real item built from that blueprint in memory (e.g., <code class="font-mono">hero = Character("Aria", 100, 15)</code>).</p>
+            <code class="block font-mono text-xs bg-slate-900 p-2.5 rounded text-slate-300">class Character: ...</code>
+          </div>
+
+          <div class="bg-slate-950 border border-slate-800 p-5 rounded-xl">
+            <div class="font-mono text-sm font-bold text-rose-400 mb-1">__init__ &amp; self</div>
+            <p class="text-xs text-slate-300 leading-relaxed mb-3"><code class="font-mono">__init__</code> initializes an object's starting attributes. <code class="font-mono">self</code> refers to the specific object currently executing the method.</p>
+            <code class="block font-mono text-xs bg-slate-900 p-2.5 rounded text-slate-300">def __init__(self, name): self.name = name</code>
+          </div>
+
+          <div class="bg-slate-950 border border-slate-800 p-5 rounded-xl">
+            <div class="font-mono text-sm font-bold text-emerald-400 mb-1">Inheritance &amp; super()</div>
+            <p class="text-xs text-slate-300 leading-relaxed mb-3">Allows a child class to inherit attributes and methods from a parent class without duplicating code. <code class="font-mono">super()</code> calls the parent's version of a method.</p>
+            <code class="block font-mono text-xs bg-slate-900 p-2.5 rounded text-slate-300">class Warrior(Character): ...</code>
+          </div>
+
+          <div class="bg-slate-950 border border-slate-800 p-5 rounded-xl">
+            <div class="font-mono text-sm font-bold text-purple-400 mb-1">Polymorphism</div>
+            <p class="text-xs text-slate-300 leading-relaxed mb-3">Different subclasses can share the same method name (like <code class="font-mono">.special_move()</code>) while executing completely different behavior under the hood.</p>
+            <code class="block font-mono text-xs bg-slate-900 p-2.5 rounded text-slate-300">player.special_move(boss)</code>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-900 py-6 text-center text-xs text-slate-500">
+    <p>Python RPG Studio • Interactive Object-Oriented Programming Curriculum • Progress automatically saved in your browser</p>
+  </footer>
+
+  <!-- ========================================================= -->
+  <!-- JAVASCRIPT APPLICATION LOGIC                              -->
+  <!-- ========================================================= -->
+  <script>
+    // --- 1. Tab Navigation ---
+    function switchTab(tabId) {
+      // Hide all panels
+      document.querySelectorAll('.tab-panel').forEach(panel => {
+        panel.classList.add('hidden');
+      });
+
+      // Reset all tab buttons
+      document.querySelectorAll('.nav-tab').forEach(btn => {
+        btn.classList.remove('bg-indigo-600', 'text-white', 'shadow-md', 'shadow-indigo-600/20');
+        btn.classList.add('bg-slate-800/70', 'text-slate-300');
+      });
+
+      // Show selected panel & style active button
+      const activePanel = document.getElementById(`panel-${tabId}`);
+      const activeBtn = document.getElementById(`tab-${tabId}`);
+      if (activePanel) activePanel.classList.remove('hidden');
+      if (activeBtn) {
+        activeBtn.classList.remove('bg-slate-800/70', 'text-slate-300');
+        activeBtn.classList.add('bg-indigo-600', 'text-white', 'shadow-md', 'shadow-indigo-600/20');
+      }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // --- 2. Toast Notification Helper (No alert()) ---
+    let toastTimeout;
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      const msgEl = document.getElementById('toast-message');
+      msgEl.textContent = message;
+
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('translate-y-20', 'opacity-0');
+      }, 2600);
+    }
+
+    // --- 3. Clipboard Copy Utility (Works inside iframes & standard browsers) ---
+    function copyTextToClipboard(text, successMessage = "Copied code to clipboard!") {
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      textArea.style.position = "fixed";
+      textArea.style.left = "-9999px";
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        showToast(successMessage);
+      } catch (err) {
+        showToast("Press Ctrl+C / Cmd+C to copy.");
+      }
+      document.body.removeChild(textArea);
+    }
+
+    function copyCode(elementId) {
+      const el = document.getElementById(elementId);
+      if (el) {
+        copyTextToClipboard(el.innerText, "Starter Python code copied!");
+      }
+    }
+
+    // --- 4. Progressive Hint Accordion ---
+    function toggleHint(hintId) {
+      const content = document.getElementById(hintId);
+      const icon = document.getElementById(`icon-${hintId}`);
+      if (!content) return;
+
+      const isHidden = content.classList.contains('hidden');
+      if (isHidden) {
+        content.classList.remove('hidden');
+        if (icon) icon.textContent = '− Hide';
+      } else {
+        content.classList.add('hidden');
+        if (icon) icon.textContent = '+ Reveal';
+      }
+    }
+
+    // --- 5. Progress Tracking via localStorage ---
+    const STORAGE_KEY = 'python_rpg_studio_progress_v1';
+
+    function loadProgress() {
+      let saved = {};
+      try {
+        saved = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+      } catch (e) {
+        saved = {};
+      }
+
+      const checkboxes = document.querySelectorAll('input[type="checkbox"][data-task]');
+      checkboxes.forEach(cb => {
+        const taskId = cb.getAttribute('data-task');
+        cb.checked = Boolean(saved[taskId]);
+      });
+      updateProgressUI();
+    }
+
+    function toggleTask(checkbox) {
+      let saved = {};
+      try {
+        saved = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+      } catch (e) {
+        saved = {};
+      }
+
+      const taskId = checkbox.getAttribute('data-task');
+      saved[taskId] = checkbox.checked;
+
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
+      } catch (e) {
+        // Ignore storage errors in restricted contexts
+      }
+
+      updateProgressUI();
+      if (checkbox.checked) {
+        showToast("Checkpoint completed!");
+      }
+    }
+
+    function updateProgressUI() {
+      const checkboxes = document.querySelectorAll('input[type="checkbox"][data-task]');
+      const total = checkboxes.length;
+      let completed = 0;
+      checkboxes.forEach(cb => {
+        if (cb.checked) completed++;
+      });
+
+      const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
+      document.getElementById('progress-text').textContent = `${completed} / ${total} Tasks`;
+      document.getElementById('progress-bar').style.width = `${pct}%`;
+      document.getElementById('progress-percent').textContent = `${pct}%`;
+    }
+
+    function resetAllProgress() {
+      try {
+        localStorage.removeItem(STORAGE_KEY);
+      } catch (e) {}
+      document.querySelectorAll('input[type="checkbox"][data-task]').forEach(cb => {
+        cb.checked = false;
+      });
+      updateProgressUI();
+      showToast("All checkpoint progress cleared.");
+    }
+
+    // --- 6. Chapter 3 Custom Hero Subclass Generator ---
+    function getCustomClassString() {
+      const rawName = (document.getElementById('custom-cls-name').value || 'Rogue').trim().replace(/\s+/g, '');
+      const clsName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
+      const attrName = (document.getElementById('custom-attr-name').value || 'energy').trim().replace(/\s+/g, '_').toLowerCase();
+      const attrVal = (document.getElementById('custom-attr-val').value || '50').trim();
+      const methodName = (document.getElementById('custom-method-name').value || 'shadow_strike').trim().replace(/\s+/g, '_').toLowerCase();
+
+      return `class ${clsName}(Character):
+    def __init__(self, name):
+        super().__init__(name, hp=100, attack_power=15)
+        self.${attrName} = ${attrVal}
+
+    def special_move(self, target):
+        # Calls your custom ability: ${methodName}
+        self.${methodName}(target)
+
+    def ${methodName}(self, target):
+        if self.${attrName} >= 20:
+            self.${attrName} -= 20
+            dmg = self.attack_power + 14
+            print(f"{self.name} uses ${methodName.toUpperCase()} for {dmg} damage! (${attrName}: {self.${attrName}})")
+            target.take_damage(dmg)
+        else:
+            print("Not enough ${attrName}! Performing basic attack.")
+            self.attack(target)`;
+    }
+
+    function updateCustomPreview() {
+      const previewEl = document.getElementById('custom-class-preview');
+      if (previewEl) {
+        previewEl.textContent = getCustomClassString();
+      }
+    }
+
+    function generateCustomClassCode() {
+      copyTextToClipboard(getCustomClassString(), "Custom subclass code copied!");
+    }
+
+    // --- 7. Chapter 4 Playable OOP Battle Arena Simulator ---
+    let simState = null;
+
+    function startArena(heroClass) {
+      const configs = {
+        Warrior: { name: 'Aria (Warrior)', hp: 130, maxHp: 130, atk: 16, resName: 'Armor', resVal: 4 },
+        Mage:    { name: 'Lyra (Mage)',    hp: 85,  maxHp: 85,  atk: 12, resName: 'Mana',  resVal: 60 },
+        Rogue:   { name: 'Kael (Rogue)',   hp: 100, maxHp: 100, atk: 15, resName: 'Energy', resVal: 60 }
+      };
+
+      simState = {
+        heroClass,
+        player: { ...configs[heroClass] },
+        boss: { name: 'Shadow Dragon', hp: 140, maxHp: 140, atk: 17 },
+        over: false
+      };
+
+      document.getElementById('arena-select').classList.add('hidden');
+      document.getElementById('arena-combat').classList.remove('hidden');
+      document.getElementById('sim-controls').classList.remove('hidden');
+
+      const logEl = document.getElementById('sim-log');
+      logEl.innerHTML = `<div class="text-amber-400">⚔️ Instantiated ${simState.player.name} and Shadow Dragon! Choose your action.</div>`;
+      renderArenaUI();
+    }
+
+    function resetArena() {
+      simState = null;
+      document.getElementById('arena-combat').classList.add('hidden');
+      document.getElementById('arena-select').classList.remove('hidden');
+    }
+
+    function appendArenaLog(msg, colorClass = 'text-slate-300') {
+      const logEl = document.getElementById('sim-log');
+      const line = document.createElement('div');
+      line.className = colorClass;
+      line.textContent = msg;
+      logEl.appendChild(line);
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    function triggerShake(cardId) {
+      const el = document.getElementById(cardId);
+      if (!el) return;
+      el.classList.remove('shake');
+      void el.offsetWidth;
+      el.classList.add('shake');
+    }
+
+    function renderArenaUI() {
+      if (!simState) return;
+      const { player, boss } = simState;
+
+      document.getElementById('sim-player-name').textContent = player.name;
+      document.getElementById('sim-player-resource').textContent = `${player.resName}: ${player.resVal}`;
+      document.getElementById('sim-player-hp-text').textContent = `${player.hp} / ${player.maxHp}`;
+      document.getElementById('sim-player-hp-bar').style.width = `${Math.max(0, (player.hp / player.maxHp) * 100)}%`;
+
+      document.getElementById('sim-boss-hp-text').textContent = `${boss.hp} / ${boss.maxHp}`;
+      document.getElementById('sim-boss-hp-bar').style.width = `${Math.max(0, (boss.hp / boss.maxHp) * 100)}%`;
+    }
+
+    function arenaTurn(action) {
+      if (!simState || simState.over) return;
+      const { player, boss, heroClass } = simState;
+
+      // 1. Player Action
+      if (action === 'attack') {
+        boss.hp = Math.max(0, boss.hp - player.atk);
+        triggerShake('card-boss');
+        appendArenaLog(`> ${player.name}.attack(boss) → Dealt ${player.atk} damage!`, 'text-sky-300');
+      } else if (action === 'special') {
+        if (heroClass === 'Warrior') {
+          const dmg = Math.floor(player.atk * 1.5);
+          boss.hp = Math.max(0, boss.hp - dmg);
+          triggerShake('card-boss');
+          appendArenaLog(`> ${player.name}.special_move(boss) → SHIELD BASH for ${dmg} damage!`, 'text-amber-300');
+        } else if (heroClass === 'Mage') {
+          if (player.resVal >= 20) {
+            player.resVal -= 20;
+            boss.hp = Math.max(0, boss.hp - 32);
+            triggerShake('card-boss');
+            appendArenaLog(`> ${player.name}.special_move(boss) → FIREBALL for 32 damage! (-20 Mana)`, 'text-indigo-300');
+          } else {
+            boss.hp = Math.max(0, boss.hp - player.atk);
+            triggerShake('card-boss');
+            appendArenaLog(`> Not enough Mana! Used basic attack for ${player.atk} damage.`, 'text-slate-400');
+          }
+        } else if (heroClass === 'Rogue') {
+          if (player.resVal >= 20) {
+            player.resVal -= 20;
+            boss.hp = Math.max(0, boss.hp - 29);
+            triggerShake('card-boss');
+            appendArenaLog(`> ${player.name}.special_move(boss) → SHADOW STRIKE for 29 damage! (-20 Energy)`, 'text-rose-300');
+          } else {
+            boss.hp = Math.max(0, boss.hp - player.atk);
+            triggerShake('card-boss');
+            appendArenaLog(`> Not enough Energy! Used basic attack for ${player.atk} damage.`, 'text-slate-400');
+          }
+        }
+      } else if (action === 'heal') {
+        const before = player.hp;
+        player.hp = Math.min(player.maxHp, player.hp + 22);
+        appendArenaLog(`> ${player.name}.heal(22) → Restored ${player.hp - before} HP!`, 'text-emerald-400');
+      }
+
+      // Check Boss Defeat
+      if (boss.hp <= 0) {
+        simState.over = true;
+        renderArenaUI();
+        document.getElementById('sim-controls').classList.add('hidden');
+        appendArenaLog(`🏆 Victory! ${player.name} defeated the Shadow Dragon!`, 'text-emerald-400 font-bold');
+        return;
+      }
+
+      // 2. Boss Counter-Attack
+      let incoming = boss.atk;
+      if (heroClass === 'Warrior') {
+        incoming = Math.max(0, boss.atk - player.resVal);
+        appendArenaLog(`  🛡️ Warrior Armor blocks ${player.resVal} damage!`, 'text-amber-400/80');
+      }
+      player.hp = Math.max(0, player.hp - incoming);
+      triggerShake('card-player');
+      appendArenaLog(`  🐉 Shadow Dragon attacks ${player.name} for ${incoming} damage!`, 'text-rose-400');
+
+      // Check Player Defeat
+      if (player.hp <= 0) {
+        simState.over = true;
+        document.getElementById('sim-controls').classList.add('hidden');
+        appendArenaLog(`💀 ${player.name} has fallen! Click "Change Hero / Reset" to try again.`, 'text-rose-400 font-bold');
+      }
+
+      renderArenaUI();
+    }
+
+    // --- 8. Download Complete Starter .py File ---
+    function downloadStarterBundle() {
+      const pyContent = `# ==========================================================
+# Python RPG Studio: Starter Project Template
+# Complete each TODO across Chapters 1 to 4!
+# ==========================================================
+
+class Character:
+    def __init__(self, name, hp, attack_power):
+        self.name = name
+        self.max_hp = hp
+        self.hp = hp
+        self.attack_power = attack_power
+
+    def take_damage(self, amount):
+        # TODO (Ch 1): Subtract amount from self.hp (minimum 0)
+        self.hp = max(0, self.hp - amount)
+
+    def is_alive(self):
+        # TODO (Ch 1): Return True if self.hp > 0
+        return self.hp > 0
+
+    def attack(self, target):
+        # TODO (Ch 2): Print attack message and call target.take_damage(self.attack_power)
+        pass
+
+    def heal(self, amount):
+        # TODO (Ch 2): Restore HP up to self.max_hp
+        pass
+
+    def status(self):
+        return f"{self.name} | HP: {self.hp}/{self.max_hp} | ATK: {self.attack_power}"
+
+
+class Warrior(Character):
+    def __init__(self, name):
+        super().__init__(name, hp=130, attack_power=16)
+        self.armor = 4
+
+    def take_damage(self, amount):
+        # TODO (Ch 3): Reduce damage by self.armor before calling super().take_damage()
+        pass
+
+    def special_move(self, target):
+        # TODO (Ch 3): Deal 1.5x attack_power damage to target
+        pass
+
+
+class Mage(Character):
+    def __init__(self, name):
+        super().__init__(name, hp=85, attack_power=12)
+        self.mana = 60
+
+    def special_move(self, target):
+        # TODO (Ch 3): Spend 20 mana to deal 32 damage
+        pass
+
+
+# TODO (Ch 3): Add your own 3rd Hero Subclass here!
+
+
+def choose_hero():
+    name = input("Enter your hero's name: ")
+    print("Choose your class: [1] Warrior  [2] Mage  [3] Custom Hero")
+    choice = input("> ")
+    if choice == "1":
+        return Warrior(name)
+    elif choice == "2":
+        return Mage(name)
+    else:
+        return Warrior(name)  # Replace with your 3rd hero class!
+
+
+def battle(player, boss):
+    print(f"\\n⚔️ A wild {boss.name} appears! ⚔️")
+    while player.is_alive() and boss.is_alive():
+        print("\\n" + player.status())
+        print(boss.status())
+        action = input("Choose action: [1] Attack  [2] Special Move  [3] Heal: ")
+
+        # TODO (Ch 4): Handle action choices 1, 2, and 3
+        pass
+
+        if boss.is_alive():
+            boss.attack(player)
+
+    if player.is_alive():
+        print(f"\\n🏆 Victory! {player.name} defeated {boss.name}!")
+    else:
+        print(f"\\n💀 {player.name} has fallen in battle...")
+
+
+if __name__ == "__main__":
+    hero = choose_hero()
+    dragon = Character("Shadow Dragon", hp=140, attack_power=17)
+    battle(hero, dragon)
+`;
+
+      const blob = new Blob([pyContent], { type: 'text/x-python' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'python_rpg_starter.py';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast("Downloaded python_rpg_starter.py!");
+    }
+
+    // Initialize on load
+    window.addEventListener('DOMContentLoaded', () => {
+      loadProgress();
+      updateCustomPreview();
+    });
+  </script>
+</body>
+</html>
