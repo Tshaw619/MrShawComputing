@@ -1,0 +1,3105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Python Quest — OCR GCSE Computer Science (J277)</title>
+
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <!-- Pyodide 0.26.4 (CPython 3.12 WebAssembly Runtime) -->
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
+
+  <style>
+    :root {
+      --bg-page: #f8fafc;
+      --bg-surface: #ffffff;
+      --bg-subtle: #f1f5f9;
+      --bg-muted: #e2e8f0;
+      --text-primary: #0f172a;
+      --text-secondary: #334155;
+      --text-muted: #64748b;
+      --border-light: #e2e8f0;
+      --border-medium: #cbd5e1;
+      --accent-blue: #2563eb;
+      --accent-blue-hover: #1d4ed8;
+      --accent-blue-soft: #eff6ff;
+      --accent-blue-border: #bfdbfe;
+      --accent-emerald: #059669;
+      --accent-emerald-bright: #10b981;
+      --accent-emerald-soft: #ecfdf5;
+      --accent-emerald-border: #a7f3d0;
+      --accent-amber: #d97706;
+      --accent-amber-soft: #fffbeb;
+      --accent-amber-border: #fde68a;
+      --accent-rose: #e11d48;
+      --accent-rose-soft: #fff1f2;
+      --accent-rose-border: #fecdd3;
+      --terminal-bg: #0f172a;
+      --terminal-console-bg: #020617;
+      --terminal-gutter: #1e293b;
+      --terminal-text: #f8fafc;
+      --terminal-output: #6ee7b7;
+      --radius-sm: 0.375rem;
+      --radius-md: 0.625rem;
+      --radius-lg: 0.875rem;
+      --radius-xl: 1rem;
+      --radius-2xl: 1.25rem;
+      --radius-full: 9999px;
+      --shadow-card: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+      --shadow-elevated: 0 16px 36px -8px rgba(15, 23, 42, 0.16), 0 4px 12px -4px rgba(15, 23, 42, 0.08);
+      --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      background-color: var(--bg-page);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+    }
+
+    button, input, select, textarea {
+      font-family: inherit;
+      color: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* ========================================================================
+       TOP HEADER BAR
+       ======================================================================== */
+    .app-header {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border-light);
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    }
+
+    .header-inner {
+      max-width: 82rem;
+      margin: 0 auto;
+      padding: 0.75rem 1.25rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .brand-logo {
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: var(--radius-lg);
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1rem;
+      box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
+    }
+
+    .brand-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .brand-sub {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .header-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.375rem 0.75rem;
+      border-radius: var(--radius-full);
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-light);
+      color: var(--text-secondary);
+    }
+
+    .status-pill.ready {
+      background: var(--accent-emerald-soft);
+      border-color: var(--accent-emerald-border);
+      color: #065f46;
+    }
+
+    .status-pill.error {
+      background: var(--accent-rose-soft);
+      border-color: var(--accent-rose-border);
+      color: #9f1239;
+    }
+
+    .status-dot {
+      width: 0.5rem;
+      height: 0.5rem;
+      border-radius: 50%;
+      background: #f59e0b;
+    }
+
+    .status-pill.ready .status-dot {
+      background: #10b981;
+    }
+
+    .status-pill.error .status-dot {
+      background: #e11d48;
+    }
+
+    .xp-pill {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      background: var(--accent-blue-soft);
+      border: 1px solid var(--accent-blue-border);
+      padding: 0.35rem 0.8rem;
+      border-radius: var(--radius-full);
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #1e40af;
+    }
+
+    .xp-mini-track {
+      width: 4.5rem;
+      height: 0.4rem;
+      background: #dbeafe;
+      border-radius: var(--radius-full);
+      overflow: hidden;
+    }
+
+    .xp-mini-fill {
+      height: 100%;
+      background: var(--accent-blue);
+      width: 0%;
+      transition: width 0.35s ease;
+    }
+
+    /* ========================================================================
+       BUTTONS & BADGES
+       ======================================================================== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      padding: 0.5rem 0.9rem;
+      border-radius: var(--radius-md);
+      font-size: 0.8125rem;
+      font-weight: 600;
+      border: 1px solid var(--border-medium);
+      background: var(--bg-surface);
+      color: var(--text-secondary);
+      transition: all 0.15s ease;
+    }
+
+    .btn:hover {
+      background: var(--bg-subtle);
+      border-color: #94a3b8;
+      color: var(--text-primary);
+    }
+
+    .btn-primary {
+      background: var(--accent-blue);
+      border-color: var(--accent-blue);
+      color: #ffffff;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-blue-hover);
+      border-color: var(--accent-blue-hover);
+      color: #ffffff;
+    }
+
+    .btn-emerald {
+      background: var(--accent-emerald);
+      border-color: var(--accent-emerald);
+      color: #ffffff;
+    }
+
+    .btn-emerald:hover {
+      background: #047857;
+      border-color: #047857;
+      color: #ffffff;
+    }
+
+    .btn-amber {
+      background: var(--accent-amber-soft);
+      border-color: var(--accent-amber-border);
+      color: #92400e;
+    }
+
+    .btn-amber:hover {
+      background: #fef3c7;
+    }
+
+    .btn-danger {
+      background: var(--accent-rose-soft);
+      border-color: var(--accent-rose-border);
+      color: #9f1239;
+    }
+
+    .btn-danger:hover {
+      background: #ffe4e6;
+    }
+
+    .btn-sm {
+      padding: 0.35rem 0.65rem;
+      font-size: 0.75rem;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.2rem 0.55rem;
+      border-radius: var(--radius-full);
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .badge-blue {
+      background: var(--accent-blue-soft);
+      color: #1d4ed8;
+      border: 1px solid var(--accent-blue-border);
+    }
+
+    .badge-emerald {
+      background: var(--accent-emerald-soft);
+      color: #047857;
+      border: 1px solid var(--accent-emerald-border);
+    }
+
+    .badge-amber {
+      background: var(--accent-amber-soft);
+      color: #b45309;
+      border: 1px solid var(--accent-amber-border);
+    }
+
+    .badge-slate {
+      background: var(--bg-subtle);
+      color: #475569;
+      border: 1px solid var(--border-light);
+    }
+
+    /* ========================================================================
+       MAIN CONTAINER & HERO BANNER
+       ======================================================================== */
+    .main-wrap {
+      flex: 1 0 auto;
+      max-width: 82rem;
+      width: 100%;
+      margin: 0 auto;
+      padding: 1.75rem 1.25rem 3rem;
+    }
+
+    .hero-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-2xl);
+      padding: 1.5rem 1.75rem;
+      box-shadow: var(--shadow-card);
+      margin-bottom: 1.75rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+    }
+
+    .hero-title {
+      margin: 0.35rem 0;
+      font-size: 1.65rem;
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      color: var(--text-primary);
+    }
+
+    .hero-desc {
+      margin: 0;
+      max-width: 44rem;
+      font-size: 0.925rem;
+      color: var(--text-secondary);
+    }
+
+    .hero-stats {
+      min-width: 240px;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-xl);
+      padding: 1rem 1.25rem;
+    }
+
+    .progress-bar-bg {
+      width: 100%;
+      height: 0.6rem;
+      background: #cbd5e1;
+      border-radius: var(--radius-full);
+      overflow: hidden;
+      margin: 0.5rem 0;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #2563eb, #10b981);
+      width: 0%;
+      transition: width 0.4s ease;
+    }
+
+    /* ========================================================================
+       WORLD CARDS & CHALLENGE GRID
+       ======================================================================== */
+    .worlds-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .world-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-2xl);
+      padding: 1.4rem 1.5rem;
+      box-shadow: var(--shadow-card);
+      transition: border-color 0.2s ease;
+    }
+
+    .world-card.locked {
+      opacity: 0.72;
+      background: #f8fafc;
+    }
+
+    .world-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1.1rem;
+    }
+
+    .world-title-row {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      flex-wrap: wrap;
+    }
+
+    .world-num {
+      width: 2.15rem;
+      height: 2.15rem;
+      border-radius: var(--radius-md);
+      background: var(--accent-blue-soft);
+      color: var(--accent-blue);
+      border: 1px solid var(--accent-blue-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 0.9rem;
+    }
+
+    .world-card.completed .world-num {
+      background: var(--accent-emerald-soft);
+      color: var(--accent-emerald);
+      border-color: var(--accent-emerald-border);
+    }
+
+    .world-card.locked .world-num {
+      background: var(--bg-muted);
+      color: var(--text-muted);
+      border-color: var(--border-medium);
+    }
+
+    .world-title {
+      margin: 0;
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--text-primary);
+    }
+
+    .world-desc {
+      margin: 0.35rem 0 0;
+      font-size: 0.86rem;
+      color: var(--text-secondary);
+    }
+
+    .challenges-grid {
+      display: grid;
+      grid-template-columns: repeat(1, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+
+    @media (min-width: 640px) {
+      .challenges-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .challenges-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+    }
+
+    .challenge-tile {
+      text-align: left;
+      background: var(--bg-page);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-xl);
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 0.65rem;
+      transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+    }
+
+    .challenge-tile:hover:not(:disabled) {
+      transform: translateY(-2px);
+      border-color: #93c5fd;
+      background: #ffffff;
+      box-shadow: 0 8px 18px -6px rgba(15, 23, 42, 0.1);
+    }
+
+    .challenge-tile.solved {
+      background: #f0fdf4;
+      border-color: var(--accent-emerald-border);
+    }
+
+    .challenge-tile:disabled {
+      cursor: not-allowed;
+      opacity: 0.65;
+    }
+
+    .challenge-tile-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .challenge-tile-title {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin: 0;
+    }
+
+    .challenge-tile-sub {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin: 0;
+    }
+
+    /* ========================================================================
+       CHALLENGE WORKSPACE VIEW
+       ======================================================================== */
+    .workspace-topbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .workspace-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.25rem;
+    }
+
+    @media (min-width: 1024px) {
+      .workspace-grid {
+        grid-template-columns: 5fr 7fr;
+        align-items: start;
+      }
+    }
+
+    .panel-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-2xl);
+      padding: 1.4rem;
+      box-shadow: var(--shadow-card);
+    }
+
+    .brief-section-label {
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      margin: 1.1rem 0 0.4rem;
+    }
+
+    .example-box {
+      background: #f8fafc;
+      border: 1px solid var(--border-light);
+      border-left: 3px solid var(--accent-blue);
+      border-radius: var(--radius-md);
+      padding: 0.75rem 0.9rem;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      white-space: pre-wrap;
+      color: #1e293b;
+      margin: 0.4rem 0;
+    }
+
+    .checklist-ul {
+      margin: 0.4rem 0 0;
+      padding-left: 1.2rem;
+      font-size: 0.86rem;
+      color: var(--text-secondary);
+    }
+
+    .checklist-ul li {
+      margin-bottom: 0.35rem;
+    }
+
+    .hint-box {
+      margin-top: 0.65rem;
+      background: var(--accent-amber-soft);
+      border: 1px solid var(--accent-amber-border);
+      border-radius: var(--radius-lg);
+      padding: 0.75rem 0.9rem;
+      font-size: 0.83rem;
+      color: #78350f;
+    }
+
+    /* Code Editor & Console */
+    .editor-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .editor-shell {
+      display: grid;
+      grid-template-columns: 3rem minmax(0, 1fr);
+      background: var(--terminal-bg);
+      border: 1px solid #1e293b;
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+    }
+
+    .editor-gutter {
+      background: var(--terminal-gutter);
+      color: #94a3b8;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      line-height: 1.6;
+      padding: 0.95rem 0.5rem;
+      text-align: right;
+      user-select: none;
+    }
+
+    .editor-textarea {
+      width: 100%;
+      min-height: 250px;
+      background: var(--terminal-bg);
+      color: var(--terminal-text);
+      border: none;
+      outline: none;
+      resize: vertical;
+      padding: 0.95rem;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      line-height: 1.6;
+      tab-size: 4;
+      white-space: pre;
+      overflow-x: auto;
+    }
+
+    .stdin-bar {
+      margin-top: 0.75rem;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-lg);
+      padding: 0.65rem 0.85rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .stdin-input {
+      flex: 1 1 200px;
+      background: #ffffff;
+      border: 1px solid var(--border-medium);
+      border-radius: var(--radius-sm);
+      padding: 0.35rem 0.65rem;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+    }
+
+    .editor-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.6rem;
+      margin-top: 0.85rem;
+    }
+
+    .console-wrap {
+      margin-top: 1rem;
+    }
+
+    .console-label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 0.4rem;
+    }
+
+    .console-pre {
+      margin: 0;
+      background: var(--terminal-console-bg);
+      color: var(--terminal-output);
+      border: 1px solid #1e293b;
+      border-radius: var(--radius-xl);
+      padding: 0.95rem;
+      min-height: 120px;
+      max-height: 260px;
+      overflow: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.55;
+      white-space: pre-wrap;
+    }
+
+    .feedback-banner {
+      margin-top: 0.9rem;
+      border-radius: var(--radius-xl);
+      padding: 0.95rem 1.1rem;
+      font-size: 0.86rem;
+    }
+
+    .feedback-banner.pass {
+      background: var(--accent-emerald-soft);
+      border: 1px solid var(--accent-emerald-border);
+      color: #064e3b;
+    }
+
+    .feedback-banner.fail {
+      background: var(--accent-rose-soft);
+      border: 1px solid var(--accent-rose-border);
+      color: #881337;
+    }
+
+    /* ========================================================================
+       MODALS (STUDENT LOGIN & STAFF PORTAL)
+       ======================================================================== */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      background: rgba(15, 23, 42, 0.62);
+      backdrop-filter: blur(3px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      overflow-y: auto;
+    }
+
+    .modal-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-2xl);
+      box-shadow: var(--shadow-elevated);
+      width: 100%;
+      max-width: 30rem;
+      padding: 1.6rem;
+      max-height: 92vh;
+      overflow-y: auto;
+    }
+
+    .modal-card.wide {
+      max-width: 66rem;
+    }
+
+    .form-field {
+      margin-bottom: 0.9rem;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      margin-bottom: 0.3rem;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 0.55rem 0.75rem;
+      border: 1px solid var(--border-medium);
+      border-radius: var(--radius-md);
+      font-size: 0.875rem;
+      background: #ffffff;
+    }
+
+    .form-input:focus {
+      outline: 2px solid #93c5fd;
+      border-color: var(--accent-blue);
+    }
+
+    .tabs-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      border-bottom: 1px solid var(--border-light);
+      padding-bottom: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .data-table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-xl);
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8125rem;
+    }
+
+    .data-table th {
+      background: var(--bg-subtle);
+      text-align: left;
+      padding: 0.65rem 0.85rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .data-table td {
+      padding: 0.65rem 0.85rem;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    /* Toast Notifications */
+    .toast-stack {
+      position: fixed;
+      bottom: 1rem;
+      right: 1rem;
+      z-index: 60;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      max-width: 22rem;
+      pointer-events: none;
+    }
+
+    .toast-item {
+      pointer-events: auto;
+      background: #0f172a;
+      color: #ffffff;
+      padding: 0.7rem 0.95rem;
+      border-radius: var(--radius-lg);
+      font-size: 0.8125rem;
+      font-weight: 500;
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.25);
+    }
+
+    .app-footer {
+      background: var(--bg-surface);
+      border-top: 1px solid var(--border-light);
+      padding: 1rem 1.25rem;
+      font-size: 0.76rem;
+      color: var(--text-muted);
+    }
+
+    .footer-inner {
+      max-width: 82rem;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+
+    .staff-trigger {
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      font-size: 0.74rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: var(--radius-sm);
+    }
+
+    .staff-trigger:hover {
+      color: var(--text-secondary);
+      background: var(--bg-subtle);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ======================================================================
+       HEADER
+       ====================================================================== -->
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="brand-group">
+        <div class="brand-logo">Py</div>
+        <div>
+          <div class="brand-title">
+            Python Quest
+            <span class="badge badge-blue">OCR GCSE J277</span>
+          </div>
+          <div class="brand-sub">9 Worlds · 36 Stepped Challenges · In-Browser Python 3.12</div>
+        </div>
+      </div>
+
+      <div class="header-controls">
+        <div id="pyodideStatusPill" class="status-pill" title="Python Runtime Status">
+          <span class="status-dot"></span>
+          <span id="pyodideStatusText">Loading Python 3.12...</span>
+        </div>
+
+        <div class="xp-pill">
+          <span id="headerLevelBadge">Lvl 1</span>
+          <span id="headerXpText">0 / 1280 XP</span>
+          <div class="xp-mini-track">
+            <div id="headerXpBar" class="xp-mini-fill"></div>
+          </div>
+        </div>
+
+        <button id="btnDownloadSave" class="btn btn-sm" title="Download portable .json progress file">
+          ⬇ Save (.json)
+        </button>
+        <label class="btn btn-sm" title="Load portable .json progress file" style="margin:0;">
+          ⬆ Load
+          <input id="inputUploadSave" type="file" accept=".json" class="hidden" />
+        </label>
+        <button id="btnGuestMode" class="btn btn-sm" title="Explore without saving progress">
+          🕵️ Guest Mode
+        </button>
+        <button id="btnStudentProfile" class="btn btn-primary btn-sm">
+          👤 <span id="headerStudentName">Student Sign In</span>
+        </button>
+        <button id="btnHeaderTeacherLogin" class="btn btn-amber btn-sm" title="Staff Login">
+          🔑 Teacher Login
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ======================================================================
+       MAIN CONTENT (COURSE MAP OR CHALLENGE WORKSPACE)
+       ====================================================================== -->
+  <main class="main-wrap">
+
+    <!-- VIEW 1: COURSE MAP -->
+    <section id="courseMapView">
+      <div class="hero-card">
+        <div>
+          <span class="badge badge-emerald">Component 02 · Computational Thinking, Algorithms &amp; Programming</span>
+          <h1 class="hero-title">Master OCR GCSE Python Step-by-Step</h1>
+          <p class="hero-desc">
+            Progress through 9 structured worlds from your very first <code>print()</code> statement to 2D arrays, file handling, and defensive robust design. Complete challenges to earn XP and unlock later worlds—or save your <code>.json</code> file to continue on any computer.
+          </p>
+          <div style="display:flex; flex-wrap:wrap; gap:0.6rem; margin-top:1rem;">
+            <button id="btnHeroStudentLogin" class="btn btn-primary">👤 Student Sign In</button>
+            <button id="btnHeroGuestMode" class="btn">🕵️ Continue as Guest (No Data Saved)</button>
+            <button id="btnHeroTeacherLogin" class="btn btn-amber">🔑 Teacher Login</button>
+          </div>
+        </div>
+
+        <div class="hero-stats">
+          <div style="display:flex; justify-content:space-between; font-size:0.8rem; font-weight:700;">
+            <span>Course Completion</span>
+            <span id="heroCompletionPct">0%</span>
+          </div>
+          <div class="progress-bar-bg">
+            <div id="heroProgressBar" class="progress-bar-fill"></div>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--text-muted);">
+            <span id="heroSolvedCount">0 / 36 Challenges</span>
+            <span id="heroClassBadge">Class: Unassigned</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="worldsContainer" class="worlds-stack"></div>
+    </section>
+
+    <!-- VIEW 2: CHALLENGE WORKSPACE -->
+    <section id="workspaceView" class="hidden">
+      <div class="workspace-topbar">
+        <button id="btnBackToMap" class="btn">← Back to Course Map</button>
+        <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+          <span id="wsWorldBadge" class="badge badge-blue">World 1</span>
+          <span id="wsSpecBadge" class="badge badge-slate">J277 2.2</span>
+          <span id="wsXpBadge" class="badge badge-amber">+25 XP</span>
+          <span id="wsStatusBadge" class="badge badge-slate">Unsolved</span>
+        </div>
+      </div>
+
+      <div class="workspace-grid">
+        <!-- Left Column: Task Brief & Hints -->
+        <div class="panel-card">
+          <h2 id="wsTitle" style="margin:0 0 0.4rem; font-size:1.3rem; font-weight:800;">Challenge Title</h2>
+          <p id="wsStory" style="margin:0; font-size:0.9rem; color:var(--text-secondary);"></p>
+
+          <div class="brief-section-label">Modelled Example</div>
+          <pre id="wsExample" class="example-box"></pre>
+
+          <div class="brief-section-label">Your Task &amp; Success Criteria</div>
+          <ul id="wsCriteria" class="checklist-ul"></ul>
+
+          <div style="margin-top:1.1rem; display:flex; align-items:center; justify-content:space-between; gap:0.5rem; flex-wrap:wrap;">
+            <button id="btnShowHint" class="btn btn-amber btn-sm">💡 Show Hint (<span id="wsHintCounter">0/2</span>)</button>
+            <button id="btnResetStarter" class="btn btn-sm">↺ Reset Starter Code</button>
+          </div>
+
+          <div id="wsHintsContainer"></div>
+        </div>
+
+        <!-- Right Column: Python Editor, Stdin & Output Console -->
+        <div class="panel-card">
+          <div class="editor-header">
+            <div style="display:flex; align-items:center; gap:0.5rem;">
+              <strong style="font-size:0.9rem;">main.py</strong>
+              <span class="badge badge-slate">Python 3.12</span>
+            </div>
+            <span style="font-size:0.75rem; color:var(--text-muted);">Tab = 4 spaces · Auto-saved locally</span>
+          </div>
+
+          <div class="editor-shell">
+            <div id="editorGutter" class="editor-gutter">1</div>
+            <textarea id="codeEditor" class="editor-textarea" spellcheck="false" autocomplete="off" autocapitalize="off"></textarea>
+          </div>
+
+          <div class="stdin-bar">
+            <span style="font-size:0.76rem; font-weight:700; color:var(--text-secondary);">Simulated <code>input()</code> values (comma-separated):</span>
+            <input id="stdinQueueInput" type="text" class="stdin-input" placeholder="e.g. Alice, 15, yes" />
+          </div>
+
+          <div class="editor-actions">
+            <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+              <button id="btnRunCode" class="btn">▶ Run Code</button>
+              <button id="btnCheckSubmit" class="btn btn-emerald">✓ Check &amp; Submit</button>
+            </div>
+            <button id="btnNextChallenge" class="btn btn-primary hidden">Next Challenge →</button>
+          </div>
+
+          <div class="console-wrap">
+            <div class="console-label">
+              <span>CONSOLE OUTPUT</span>
+              <button id="btnClearConsole" class="btn btn-sm" style="padding:0.15rem 0.5rem; font-size:0.7rem;">Clear</button>
+            </div>
+            <pre id="consoleOutputBox">Ready. Click "Run Code" to test your program or "Check &amp; Submit" to verify against OCR test cases.</pre>
+          </div>
+
+          <div id="feedbackBanner" class="feedback-banner hidden"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ======================================================================
+       FOOTER (INCLUDES SUBTLE STAFF ENTRY POINT)
+       ====================================================================== -->
+  <footer class="app-footer">
+    <div class="footer-inner">
+      <span>OCR GCSE Computer Science (J277) · Standalone Browser Python Course</span>
+      <div style="display:flex; align-items:center; gap:0.75rem;">
+        <span id="footerStudentInfo">Not signed in</span>
+        <button id="btnOpenStaffPortal" class="staff-trigger" title="Staff Access">Staff Portal</button>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ======================================================================
+       MODAL 1: STUDENT LOGIN / PROFILE / SAVE FILE
+       ====================================================================== -->
+  <div id="studentLoginModal" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.75rem;">
+        <span class="badge badge-blue">Student Session</span>
+        <button id="btnCloseStudentModal" class="btn btn-sm">✕</button>
+      </div>
+      <h2 style="margin:0 0 0.35rem; font-size:1.3rem; font-weight:800;">Student Sign In</h2>
+      <p style="margin:0 0 1.1rem; font-size:0.84rem; color:var(--text-secondary);">
+        Sign in to track your XP across all 9 OCR GCSE Python worlds, or upload a previously saved <code>.json</code> file.
+      </p>
+
+      <form id="studentLoginForm">
+        <div class="form-field">
+          <label class="form-label" for="loginFullName">Full Name</label>
+          <input id="loginFullName" type="text" class="form-input" placeholder="e.g. Samira Patel" required />
+        </div>
+
+        <div class="form-field">
+          <label class="form-label" for="loginClassPin">Class Join Code or Class Name</label>
+          <input id="loginClassPin" type="text" class="form-input" placeholder="Enter Teacher Join Code (e.g. 10XCS1-4829) or Class Name" required />
+          <div style="font-size:0.73rem; color:var(--text-muted); margin-top:0.25rem;">
+            Your teacher can generate a Class Join Code in the Staff Portal.
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label class="form-label" for="loginStudentPin">Personal 4-Digit PIN (for your save file)</label>
+          <input id="loginStudentPin" type="password" maxlength="4" pattern="\d{4}" class="form-input" placeholder="e.g. 2468" required />
+        </div>
+
+        <div style="display:flex; gap:0.5rem; margin-top:1.1rem;">
+          <button type="submit" class="btn btn-primary" style="flex:1;">Start / Resume Quest</button>
+        </div>
+      </form>
+
+      <div style="margin-top:1.1rem; padding-top:0.9rem; border-top:1px solid var(--border-light); display:flex; align-items:center; justify-content:space-between; gap:0.5rem;">
+        <span style="font-size:0.78rem; color:var(--text-muted);">Have a save file from another PC?</span>
+        <label class="btn btn-sm" style="margin:0;">
+          ⬆ Upload .json Save
+          <input id="modalUploadSave" type="file" accept=".json" class="hidden" />
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       MODAL 2: HIDDEN STAFF PORTAL (PIN: 7826)
+       ====================================================================== -->
+  <div id="teacherDashboardModal" class="modal-backdrop hidden">
+    <div class="modal-card wide">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:0.75rem; margin-bottom:1rem;">
+        <div>
+          <span class="badge badge-amber">Staff Portal · OCR J277</span>
+          <h2 style="margin:0.25rem 0 0; font-size:1.35rem; font-weight:800;">Teacher Class Manager &amp; Progress Tracker</h2>
+        </div>
+        <button id="btnCloseTeacherModal" class="btn btn-sm">✕ Close</button>
+      </div>
+
+      <!-- Step 1: PIN Gate -->
+      <div id="teacherPinGate" style="max-width:22rem; margin:1.5rem auto; text-align:center;">
+        <p style="font-size:0.88rem; color:var(--text-secondary); margin-bottom:0.85rem;">
+          Enter the 4-digit staff access PIN to manage classes, generate student join codes, and inspect exported student progress.
+        </p>
+        <form id="teacherPinForm" style="display:flex; gap:0.5rem;">
+          <input id="teacherPinInput" type="password" maxlength="4" class="form-input" placeholder="Staff PIN" required style="text-align:center; letter-spacing:0.25em; font-weight:700;" />
+          <button type="submit" class="btn btn-primary">Unlock</button>
+        </form>
+        <div id="teacherPinError" style="color:var(--accent-rose); font-size:0.78rem; margin-top:0.5rem;" class="hidden">
+          Incorrect staff PIN. Please try again.
+        </div>
+      </div>
+
+      <!-- Step 2: Unlocked Teacher Workspace -->
+      <div id="teacherWorkspace" class="hidden">
+        <div class="tabs-bar">
+          <button class="btn btn-sm btn-primary" data-teacher-tab="classes">1. Classes &amp; PIN Generator</button>
+          <button class="btn btn-sm" data-teacher-tab="markbook">2. Student Progress &amp; Export</button>
+          <button id="btnToggleSandbox" class="btn btn-sm btn-amber" style="margin-left:auto;">
+            🔓 Sandbox Mode: <span id="sandboxStateLabel">OFF</span>
+          </button>
+        </div>
+
+        <!-- TAB A: CLASS & PIN GENERATOR -->
+        <div id="teacherTabClasses">
+          <div style="display:grid; grid-template-columns:1fr; gap:1.25rem;">
+            <form id="createClassForm" style="background:var(--bg-subtle); border:1px solid var(--border-light); border-radius:var(--radius-xl); padding:1rem; display:flex; flex-wrap:wrap; align-items:flex-end; gap:0.75rem;">
+              <div style="flex:1 1 200px;">
+                <label class="form-label" for="newClassName">New Class / Group Name</label>
+                <input id="newClassName" type="text" class="form-input" placeholder="e.g. 10X/Cs1 or Year 11 Set A" required />
+              </div>
+              <button type="submit" class="btn btn-primary">+ Create Class &amp; Generate PIN</button>
+            </form>
+
+            <div class="data-table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Class Name</th>
+                    <th>Local 4-Digit PIN</th>
+                    <th>Portable Join Code (Works Across Any PC)</th>
+                    <th>Created</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="teacherClassesTbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB B: MARKBOOK & BULK STUDENT JSON IMPORT -->
+        <div id="teacherTabMarkbook" class="hidden">
+          <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:0.75rem; margin-bottom:1rem;">
+            <div style="display:flex; flex-wrap:wrap; align-items:center; gap:0.5rem;">
+              <label class="btn btn-primary btn-sm" style="margin:0;">
+                📂 Import Student .json Save Files (Multi-Select)
+                <input id="teacherBulkImportInput" type="file" accept=".json" multiple class="hidden" />
+              </label>
+              <select id="teacherClassFilter" class="form-input" style="width:auto; padding:0.35rem 0.65rem; font-size:0.8rem;">
+                <option value="ALL">All Classes</option>
+              </select>
+            </div>
+            <div style="display:flex; gap:0.5rem;">
+              <button id="btnExportMarkbookCsv" class="btn btn-emerald btn-sm">⬇ Export Markbook CSV</button>
+              <button id="btnExportMarkbookJson" class="btn btn-sm">⬇ Export JSON</button>
+            </div>
+          </div>
+
+          <div class="data-table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Student Name</th>
+                  <th>Class</th>
+                  <th>XP / 1280</th>
+                  <th>Solved (/36)</th>
+                  <th>World 1–9 Breakdown</th>
+                  <th>Last Active</th>
+                </tr>
+              </thead>
+              <tbody id="teacherMarkbookTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST CONTAINER -->
+  <div id="toastContainer" class="toast-stack"></div>
+
+  <!-- ======================================================================
+       APPLICATION LOGIC & FULL 9-WORLD OCR J277 CURRICULUM
+       ====================================================================== -->
+  <script>
+    const TEACHER_STAFF_PIN = '7826';
+    const STORAGE_KEYS = {
+      ACTIVE_STUDENT: 'pq_ocr_active_student_v3',
+      CLASSES: 'pq_ocr_teacher_classes_v3',
+      MARKBOOK: 'pq_ocr_teacher_markbook_v3'
+    };
+
+    // ========================================================================
+    // COMPLETE 9-WORLD OCR GCSE J277 CURRICULUM (36 CHALLENGES · 1,280 XP)
+    // ========================================================================
+    const COURSE_WORLDS = [
+      {
+        id: 'w1',
+        number: 1,
+        title: 'First Steps: Output & Variables',
+        spec: 'J277 2.2.1',
+        xpRequired: 0,
+        description: 'Begin your Python journey with screen output, variables, string joining, and fixing early syntax errors.',
+        challenges: [
+          {
+            id: 'w1_c1',
+            title: '1.1 First Output',
+            xp: 25,
+            story: 'Every Python programmer starts by displaying messages on screen using the print() procedure.',
+            example: 'print("Welcome to Python Quest!")\nprint("OCR GCSE Computer Science")',
+            criteria: [
+              'Output exactly two lines of text.',
+              'Line 1 must print: System Booting...',
+              'Line 2 must print: Ready for GCSE Python!'
+            ],
+            hints: [
+              'Use two separate print("...") statements, one on each line.',
+              'Check spelling and punctuation carefully: System Booting... and Ready for GCSE Python!'
+            ],
+            starterCode: '# Print the two boot messages below\nprint("System Booting...")\n',
+            defaultStdin: '',
+            testScript: `
+assert len(_out_lines) == 2, f"Expected 2 printed lines, got {len(_out_lines)}."
+assert _out_lines[0] == "System Booting...", f"Line 1 was '{_out_lines[0]}', expected 'System Booting...'."
+assert _out_lines[1] == "Ready for GCSE Python!", f"Line 2 was '{_out_lines[1]}', expected 'Ready for GCSE Python!'."
+`
+          },
+          {
+            id: 'w1_c2',
+            title: '1.2 Named Boxes (Variables)',
+            xp: 25,
+            story: 'Variables store data values in memory using meaningful identifiers and the = assignment operator.',
+            example: 'player_name = "Alex"\nscore = 150\nprint(player_name)\nprint(score)',
+            criteria: [
+              'Create a variable named hero_name set to "Ada".',
+              'Create a variable named lives set to 3.',
+              'Print hero_name on the first line and lives on the second line.'
+            ],
+            hints: [
+              'Strings need speech marks ("Ada"), whereas integers (3) do not.',
+              'Use print(hero_name) without quotes so Python prints the value inside the variable.'
+            ],
+            starterCode: '# Create your variables below\nhero_name = "Ada"\n\n# Now print both variables\n',
+            defaultStdin: '',
+            testScript: `
+assert 'hero_name' in _ns, "Variable 'hero_name' was not created."
+assert 'lives' in _ns, "Variable 'lives' was not created."
+assert _ns['hero_name'] == "Ada", f"Expected hero_name == 'Ada', got {_ns['hero_name']!r}."
+assert _ns['lives'] == 3, f"Expected lives == 3, got {_ns['lives']!r}."
+assert _out_lines == ["Ada", "3"], f"Expected output ['Ada', '3'], got {_out_lines}."
+`
+          },
+          {
+            id: 'w1_c3',
+            title: '1.3 Joining Strings',
+            xp: 25,
+            story: 'String concatenation joins pieces of text together using + or f-strings to build formatted sentences.',
+            example: 'first = "Grace"\nlast = "Hopper"\nprint("Agent: " + first + " " + last)',
+            criteria: [
+              'Use the provided first_name and surname variables.',
+              'Output exactly: Welcome, Alan Turing!'
+            ],
+            hints: [
+              'Remember to include a space " " between first_name and surname, and an exclamation mark "!" at the end.',
+              'You can write: print("Welcome, " + first_name + " " + surname + "!")'
+            ],
+            starterCode: 'first_name = "Alan"\nsurname = "Turing"\n\n# Output: Welcome, Alan Turing!\n',
+            defaultStdin: '',
+            testScript: `
+assert _out_lines == ["Welcome, Alan Turing!"], f"Expected 'Welcome, Alan Turing!', got {_out_lines}."
+`
+          },
+          {
+            id: 'w1_c4',
+            title: '1.4 Spot & Fix Bugs',
+            xp: 25,
+            story: 'Debugging syntax and logic errors is an essential exam skill. Repair the broken script below.',
+            example: '# Fix missing quotes, capitalised Print, or wrong variable names\nstatus = "Online"\nprint("Status: " + status)',
+            criteria: [
+              'Fix all syntax and logic errors in the starter script.',
+              'The program must output: Course: OCR J277 Level: 2'
+            ],
+            hints: [
+              'Python is case-sensitive: Print must be lowercase print, and course_code must match.',
+              'Numbers must be converted with str(level) when joined with +.'
+            ],
+            starterCode: 'course_code = "OCR J277"\nlevel = 2\nPrint("Course: " + Course_code + " Level: " + level)\n',
+            defaultStdin: '',
+            testScript: `
+assert _out_lines == ["Course: OCR J277 Level: 2"], f"Expected 'Course: OCR J277 Level: 2', got {_out_lines}."
+`
+          }
+        ]
+      },
+      {
+        id: 'w2',
+        number: 2,
+        title: 'Data Types & Arithmetic',
+        spec: 'J277 2.2.1 & 2.2.3',
+        xpRequired: 75,
+        description: 'Handle user input, type casting (int, float, str), DIV (//), MOD (%), and rounding.',
+        challenges: [
+          {
+            id: 'w2_c1',
+            title: '2.1 Casting User Input',
+            xp: 30,
+            story: 'input() always returns a string. To perform arithmetic, you must cast it using int() or float().',
+            example: 'age = int(input())\nnext_age = age + 1\nprint(next_age)',
+            criteria: [
+              'Read two whole numbers using input() and convert them with int().',
+              'Calculate their sum and print: Total: <sum>'
+            ],
+            hints: [
+              'a = int(input()) and b = int(input()) reads two separate inputs.',
+              'Use print("Total: " + str(a + b)) or print(f"Total: {a + b}").'
+            ],
+            starterCode: '# Read two integers from input() and print Total: <sum>\n',
+            defaultStdin: '14, 28',
+            testScript: `
+out1 = _run_with_inputs(["14", "28"])
+assert out1 == ["Total: 42"], f"For inputs 14 and 28, expected 'Total: 42', got {out1}."
+out2 = _run_with_inputs(["100", "25"])
+assert out2 == ["Total: 125"], f"For inputs 100 and 25, expected 'Total: 125', got {out2}."
+`
+          },
+          {
+            id: 'w2_c2',
+            title: '2.2 DIV (//) and MOD (%)',
+            xp: 30,
+            story: 'OCR exams frequently test integer division (//) and remainder/modulus (%) for time and grouping problems.',
+            example: 'mins = 135\nhours = mins // 60\nrem = mins % 60',
+            criteria: [
+              'Read total_minutes as an integer from input().',
+              'Compute whole hours using // and remaining minutes using %.',
+              'Print: <hours>h <rem>m (e.g. 2h 15m)'
+            ],
+            hints: [
+              'There are 60 minutes in an hour: hours = total_minutes // 60.',
+              'Use rem = total_minutes % 60 for the leftover minutes.'
+            ],
+            starterCode: 'total_minutes = int(input())\n# Calculate hours and remaining minutes\n',
+            defaultStdin: '135',
+            testScript: `
+assert _run_with_inputs(["135"]) == ["2h 15m"], "135 minutes should output '2h 15m'."
+assert _run_with_inputs(["50"]) == ["0h 50m"], "50 minutes should output '0h 50m'."
+`
+          },
+          {
+            id: 'w2_c3',
+            title: '2.3 Floating Point & Rounding',
+            xp: 35,
+            story: 'Real numbers (float) store decimals. Use round(value, 2) to format currency or averages cleanly.',
+            example: 'price = float(input())\nwith_vat = round(price * 1.2, 2)',
+            criteria: [
+              'Read a bill amount as a float from input().',
+              'Add a 15% tip (multiply by 1.15) and round to 2 decimal places.',
+              'Print the rounded result.'
+            ],
+            hints: [
+              'Convert input using bill = float(input()).',
+              'Calculate total = round(bill * 1.15, 2) and print(total).'
+            ],
+            starterCode: 'bill = float(input())\n# Add 15% tip and round to 2 decimal places\n',
+            defaultStdin: '42.50',
+            testScript: `
+assert _run_with_inputs(["42.50"]) == ["48.88"], "42.50 * 1.15 rounded to 2dp should be 48.88."
+assert _run_with_inputs(["20.00"]) == ["23.0"], "20.00 * 1.15 rounded to 2dp should be 23.0."
+`
+          },
+          {
+            id: 'w2_c4',
+            title: '2.4 File Size Calculator',
+            xp: 35,
+            story: 'Apply OCR data representation arithmetic: calculate uncompressed sound file size in bytes.',
+            example: '# bytes = (sample_rate * bit_depth * duration) // 8',
+            criteria: [
+              'Read sample_rate (int), bit_depth (int), and duration_sec (int) from input().',
+              'Calculate file size in bytes: (sample_rate * bit_depth * duration_sec) // 8.',
+              'Print: Bytes: <size>'
+            ],
+            hints: [
+              'Read all three integers in order: sample_rate, bit_depth, duration_sec.',
+              'Divide bits by 8 using integer division // 8.'
+            ],
+            starterCode: '# Read sample_rate, bit_depth, and duration_sec\n',
+            defaultStdin: '44100, 16, 10',
+            testScript: `
+assert _run_with_inputs(["44100", "16", "10"]) == ["Bytes: 882000"], "Expected 'Bytes: 882000'."
+assert _run_with_inputs(["8000", "8", "5"]) == ["Bytes: 40000"], "Expected 'Bytes: 40000'."
+`
+          }
+        ]
+      },
+      {
+        id: 'w3',
+        number: 3,
+        title: 'Selection & Boolean Logic',
+        spec: 'J277 2.2.1 & 2.4.1',
+        xpRequired: 170,
+        description: 'Control program flow using if, elif, else, relational comparisons, and Boolean operators (and, or, not).',
+        challenges: [
+          {
+            id: 'w3_c1',
+            title: '3.1 Pass or Retake',
+            xp: 30,
+            story: 'Selection statements allow programs to make decisions based on a condition.',
+            example: 'if score >= 50:\n    print("Pass")\nelse:\n    print("Retake")',
+            criteria: [
+              'Read an integer exam mark from input().',
+              'If mark is 40 or higher, print "Pass"; otherwise print "Retake".'
+            ],
+            hints: [
+              'Remember the colon : at the end of if and else, and 4 spaces indentation.',
+              'Boundary check: 40 itself must output "Pass" (use >= 40).'
+            ],
+            starterCode: 'mark = int(input())\n# Write your if / else selection below\n',
+            defaultStdin: '40',
+            testScript: `
+assert _run_with_inputs(["40"]) == ["Pass"], "Boundary mark 40 should print 'Pass'."
+assert _run_with_inputs(["39"]) == ["Retake"], "Mark 39 should print 'Retake'."
+assert _run_with_inputs(["75"]) == ["Pass"], "Mark 75 should print 'Pass'."
+`
+          },
+          {
+            id: 'w3_c2',
+            title: '3.2 GCSE Grade Classifier',
+            xp: 35,
+            story: 'Use chained elif branches to classify exam percentages into GCSE grade bands.',
+            example: 'if pct >= 80:\n    print("Grade 9")\nelif pct >= 70:\n    print("Grade 8")',
+            criteria: [
+              'Read an integer percentage from input().',
+              'Print "Grade 9" if >= 80, "Grade 7" if >= 65, "Grade 5" if >= 50, else "Grade 3".'
+            ],
+            hints: [
+              'Always test the highest threshold (>= 80) first so higher scores do not get caught by >= 50.',
+              'Use if, elif, elif, else.'
+            ],
+            starterCode: 'pct = int(input())\n# Classify into Grade 9, Grade 7, Grade 5, or Grade 3\n',
+            defaultStdin: '72',
+            testScript: `
+assert _run_with_inputs(["85"]) == ["Grade 9"], "85 should be Grade 9."
+assert _run_with_inputs(["72"]) == ["Grade 7"], "72 should be Grade 7."
+assert _run_with_inputs(["50"]) == ["Grade 5"], "50 should be Grade 5."
+assert _run_with_inputs(["42"]) == ["Grade 3"], "42 should be Grade 3."
+`
+          },
+          {
+            id: 'w3_c3',
+            title: '3.3 Boolean Logic Gates',
+            xp: 35,
+            story: 'Combine conditions using Python Boolean operators: and, or, and not.',
+            example: 'if has_ticket and age >= 12:\n    print("Entry Granted")',
+            criteria: [
+              'Read age (int) and has_pass ("yes" or "no") from input().',
+              'Print "VIP Access" if age >= 16 and has_pass == "yes", otherwise print "Standard Queue".'
+            ],
+            hints: [
+              'Use == to compare strings: has_pass == "yes".',
+              'Combine both checks on one line with and.'
+            ],
+            starterCode: 'age = int(input())\nhas_pass = input()\n# Check VIP Access condition\n',
+            defaultStdin: '16, yes',
+            testScript: `
+assert _run_with_inputs(["16", "yes"]) == ["VIP Access"], "16 and yes -> VIP Access."
+assert _run_with_inputs(["15", "yes"]) == ["Standard Queue"], "15 and yes -> Standard Queue."
+assert _run_with_inputs(["18", "no"]) == ["Standard Queue"], "18 and no -> Standard Queue."
+`
+          },
+          {
+            id: 'w3_c4',
+            title: '3.4 Smart Thermostat (Nested If)',
+            xp: 40,
+            story: 'Nested selection tests secondary conditions inside an outer branch.',
+            example: 'if mode == "auto":\n    if temp < 19:\n        print("Heating On")',
+            criteria: [
+              'Read mode ("auto" or "off") and temp (int) from input().',
+              'If mode is "off", print "System Off".',
+              'If mode is "auto", print "Heating On" when temp < 19, else print "Standby".'
+            ],
+            hints: [
+              'Check mode == "off" first.',
+              'Inside the elif mode == "auto": block, write an inner if temp < 19: statement.'
+            ],
+            starterCode: 'mode = input()\ntemp = int(input())\n# Implement thermostat decision logic\n',
+            defaultStdin: 'auto, 17',
+            testScript: `
+assert _run_with_inputs(["off", "15"]) == ["System Off"], "off -> System Off."
+assert _run_with_inputs(["auto", "17"]) == ["Heating On"], "auto + 17 -> Heating On."
+assert _run_with_inputs(["auto", "21"]) == ["Standby"], "auto + 21 -> Standby."
+`
+          }
+        ]
+      },
+      {
+        id: 'w4',
+        number: 4,
+        title: 'Iteration & Loops',
+        spec: 'J277 2.2.1',
+        xpRequired: 275,
+        description: 'Master count-controlled loops (for / range) and condition-controlled loops (while).',
+        challenges: [
+          {
+            id: 'w4_c1',
+            title: '4.1 Times Table Generator',
+            xp: 35,
+            story: 'Count-controlled for loops repeat code a known number of times using range(start, stop).',
+            example: 'for i in range(1, 6):\n    print(i * 2)',
+            criteria: [
+              'Read an integer n from input().',
+              'Use a for loop to print the first 5 multiples of n (from 1*n up to 5*n), one per line.'
+            ],
+            hints: [
+              'Remember range(1, 6) generates 1, 2, 3, 4, 5 (stop value 6 is exclusive).',
+              'Inside the loop, print(i * n).'
+            ],
+            starterCode: 'n = int(input())\n# Print 1*n through 5*n\n',
+            defaultStdin: '7',
+            testScript: `
+assert _run_with_inputs(["7"]) == ["7", "14", "21", "28", "35"], "7 times table (1..5) failed."
+assert _run_with_inputs(["3"]) == ["3", "6", "9", "12", "15"], "3 times table (1..5) failed."
+`
+          },
+          {
+            id: 'w4_c2',
+            title: '4.2 Running Total Accumulator',
+            xp: 35,
+            story: 'An accumulator variable starts at 0 and adds new values on every loop iteration.',
+            example: 'total = 0\nfor i in range(3):\n    total = total + int(input())',
+            criteria: [
+              'Read 4 integers from input() inside a loop.',
+              'Accumulate their sum and print: Sum: <total>'
+            ],
+            hints: [
+              'Initialise total = 0 before the for loop begins.',
+              'Use for i in range(4): and total += int(input()).'
+            ],
+            starterCode: 'total = 0\n# Read 4 numbers and add them to total\n',
+            defaultStdin: '10, 20, 5, 15',
+            testScript: `
+assert _run_with_inputs(["10", "20", "5", "15"]) == ["Sum: 50"], "Expected 'Sum: 50'."
+assert _run_with_inputs(["1", "2", "3", "4"]) == ["Sum: 10"], "Expected 'Sum: 10'."
+`
+          },
+          {
+            id: 'w4_c3',
+            title: '4.3 Sentinel While Loop',
+            xp: 40,
+            story: 'Condition-controlled while loops repeat until a sentinel value (such as "STOP") is entered.',
+            example: 'word = input()\nwhile word != "STOP":\n    count += 1\n    word = input()',
+            criteria: [
+              'Repeatedly read strings from input() until "STOP" is entered.',
+              'Count how many non-STOP items were entered and print: Items: <count>'
+            ],
+            hints: [
+              'Read the first item before the while loop, and the next item at the bottom of the loop.',
+              'Do not include "STOP" itself in the count.'
+            ],
+            starterCode: 'count = 0\nitem = input()\n# Loop until item == "STOP"\n',
+            defaultStdin: 'CPU, RAM, SSD, STOP',
+            testScript: `
+assert _run_with_inputs(["CPU", "RAM", "SSD", "STOP"]) == ["Items: 3"], "Expected 'Items: 3'."
+assert _run_with_inputs(["STOP"]) == ["Items: 0"], "Expected 'Items: 0' when STOP is first."
+`
+          },
+          {
+            id: 'w4_c4',
+            title: '4.4 Range Validation Loop',
+            xp: 40,
+            story: 'While loops are widely used in OCR algorithms to reject out-of-range inputs until valid data arrives.',
+            example: 'num = int(input())\nwhile num < 1 or num > 10:\n    num = int(input())',
+            criteria: [
+              'Keep reading integers from input() while the number is less than 1 or greater than 100.',
+              'Once a valid number (1 to 100 inclusive) is entered, print: Valid: <num>'
+            ],
+            hints: [
+              'The loop condition for invalid data is: while num < 1 or num > 100:',
+              'Print("Valid: " + str(num)) after the while loop finishes.'
+            ],
+            starterCode: 'num = int(input())\n# Repeat until 1 <= num <= 100\n',
+            defaultStdin: '-5, 150, 42',
+            testScript: `
+assert _run_with_inputs(["-5", "150", "42"]) == ["Valid: 42"], "Expected 'Valid: 42'."
+assert _run_with_inputs(["1"]) == ["Valid: 1"], "Boundary 1 should be accepted."
+assert _run_with_inputs(["100"]) == ["Valid: 100"], "Boundary 100 should be accepted."
+`
+          }
+        ]
+      },
+      {
+        id: 'w5',
+        number: 5,
+        title: 'String Manipulation',
+        spec: 'J277 2.2.3',
+        xpRequired: 390,
+        description: 'Inspect and transform text using len(), indexing, slicing, case methods, and character traversal.',
+        challenges: [
+          {
+            id: 'w5_c1',
+            title: '5.1 Length & Case Methods',
+            xp: 35,
+            story: 'OCR exams specify len(), .upper(), and .lower() for standard string manipulation.',
+            example: 'code = "ocr"\nprint(code.upper(), len(code))',
+            criteria: [
+              'Read a word from input().',
+              'Print the uppercase version on line 1, and its character length on line 2.'
+            ],
+            hints: [
+              'Use word.upper() to convert to uppercase.',
+              'Use len(word) to find the number of characters.'
+            ],
+            starterCode: 'word = input()\n# Print uppercase word and its length\n',
+            defaultStdin: 'Algorithm',
+            testScript: `
+assert _run_with_inputs(["Algorithm"]) == ["ALGORITHM", "9"], "Expected ['ALGORITHM', '9']."
+assert _run_with_inputs(["cpu"]) == ["CPU", "3"], "Expected ['CPU', '3']."
+`
+          },
+          {
+            id: 'w5_c2',
+            title: '5.2 Slicing & Username Builder',
+            xp: 40,
+            story: 'String slicing extracts substrings using [start:stop], such as word[0:3] for the first 3 letters.',
+            example: 'prefix = "Computer"[0:4]  # "Comp"',
+            criteria: [
+              'Read first_name and year_joined from input().',
+              'Build a username from the first 3 letters of first_name (lowercase) + year_joined.',
+              'Print the generated username.'
+            ],
+            hints: [
+              'Slice the first 3 characters with first_name[0:3] and call .lower().',
+              'Join with year_joined using +.'
+            ],
+            starterCode: 'first_name = input()\nyear_joined = input()\n# Build and print username\n',
+            defaultStdin: 'Charlotte, 2026',
+            testScript: `
+assert _run_with_inputs(["Charlotte", "2026"]) == ["cha2026"], "Expected 'cha2026'."
+assert _run_with_inputs(["ben", "2025"]) == ["ben2025"], "Expected 'ben2025'."
+`
+          },
+          {
+            id: 'w5_c3',
+            title: '5.3 Vowel Counter',
+            xp: 40,
+            story: 'Iterating through a string character-by-character lets you inspect or count specific letters.',
+            example: 'for ch in text:\n    if ch in "aeiou":\n        vowels += 1',
+            criteria: [
+              'Read a sentence from input().',
+              'Count how many vowels (a, e, i, o, u — uppercase or lowercase) appear.',
+              'Print: Vowels: <count>'
+            ],
+            hints: [
+              'Convert text.lower() first so you only have to check "aeiou".',
+              'Loop with for ch in text.lower(): and check if ch in "aeiou":'
+            ],
+            starterCode: 'text = input()\n# Count vowels and print Vowels: <count>\n',
+            defaultStdin: 'Computer Science',
+            testScript: `
+assert _run_with_inputs(["Computer Science"]) == ["Vowels: 6"], "Computer Science has 6 vowels."
+assert _run_with_inputs(["AEIOU"]) == ["Vowels: 5"], "AEIOU has 5 vowels."
+`
+          },
+          {
+            id: 'w5_c4',
+            title: '5.4 Palindrome Detector',
+            xp: 45,
+            story: 'A palindrome reads the same forwards and backwards (e.g. "radar" or "Level").',
+            example: 'rev = word[::-1]',
+            criteria: [
+              'Read a word from input() and ignore case differences.',
+              'Print "Palindrome" if it reads the same backwards, otherwise print "Not Palindrome".'
+            ],
+            hints: [
+              'Normalise case with clean = word.lower().',
+              'Reverse a string in Python with clean[::-1].'
+            ],
+            starterCode: 'word = input()\n# Check if word is a palindrome\n',
+            defaultStdin: 'Level',
+            testScript: `
+assert _run_with_inputs(["Level"]) == ["Palindrome"], "Level should be Palindrome."
+assert _run_with_inputs(["Python"]) == ["Not Palindrome"], "Python should be Not Palindrome."
+`
+          }
+        ]
+      },
+      {
+        id: 'w6',
+        number: 6,
+        title: 'Lists & 2D Arrays',
+        spec: 'J277 2.2.3 & 2.1.3',
+        xpRequired: 510,
+        description: 'Store collections in 1D lists and 2D grids, and implement linear search and max-value algorithms.',
+        challenges: [
+          {
+            id: 'w6_c1',
+            title: '6.1 List Indexing & Append',
+            xp: 40,
+            story: 'Python lists model 1D arrays. Lists are zero-indexed: items[0] is the first element.',
+            example: 'items = ["CPU", "RAM"]\nitems.append("GPU")\nprint(len(items))',
+            criteria: [
+              'Start with components = ["Monitor", "Keyboard", "Mouse"].',
+              'Read a new item from input() and append it to components.',
+              'Print the first item, the last item, and the new list length (3 lines).'
+            ],
+            hints: [
+              'Use components.append(new_item).',
+              'components[0] gets the first item; components[-1] gets the last item.'
+            ],
+            starterCode: 'components = ["Monitor", "Keyboard", "Mouse"]\nnew_item = input()\n# Append and print first, last, and length\n',
+            defaultStdin: 'Webcam',
+            testScript: `
+assert _run_with_inputs(["Webcam"]) == ["Monitor", "Webcam", "4"], "Expected ['Monitor', 'Webcam', '4']."
+`
+          },
+          {
+            id: 'w6_c2',
+            title: '6.2 OCR Linear Search',
+            xp: 45,
+            story: 'Linear search checks every element in a list from index 0 until the target is found or the list ends.',
+            example: 'found = False\nfor item in data:\n    if item == target:\n        found = True',
+            criteria: [
+              'Search the list users = ["mia", "noah", "liam", "zara", "omar"] for a target read from input().',
+              'Print "Found at index <i >" (e.g. Found at index 2) or "Not Found".'
+            ],
+            hints: [
+              'Loop over indices: for i in range(len(users)):',
+              'Track a Boolean flag found = False so you know whether to print "Not Found" after the loop.'
+            ],
+            starterCode: 'users = ["mia", "noah", "liam", "zara", "omar"]\ntarget = input()\n# Implement linear search\n',
+            defaultStdin: 'liam',
+            testScript: `
+assert _run_with_inputs(["liam"]) == ["Found at index 2"], "liam is at index 2."
+assert _run_with_inputs(["omar"]) == ["Found at index 4"], "omar is at index 4."
+assert _run_with_inputs(["alex"]) == ["Not Found"], "alex is Not Found."
+`
+          },
+          {
+            id: 'w6_c3',
+            title: '6.3 Finding the Maximum Score',
+            xp: 45,
+            story: 'Traversing an array to track the highest value is a classic Paper 2 algorithm question.',
+            example: 'highest = scores[0]\nfor s in scores:\n    if s > highest:\n        highest = s',
+            criteria: [
+              'Given scores = [42, 88, 67, 95, 73, 91], find the maximum value without using max().',
+              'Print: Highest: 95'
+            ],
+            hints: [
+              'Set highest = scores[0] before starting your loop.',
+              'Update highest whenever a score is greater than highest.'
+            ],
+            starterCode: 'scores = [42, 88, 67, 95, 73, 91]\n# Find the highest score using a loop\n',
+            defaultStdin: '',
+            testScript: `
+assert "max(" not in _code, "Solve this using a loop rather than built-in max()."
+assert _out_lines == ["Highest: 95"], f"Expected 'Highest: 95', got {_out_lines}."
+`
+          },
+          {
+            id: 'w6_c4',
+            title: '6.4 2D Arrays (Student Grid)',
+            xp: 50,
+            story: 'A 2D array is a list of lists accessed via grid[row][col].',
+            example: 'grid = [["Alice", 78], ["Ben", 84]]\nprint(grid[1][0], grid[1][1])',
+            criteria: [
+              'Using the provided 2D list results, calculate the total of all Paper 1 and Paper 2 marks across all 3 students.',
+              'Print: Total Marks: <total>'
+            ],
+            hints: [
+              'Each row has [name, paper1, paper2] at indices 0, 1, and 2.',
+              'Loop for row in results: and add row[1] + row[2] to total.'
+            ],
+            starterCode: 'results = [\n    ["Maya", 64, 70],\n    ["Leo", 58, 62],\n    ["Priya", 76, 80]\n]\n# Sum all Paper 1 and Paper 2 marks\n',
+            defaultStdin: '',
+            testScript: `
+assert _out_lines == ["Total Marks: 410"], f"Expected 'Total Marks: 410', got {_out_lines}."
+`
+          }
+        ]
+      },
+      {
+        id: 'w7',
+        number: 7,
+        title: 'Subroutines & Modular Code',
+        spec: 'J277 2.2.2',
+        xpRequired: 650,
+        description: 'Decompose programs into reusable procedures and functions with parameters and return values.',
+        challenges: [
+          {
+            id: 'w7_c1',
+            title: '7.1 Procedures with Parameters',
+            xp: 40,
+            story: 'A procedure performs a task using parameters passed into it, without returning a value.',
+            example: 'def banner(title):\n    print("=== " + title + " ===")',
+            criteria: [
+              'Define a procedure print_badge(name, role) that prints: [<role>] <name>',
+              'Call print_badge("Elena", "Admin") so it outputs: [Admin] Elena'
+            ],
+            hints: [
+              'Define with def print_badge(name, role):',
+              'Inside the procedure: print("[" + role + "] " + name)'
+            ],
+            starterCode: '# Define print_badge(name, role) and call it\n',
+            defaultStdin: '',
+            testScript: `
+assert 'print_badge' in _ns and callable(_ns['print_badge']), "Function/procedure 'print_badge' not found."
+assert _out_lines == ["[Admin] Elena"], f"Expected '[Admin] Elena', got {_out_lines}."
+`
+          },
+          {
+            id: 'w7_c2',
+            title: '7.2 Functions with Return',
+            xp: 45,
+            story: 'Unlike procedures, functions calculate a value and pass it back to the caller using return.',
+            example: 'def area(w, h):\n    return w * h',
+            criteria: [
+              'Define a function calc_kinetic_energy(mass, velocity) returning 0.5 * mass * (velocity ** 2).',
+              'Print the result of calc_kinetic_energy(10, 4) (which is 80.0).'
+            ],
+            hints: [
+              'Use return 0.5 * mass * (velocity ** 2) inside your function.',
+              'Then call print(calc_kinetic_energy(10, 4)).'
+            ],
+            starterCode: '# Define calc_kinetic_energy(mass, velocity)\n',
+            defaultStdin: '',
+            testScript: `
+assert 'calc_kinetic_energy' in _ns, "Define calc_kinetic_energy(mass, velocity)."
+assert _ns['calc_kinetic_energy'](10, 4) == 80.0, "calc_kinetic_energy(10, 4) should return 80.0."
+assert _ns['calc_kinetic_energy'](4, 3) == 18.0, "calc_kinetic_energy(4, 3) should return 18.0."
+assert _out_lines == ["80.0"], "Print the returned result 80.0."
+`
+          },
+          {
+            id: 'w7_c3',
+            title: '7.3 Boolean Validator Function',
+            xp: 45,
+            story: 'Returning True or False from helper functions keeps main program logic clean and readable.',
+            example: 'def is_even(n):\n    return n % 2 == 0',
+            criteria: [
+              'Define a function is_strong_password(pwd) that returns True if len(pwd) >= 8 and any digit is present, else False.',
+              'Print the result of is_strong_password("Python26").'
+            ],
+            hints: [
+              'You can check for digits with any(ch.isdigit() for ch in pwd).',
+              'Return len(pwd) >= 8 and any(ch.isdigit() for ch in pwd).'
+            ],
+            starterCode: '# Define is_strong_password(pwd)\n',
+            defaultStdin: '',
+            testScript: `
+assert 'is_strong_password' in _ns, "Define is_strong_password(pwd)."
+fn = _ns['is_strong_password']
+assert fn("Python26") is True, "'Python26' should return True."
+assert fn("Python") is False, "'Python' has no digit -> False."
+assert fn("Py26") is False, "'Py26' is under 8 chars -> False."
+`
+          },
+          {
+            id: 'w7_c4',
+            title: '7.4 Modular Discount Calculator',
+            xp: 50,
+            story: 'Combine helper functions to solve a multi-step problem cleanly.',
+            example: 'def apply_discount(price, pct):\n    return round(price * (1 - pct / 100), 2)',
+            criteria: [
+              'Define final_price(price, is_member) which applies a 20% discount if is_member is True, or 5% if False, rounded to 2 decimal places.',
+              'Print final_price(50.0, True) on line 1 and final_price(50.0, False) on line 2.'
+            ],
+            hints: [
+              'If is_member is True, multiply price by 0.80; otherwise multiply by 0.95.',
+              'Return round(result, 2).'
+            ],
+            starterCode: '# Define final_price(price, is_member)\n',
+            defaultStdin: '',
+            testScript: `
+assert 'final_price' in _ns, "Define final_price(price, is_member)."
+fn = _ns['final_price']
+assert fn(50.0, True) == 40.0, "50.0 with member discount should be 40.0."
+assert fn(50.0, False) == 47.5, "50.0 without member discount should be 47.5."
+assert _out_lines == ["40.0", "47.5"], f"Expected ['40.0', '47.5'], got {_out_lines}."
+`
+          }
+        ]
+      },
+      {
+        id: 'w8',
+        number: 8,
+        title: 'File Handling & Data Records',
+        spec: 'J277 2.2.3',
+        xpRequired: 800,
+        description: 'Read, write, append, and parse structured text/CSV files in Python’s virtual filesystem.',
+        challenges: [
+          {
+            id: 'w8_c1',
+            title: '8.1 Writing to a Text File',
+            xp: 45,
+            story: 'Persistent storage writes data to secondary storage using open(filename, "w") and .write().',
+            example: 'f = open("log.txt", "w")\nf.write("Entry 1\\n")\nf.close()',
+            criteria: [
+              'Open "highscores.txt" in write mode ("w").',
+              'Write two lines: "Ava:920" and "Noah:875" (separated by \\n) and close the file.',
+              'Print "Saved".'
+            ],
+            hints: [
+              'Remember to include \\n at the end of the first line so both records sit on separate lines.',
+              'Always call f.close() (or use with open(...) as f:) so buffers flush to disk.'
+            ],
+            starterCode: '# Write Ava:920 and Noah:875 to highscores.txt\n',
+            defaultStdin: '',
+            testScript: `
+import os
+assert os.path.exists("highscores.txt"), "File 'highscores.txt' was not created."
+with open("highscores.txt", "r") as _f:
+    _lines = [l.strip() for l in _f.readlines() if l.strip()]
+assert _lines == ["Ava:920", "Noah:875"], f"Expected ['Ava:920', 'Noah:875'], got {_lines}."
+assert _out_lines == ["Saved"], "Print 'Saved' after closing the file."
+`
+          },
+          {
+            id: 'w8_c2',
+            title: '8.2 Reading & Counting Lines',
+            xp: 45,
+            story: 'Reading files line-by-line lets your program process external datasets.',
+            example: 'with open("data.txt", "r") as f:\n    for line in f:\n        print(line.strip())',
+            criteria: [
+              'A file "cities.txt" has been pre-created with several city names.',
+              'Read the file, strip whitespace, and print: Total Cities: <count>'
+            ],
+            hints: [
+              'Open "cities.txt" in read mode ("r").',
+              'Count non-empty lines with line.strip().'
+            ],
+            starterCode: '# Read cities.txt and print Total Cities: <count>\n',
+            defaultStdin: '',
+            setupPython: `
+with open("cities.txt", "w") as _f:
+    _f.write("London\\nBristol\\nManchester\\nLeeds\\nCardiff\\n")
+`,
+            testScript: `
+assert _out_lines == ["Total Cities: 5"], f"Expected 'Total Cities: 5', got {_out_lines}."
+`
+          },
+          {
+            id: 'w8_c3',
+            title: '8.3 Appending Records ("a")',
+            xp: 45,
+            story: 'Opening a file with "a" (append) adds new records to the end without erasing existing lines.',
+            example: 'with open("audit.txt", "a") as f:\n    f.write("New event\\n")',
+            criteria: [
+              'A file "audit.txt" already contains "BOOT_OK".',
+              'Open "audit.txt" in append mode ("a") and add "LOGIN_OK" on a new line.',
+              'Read back and print the total number of lines in "audit.txt" (which should be 2).'
+            ],
+            hints: [
+              'Do NOT use "w" mode or it will overwrite "BOOT_OK"!',
+              'Use open("audit.txt", "a") and write("\\nLOGIN_OK").'
+            ],
+            starterCode: '# Append LOGIN_OK to audit.txt and print total line count\n',
+            defaultStdin: '',
+            setupPython: `
+with open("audit.txt", "w") as _f:
+    _f.write("BOOT_OK")
+`,
+            testScript: `
+with open("audit.txt", "r") as _f:
+    _lines = [l.strip() for l in _f.readlines() if l.strip()]
+assert _lines == ["BOOT_OK", "LOGIN_OK"], f"Expected ['BOOT_OK', 'LOGIN_OK'], got {_lines}."
+assert _out_lines == ["2"], f"Expected printed count '2', got {_out_lines}."
+`
+          },
+          {
+            id: 'w8_c4',
+            title: '8.4 Parsing CSV Fields (.split)',
+            xp: 55,
+            story: 'Comma-Separated Values (CSV) files store records that can be split into fields using line.split(",").',
+            example: 'parts = "Sam,85".split(",")\nname = parts[0]\nmark = int(parts[1])',
+            criteria: [
+              'A file "marks.csv" contains lines formatted as Name,Score.',
+              'Read "marks.csv" and print the name of every student who scored 70 or more, one per line.'
+            ],
+            hints: [
+              'Use parts = line.strip().split(",") to separate name and score.',
+              'Convert parts[1] to int(parts[1]) before comparing >= 70.'
+            ],
+            starterCode: '# Parse marks.csv and print names with score >= 70\n',
+            defaultStdin: '',
+            setupPython: `
+with open("marks.csv", "w") as _f:
+    _f.write("Zara,82\\nToby,64\\nAmir,70\\nChloe,55\\nHannah,91\\n")
+`,
+            testScript: `
+assert _out_lines == ["Zara", "Amir", "Hannah"], f"Expected ['Zara', 'Amir', 'Hannah'], got {_out_lines}."
+`
+          }
+        ]
+      },
+      {
+        id: 'w9',
+        number: 9,
+        title: 'Robust Programming & Defensive Design',
+        spec: 'J277 2.3.1 & 2.3.2',
+        xpRequired: 960,
+        description: 'Build crash-resistant programs using try/except, input validation checks, authentication routines, and boundary testing.',
+        challenges: [
+          {
+            id: 'w9_c1',
+            title: '9.1 Type & Range Validation (try/except)',
+            xp: 40,
+            story: 'Defensive design anticipates invalid user input so programs never crash with ValueError.',
+            example: 'while True:\n    try:\n        n = int(input())\n        if 1 <= n <= 10:\n            break\n    except ValueError:\n        pass',
+            criteria: [
+              'Repeatedly read input() until the user enters a valid integer between 11 and 18 inclusive.',
+              'Catch non-numeric input safely with try / except ValueError without crashing.',
+              'Once valid, print: Accepted: <age>'
+            ],
+            hints: [
+              'Put age = int(input()) inside a try: block and catch except ValueError:.',
+              'Only exit the loop when 11 <= age <= 18 is True.'
+            ],
+            starterCode: '# Loop safely with try/except until an integer 11..18 is entered\n',
+            defaultStdin: 'abc, 5, 22, 15',
+            testScript: `
+assert _run_with_inputs(["abc", "5", "22", "15"]) == ["Accepted: 15"], "Failed mixed invalid/valid sequence."
+assert _run_with_inputs(["11"]) == ["Accepted: 11"], "Lower boundary 11 failed."
+assert _run_with_inputs(["18"]) == ["Accepted: 18"], "Upper boundary 18 failed."
+`
+          },
+          {
+            id: 'w9_c2',
+            title: '9.2 Presence, Length & Format Checks',
+            xp: 45,
+            story: 'OCR J277 2.3 requires presence checks, length checks, and format checks to sanitise data.',
+            example: 'clean = raw.strip()\nif len(clean) >= 4 and clean.isalnum():\n    return True',
+            criteria: [
+              'Define validate_username(username) that strips outer spaces first.',
+              'Return True ONLY if: non-empty (presence), length 4 to 12 inclusive (length), and alphanumeric .isalnum() (format). Otherwise return False.'
+            ],
+            hints: [
+              'Use clean = username.strip() first so spaces-only strings fail.',
+              'Check 4 <= len(clean) <= 12 and clean.isalnum().'
+            ],
+            starterCode: '# Define validate_username(username)\n',
+            defaultStdin: '',
+            testScript: `
+assert 'validate_username' in _ns, "Define validate_username(username)."
+fn = _ns['validate_username']
+assert fn("") is False, "Empty string must fail presence check."
+assert fn("    ") is False, "Whitespace-only string must fail presence check."
+assert fn("abc") is False, "Length 3 must fail length check."
+assert fn("user_1") is False, "Underscore must fail alphanumeric format check."
+assert fn("  Alex26  ") is True, "'  Alex26  ' trimmed is valid."
+assert fn("abcd1234efgh") is True, "Length 12 boundary should pass."
+assert fn("abcd1234efghi") is False, "Length 13 should fail."
+`
+          },
+          {
+            id: 'w9_c3',
+            title: '9.3 Authentication & Maintainability',
+            xp: 45,
+            story: 'Authentication verifies user identity before granting access, supported by clear constants and comments.',
+            example: 'VALID_USER = "admin"\nVALID_PASS = "J277!"\nMAX_ATTEMPTS = 3',
+            criteria: [
+              'Use constants VALID_USER = "student1", VALID_PASS = "PyQuest99", and MAX_ATTEMPTS = 3.',
+              'Allow up to 3 attempts reading username then password from input().',
+              'Print "Access Granted" immediately on match, or "Account Locked" after 3 failed attempts.'
+            ],
+            hints: [
+              'Loop up to MAX_ATTEMPTS times; if both username == VALID_USER and password == VALID_PASS, print "Access Granted" and break.',
+              'Track a Boolean authenticated = False so you print "Account Locked" only if all 3 attempts fail.'
+            ],
+            starterCode: 'VALID_USER = "student1"\nVALID_PASS = "PyQuest99"\nMAX_ATTEMPTS = 3\n\n# Implement 3-attempt authentication loop\n',
+            defaultStdin: 'student1, wrong, student1, PyQuest99',
+            testScript: `
+assert _run_with_inputs(["student1", "PyQuest99"]) == ["Access Granted"], "1st attempt valid failed."
+assert _run_with_inputs(["a", "b", "c", "d", "student1", "PyQuest99"]) == ["Access Granted"], "3rd attempt valid failed."
+assert _run_with_inputs(["a", "b", "c", "d", "e", "f"]) == ["Account Locked"], "3 failed attempts should lock."
+`
+          },
+          {
+            id: 'w9_c4',
+            title: '9.4 Boundary & Erroneous Test Design',
+            xp: 50,
+            story: 'Robust functions validate parameters against normal, boundary, and erroneous data (raising ValueError).',
+            example: 'if type(age) is not int or age < 0 or age > 120:\n    raise ValueError("Invalid age")',
+            criteria: [
+              'Define calculate_ticket_price(age, is_student).',
+              'Raise ValueError("Invalid age") if age is not an int (note: bool is a subclass of int in Python!), or if age < 0 or age > 120.',
+              'Pricing: Free (0.0) if age < 5; £5.0 if age <= 17 or age >= 65; £7.5 if is_student is True; else £10.0.'
+            ],
+            hints: [
+              'Check type(age) is not int (or isinstance(age, bool)) before comparing < 0 or > 120.',
+              'Check child/senior concession (age <= 17 or age >= 65) before checking is_student.'
+            ],
+            starterCode: '# Define calculate_ticket_price(age, is_student)\n',
+            defaultStdin: '',
+            testScript: `
+assert 'calculate_ticket_price' in _ns, "Define calculate_ticket_price(age, is_student)."
+fn = _ns['calculate_ticket_price']
+assert fn(0, False) == 0.0, "Age 0 boundary -> 0.0"
+assert fn(4, False) == 0.0, "Age 4 boundary -> 0.0"
+assert fn(5, False) == 5.0, "Age 5 boundary -> 5.0"
+assert fn(17, False) == 5.0, "Age 17 boundary -> 5.0"
+assert fn(18, True) == 7.5, "Age 18 student -> 7.5"
+assert fn(18, False) == 10.0, "Age 18 adult -> 10.0"
+assert fn(65, False) == 5.0, "Age 65 senior boundary -> 5.0"
+for bad in [-1, 121, "ten", True]:
+    try:
+        fn(bad, False)
+        raise AssertionError(f"Expected ValueError for erroneous age {bad!r}")
+    except ValueError:
+        pass
+`
+          }
+        ]
+      }
+    ];
+
+    const TOTAL_XP_POSSIBLE = COURSE_WORLDS.reduce(
+      (sum, w) => sum + w.challenges.reduce((s, c) => s + c.xp, 0),
+      0
+    );
+
+    // ========================================================================
+    // APPLICATION STATE
+    // ========================================================================
+    let pyodideInstance = null;
+    let pyodideReady = false;
+    let activeStudent = null;
+    let isGuestSession = false;
+    let currentChallenge = null;
+    let currentWorld = null;
+    let revealedHintCount = 0;
+    let teacherUnlocked = false;
+    let teacherSandboxMode = false;
+
+    function loadStudentFromStorage() {
+      const raw = localStorage.getItem(STORAGE_KEYS.ACTIVE_STUDENT);
+      if (raw) {
+        try {
+          activeStudent = JSON.parse(raw);
+          isGuestSession = false;
+        } catch (e) {
+          activeStudent = null;
+        }
+      }
+    }
+
+    function persistStudent() {
+      if (!activeStudent || isGuestSession) {
+        updateHeaderStats();
+        return;
+      }
+      activeStudent.lastActive = new Date().toISOString();
+      localStorage.setItem(STORAGE_KEYS.ACTIVE_STUDENT, JSON.stringify(activeStudent));
+      syncStudentToTeacherMarkbook(activeStudent);
+      updateHeaderStats();
+    }
+
+    function enterGuestMode() {
+      isGuestSession = true;
+      activeStudent = {
+        version: 3,
+        name: 'Guest',
+        className: 'Guest (Not Saved)',
+        pin: '',
+        xp: 0,
+        completedIds: [],
+        drafts: {},
+        lastActive: null
+      };
+      localStorage.removeItem(STORAGE_KEYS.ACTIVE_STUDENT);
+      document.getElementById('studentLoginModal').classList.add('hidden');
+      updateHeaderStats();
+      renderCourseMap();
+      showToast('Guest mode active — progress will not be saved.');
+    }
+
+    function updateHeaderStats() {
+      const xp = activeStudent ? activeStudent.xp : 0;
+      const solved = activeStudent ? activeStudent.completedIds.length : 0;
+      const level = Math.floor(xp / 140) + 1;
+      const pct = Math.round((solved / 36) * 100);
+
+      document.getElementById('headerLevelBadge').textContent = `Lvl ${level}`;
+      document.getElementById('headerXpText').textContent = `${xp} / ${TOTAL_XP_POSSIBLE} XP`;
+      document.getElementById('headerXpBar').style.width = `${Math.min(100, (xp / TOTAL_XP_POSSIBLE) * 100)}%`;
+
+      document.getElementById('headerStudentName').textContent = activeStudent
+        ? isGuestSession
+          ? 'Guest (Sign In)'
+          : activeStudent.name
+        : 'Student Sign In';
+      document.getElementById('footerStudentInfo').textContent = activeStudent
+        ? isGuestSession
+          ? `Guest Session (Progress not saved) · ${xp} XP`
+          : `${activeStudent.name} · Class: ${activeStudent.className} · ${xp} XP`
+        : 'Browsing as Visitor · Sign in to save progress';
+
+      document.getElementById('heroCompletionPct').textContent = `${pct}%`;
+      document.getElementById('heroProgressBar').style.width = `${pct}%`;
+      document.getElementById('heroSolvedCount').textContent = `${solved} / 36 Challenges`;
+      document.getElementById('heroClassBadge').textContent = activeStudent
+        ? isGuestSession
+          ? 'Mode: Guest (Unsaved)'
+          : `Class: ${activeStudent.className}`
+        : 'Mode: Not Signed In';
+    }
+
+    // ========================================================================
+    // HELPER FUNCTIONS: TOASTS, STUDENT CREATION, JOIN CODES & MARKBOOK SYNC
+    // ========================================================================
+    function showToast(message) {
+      const container = document.getElementById('toastContainer');
+      if (!container) return;
+      const item = document.createElement('div');
+      item.className = 'toast-item';
+      item.textContent = message;
+      container.appendChild(item);
+      setTimeout(() => {
+        item.style.opacity = '0';
+        item.style.transition = 'opacity 0.25s ease';
+        setTimeout(() => item.remove(), 260);
+      }, 3200);
+    }
+
+    function createEmptyStudent(name, className, pin) {
+      return {
+        version: 3,
+        name: name.trim(),
+        className: (className || 'Unassigned').trim(),
+        pin: pin || '0000',
+        xp: 0,
+        completedIds: [],
+        drafts: {},
+        lastActive: new Date().toISOString()
+      };
+    }
+
+    function getTeacherClasses() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEYS.CLASSES) || '[]');
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function saveTeacherClasses(list) {
+      localStorage.setItem(STORAGE_KEYS.CLASSES, JSON.stringify(list));
+    }
+
+    function computeJoinChecksum(cleanPrefix, pin4) {
+      const seed = `${cleanPrefix}:${pin4}:OCRJ277`;
+      let hash = 0;
+      for (let i = 0; i < seed.length; i++) {
+        hash = (hash * 31 + seed.charCodeAt(i)) % 90 + 10;
+      }
+      return String(hash);
+    }
+
+    function resolveClassFromJoinInput(rawInput) {
+      const trimmed = (rawInput || '').trim();
+      if (!trimmed) return 'Unassigned';
+      const upper = trimmed.toUpperCase();
+      const classes = getTeacherClasses();
+
+      // 1. Match local class by exact 4-digit PIN or portable Join Code
+      const matched = classes.find(
+        c => c.pin === trimmed || c.joinCode.toUpperCase() === upper
+      );
+      if (matched) return matched.name;
+
+      // 2. Self-verifying portable Join Code across separate student PCs (e.g. 10XCS1-482934)
+      const joinMatch = upper.match(/^([A-Z0-9]{2,12})-(\d{4})(\d{2})$/);
+      if (joinMatch) {
+        const [, prefix, pin4, check] = joinMatch;
+        if (computeJoinChecksum(prefix, pin4) === check) {
+          return `${prefix} (Code ${pin4})`;
+        }
+      }
+
+      return trimmed;
+    }
+
+    function getTeacherMarkbook() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEYS.MARKBOOK) || '[]');
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function saveTeacherMarkbook(records) {
+      localStorage.setItem(STORAGE_KEYS.MARKBOOK, JSON.stringify(records));
+    }
+
+    function syncStudentToTeacherMarkbook(student) {
+      if (!student || isGuestSession) return;
+      const records = getTeacherMarkbook();
+      const key = `${student.name.trim().toLowerCase()}::${student.className.trim().toLowerCase()}`;
+      const idx = records.findIndex(
+        r => `${r.name.trim().toLowerCase()}::${r.className.trim().toLowerCase()}` === key
+      );
+      const entry = {
+        name: student.name,
+        className: student.className,
+        xp: student.xp || 0,
+        completedIds: Array.isArray(student.completedIds) ? [...student.completedIds] : [],
+        lastActive: student.lastActive || new Date().toISOString()
+      };
+      if (idx >= 0) {
+        records[idx] = entry;
+      } else {
+        records.push(entry);
+      }
+      saveTeacherMarkbook(records);
+    }
+
+    function downloadStudentSaveFile() {
+      if (!activeStudent || isGuestSession) {
+        showToast('Guest progress is not saved. Use Student Sign In to save a .json file.');
+        return;
+      }
+      const safeName = activeStudent.name.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+      const blob = new Blob([JSON.stringify(activeStudent, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `python_quest_${safeName}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      showToast('Progress file downloaded!');
+    }
+
+    function handleStudentSaveUpload(file) {
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        try {
+          const parsed = JSON.parse(ev.target.result);
+          if (!parsed || typeof parsed.name !== 'string') {
+            throw new Error('Invalid save file format.');
+          }
+          activeStudent = {
+            version: 3,
+            name: parsed.name,
+            className: parsed.className || 'Imported',
+            pin: parsed.pin || '0000',
+            xp: Number(parsed.xp) || 0,
+            completedIds: Array.isArray(parsed.completedIds) ? parsed.completedIds : [],
+            drafts: parsed.drafts || {},
+            lastActive: new Date().toISOString()
+          };
+          isGuestSession = false;
+          persistStudent();
+          document.getElementById('studentLoginModal').classList.add('hidden');
+          renderCourseMap();
+          showToast(`Welcome back, ${activeStudent.name}! (${activeStudent.xp} XP loaded)`);
+        } catch (err) {
+          showToast('Could not read save file. Please select a valid .json file.');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    // ========================================================================
+    // COURSE MAP RENDERING
+    // ========================================================================
+    function renderCourseMap() {
+      updateHeaderStats();
+      const container = document.getElementById('worldsContainer');
+      if (!container) return;
+      container.innerHTML = '';
+
+      const currentXp = activeStudent ? activeStudent.xp : 0;
+      const completedSet = new Set(activeStudent ? activeStudent.completedIds : []);
+
+      COURSE_WORLDS.forEach(world => {
+        const isUnlocked = teacherSandboxMode || currentXp >= world.xpRequired;
+        const solvedInWorld = world.challenges.filter(c => completedSet.has(c.id)).length;
+        const allWorldSolved = solvedInWorld === world.challenges.length;
+
+        const card = document.createElement('article');
+        card.className = `world-card${!isUnlocked ? ' locked' : ''}${allWorldSolved ? ' completed' : ''}`;
+
+        const headerDiv = document.createElement('div');
+        headerDiv.className = 'world-header';
+
+        const leftInfo = document.createElement('div');
+        leftInfo.innerHTML = `
+          <div class="world-title-row">
+            <div class="world-num">${allWorldSolved ? '✓' : world.number}</div>
+            <h2 class="world-title">World ${world.number}: ${world.title}</h2>
+            <span class="badge badge-slate">${world.spec}</span>
+            ${
+              !isUnlocked
+                ? `<span class="badge badge-amber">🔒 Requires ${world.xpRequired} XP</span>`
+                : `<span class="badge ${allWorldSolved ? 'badge-emerald' : 'badge-blue'}">${solvedInWorld} / ${world.challenges.length} Solved</span>`
+            }
+          </div>
+          <p class="world-desc">${world.description}</p>
+        `;
+        headerDiv.appendChild(leftInfo);
+        card.appendChild(headerDiv);
+
+        const grid = document.createElement('div');
+        grid.className = 'challenges-grid';
+
+        world.challenges.forEach(ch => {
+          const isSolved = completedSet.has(ch.id);
+          const tile = document.createElement('button');
+          tile.type = 'button';
+          tile.className = `challenge-tile${isSolved ? ' solved' : ''}`;
+          tile.disabled = !isUnlocked;
+
+          tile.innerHTML = `
+            <div class="challenge-tile-top">
+              <span class="badge ${isSolved ? 'badge-emerald' : 'badge-amber'}">${isSolved ? '✓ Solved' : `+${ch.xp} XP`}</span>
+              <span style="font-size:0.75rem; color:var(--text-muted);">${!isUnlocked ? '🔒' : '→'}</span>
+            </div>
+            <div>
+              <h3 class="challenge-tile-title">${ch.title}</h3>
+              <p class="challenge-tile-sub">${ch.story.slice(0, 74)}${ch.story.length > 74 ? '...' : ''}</p>
+            </div>
+          `;
+
+          if (isUnlocked) {
+            tile.addEventListener('click', () => openChallengeWorkspace(world, ch));
+          }
+          grid.appendChild(tile);
+        });
+
+        card.appendChild(grid);
+        container.appendChild(card);
+      });
+    }
+
+    // ========================================================================
+    // CHALLENGE WORKSPACE & EDITOR LINE NUMBERS
+    // ========================================================================
+    function updateEditorGutter() {
+      const editor = document.getElementById('codeEditor');
+      const gutter = document.getElementById('editorGutter');
+      if (!editor || !gutter) return;
+      const lineCount = Math.max(1, editor.value.split('\n').length);
+      let nums = '';
+      for (let i = 1; i <= lineCount; i++) {
+        nums += i + '\n';
+      }
+      gutter.textContent = nums.trimEnd();
+    }
+
+    function openChallengeWorkspace(world, challenge) {
+      currentWorld = world;
+      currentChallenge = challenge;
+      revealedHintCount = 0;
+
+      document.getElementById('courseMapView').classList.add('hidden');
+      document.getElementById('workspaceView').classList.remove('hidden');
+
+      document.getElementById('wsWorldBadge').textContent = `World ${world.number}: ${world.title}`;
+      document.getElementById('wsSpecBadge').textContent = world.spec;
+      document.getElementById('wsXpBadge').textContent = `+${challenge.xp} XP`;
+
+      const isSolved = activeStudent && activeStudent.completedIds.includes(challenge.id);
+      const statusBadge = document.getElementById('wsStatusBadge');
+      statusBadge.textContent = isSolved ? '✓ Solved' : 'Unsolved';
+      statusBadge.className = `badge ${isSolved ? 'badge-emerald' : 'badge-slate'}`;
+
+      document.getElementById('wsTitle').textContent = challenge.title;
+      document.getElementById('wsStory').textContent = challenge.story;
+      document.getElementById('wsExample').textContent = challenge.example;
+
+      const criteriaUl = document.getElementById('wsCriteria');
+      criteriaUl.innerHTML = '';
+      challenge.criteria.forEach(item => {
+        const li = document.createElement('li');
+        li.textContent = item;
+        criteriaUl.appendChild(li);
+      });
+
+      document.getElementById('wsHintsContainer').innerHTML = '';
+      document.getElementById('wsHintCounter').textContent = `0/${challenge.hints.length}`;
+
+      const savedDraft = activeStudent && activeStudent.drafts ? activeStudent.drafts[challenge.id] : null;
+      const editor = document.getElementById('codeEditor');
+      editor.value = savedDraft !== undefined && savedDraft !== null ? savedDraft : challenge.starterCode;
+      updateEditorGutter();
+
+      document.getElementById('stdinQueueInput').value = challenge.defaultStdin || '';
+      document.getElementById('consoleOutputBox').textContent =
+        'Ready. Click "Run Code" to test your program or "Check & Submit" to verify against OCR test cases.';
+
+      const banner = document.getElementById('feedbackBanner');
+      banner.className = 'feedback-banner hidden';
+      banner.innerHTML = '';
+
+      // Show Next Challenge button if another challenge exists
+      const nextBtn = document.getElementById('btnNextChallenge');
+      if (getNextChallengePair(world.id, challenge.id)) {
+        nextBtn.classList.remove('hidden');
+      } else {
+        nextBtn.classList.add('hidden');
+      }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function getNextChallengePair(worldId, challengeId) {
+      const flat = [];
+      COURSE_WORLDS.forEach(w => {
+        w.challenges.forEach(c => flat.push({ world: w, challenge: c }));
+      });
+      const idx = flat.findIndex(item => item.world.id === worldId && item.challenge.id === challengeId);
+      if (idx >= 0 && idx + 1 < flat.length) {
+        return flat[idx + 1];
+      }
+      return null;
+    }
+
+    // ========================================================================
+    // PYODIDE IN-BROWSER PYTHON 3.12 RUNTIME & AUTOMATED TEST HARNESS
+    // ========================================================================
+    async function initPyodideEngine() {
+      const pill = document.getElementById('pyodideStatusPill');
+      const text = document.getElementById('pyodideStatusText');
+      try {
+        if (typeof loadPyodide !== 'function') {
+          throw new Error('Pyodide loader unavailable');
+        }
+        pyodideInstance = await loadPyodide({
+          indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.26.4/full/'
+        });
+        pyodideReady = true;
+        pill.className = 'status-pill ready';
+        text.textContent = 'Python 3.12 Ready';
+      } catch (err) {
+        pyodideReady = false;
+        pill.className = 'status-pill error';
+        text.textContent = 'Python Engine Offline (Check Network)';
+      }
+    }
+
+    function parseSimulatedStdin() {
+      const raw = document.getElementById('stdinQueueInput').value;
+      if (!raw.trim()) return [];
+      return raw.split(',').map(s => s.trim());
+    }
+
+    async function executeStudentPython(studentCode, runTests) {
+      const consoleBox = document.getElementById('consoleOutputBox');
+      const feedbackBanner = document.getElementById('feedbackBanner');
+
+      if (!pyodideReady || !pyodideInstance) {
+        consoleBox.textContent = 'Python 3.12 runtime is still loading or offline. Please wait a moment and try again.';
+        return;
+      }
+
+      consoleBox.textContent = 'Running Python 3.12...';
+      feedbackBanner.className = 'feedback-banner hidden';
+
+      const inputsList = parseSimulatedStdin();
+      const setupCode = (currentChallenge && currentChallenge.setupPython) ? currentChallenge.setupPython : '';
+      const testCode = (runTests && currentChallenge && currentChallenge.testScript) ? currentChallenge.testScript : '';
+
+      pyodideInstance.globals.set('_js_student_code', studentCode);
+      pyodideInstance.globals.set('_js_setup_code', setupCode);
+      pyodideInstance.globals.set('_js_test_code', testCode);
+      pyodideInstance.globals.set('_js_inputs', pyodideInstance.toPy(inputsList));
+      pyodideInstance.globals.set('_js_run_tests', Boolean(runTests));
+
+      const runnerScript = `
+import sys, io, builtins, traceback
+
+def _exec_isolated(code_str, setup_str, input_items):
+    buf_out = io.StringIO()
+    old_stdout = sys.stdout
+    old_input = builtins.input
+    queue = list(input_items)
+
+    def _mock_input(prompt=""):
+        if prompt:
+            print(prompt, end="")
+        if not queue:
+            raise EOFError("input() was called, but no more simulated input values were provided.")
+        return str(queue.pop(0))
+
+    sys.stdout = buf_out
+    builtins.input = _mock_input
+    ns = {"__name__": "__main__"}
+    try:
+        if setup_str.strip():
+            exec(setup_str, ns)
+        exec(code_str, ns)
+    finally:
+        sys.stdout = old_stdout
+        builtins.input = old_input
+
+    lines = [line.rstrip("\\r") for line in buf_out.getvalue().splitlines()]
+    return lines, buf_out.getvalue(), ns
+
+_status = "ok"
+_printed_text = ""
+_error_msg = ""
+
+try:
+    _out_lines, _printed_text, _ns = _exec_isolated(_js_student_code, _js_setup_code, list(_js_inputs))
+    if _js_run_tests and _js_test_code.strip():
+        _code = _js_student_code
+        def _run_with_inputs(custom_inputs):
+            lines, _, _ = _exec_isolated(_js_student_code, _js_setup_code, custom_inputs)
+            return lines
+        exec(_js_test_code, globals(), locals())
+        _status = "passed"
+except AssertionError as ae:
+    _status = "failed_test"
+    _error_msg = str(ae) if str(ae) else "Output did not match expected OCR criteria."
+except Exception:
+    _status = "runtime_error"
+    _error_msg = traceback.format_exc()
+
+(_status, _printed_text, _error_msg)
+`;
+
+      try {
+        const resultProxy = await pyodideInstance.runPythonAsync(runnerScript);
+        const [status, printedText, errorMsg] = resultProxy.toJs();
+        resultProxy.destroy();
+
+        consoleBox.textContent = printedText
+          ? printedText
+          : (status === 'runtime_error' ? errorMsg : '(Program finished with no printed output)');
+
+        if (!runTests) {
+          if (status === 'runtime_error') {
+            feedbackBanner.className = 'feedback-banner fail';
+            feedbackBanner.innerHTML = `<strong>⚠ Python Error:</strong><pre style="margin:0.4rem 0 0; white-space:pre-wrap; font-size:0.78rem;">${escapeHtml(errorMsg)}</pre>`;
+          }
+          return;
+        }
+
+        if (status === 'passed') {
+          feedbackBanner.className = 'feedback-banner pass';
+          const alreadySolved = activeStudent && activeStudent.completedIds.includes(currentChallenge.id);
+          if (activeStudent && !alreadySolved) {
+            activeStudent.completedIds.push(currentChallenge.id);
+            activeStudent.xp += currentChallenge.xp;
+            persistStudent();
+            renderCourseMap();
+            const savedNote = isGuestSession ? ' (Guest session — not saved)' : '';
+            feedbackBanner.innerHTML = `<strong>✓ Challenge Complete! +${currentChallenge.xp} XP awarded.${savedNote}</strong> All OCR automated checks passed.`;
+            showToast(`+${currentChallenge.xp} XP earned! (${activeStudent.xp} total XP)`);
+          } else if (!activeStudent && !alreadySolved) {
+            feedbackBanner.innerHTML = `<strong>✓ Challenge Complete! +${currentChallenge.xp} XP (not saved).</strong> Sign in to record XP and unlock later worlds.`;
+          } else {
+            feedbackBanner.innerHTML = `<strong>✓ All OCR automated checks passed!</strong> (XP already claimed for this challenge)`;
+          }
+          document.getElementById('wsStatusBadge').textContent = '✓ Solved';
+          document.getElementById('wsStatusBadge').className = 'badge badge-emerald';
+        } else if (status === 'failed_test') {
+          feedbackBanner.className = 'feedback-banner fail';
+          feedbackBanner.innerHTML = `<strong>✕ Not quite right:</strong> ${escapeHtml(errorMsg)}`;
+        } else {
+          feedbackBanner.className = 'feedback-banner fail';
+          feedbackBanner.innerHTML = `<strong>⚠ Python Error during test run:</strong><pre style="margin:0.4rem 0 0; white-space:pre-wrap; font-size:0.78rem;">${escapeHtml(errorMsg)}</pre>`;
+        }
+      } catch (err) {
+        consoleBox.textContent = String(err);
+      }
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+
+    // ========================================================================
+    // STAFF PORTAL: CLASS MANAGER, MARKBOOK & CSV/JSON EXPORTS
+    // ========================================================================
+    function renderTeacherClassesTable() {
+      const tbody = document.getElementById('teacherClassesTbody');
+      const filterSelect = document.getElementById('teacherClassFilter');
+      if (!tbody) return;
+
+      const classes = getTeacherClasses();
+      tbody.innerHTML = '';
+
+      if (classes.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--text-muted);">No classes created yet. Use the form above to create a class and generate a Join Code.</td></tr>';
+      } else {
+        classes.forEach((cls, idx) => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td><strong>${escapeHtml(cls.name)}</strong></td>
+            <td><span class="badge badge-blue">${escapeHtml(cls.pin)}</span></td>
+            <td><span class="badge badge-emerald">${escapeHtml(cls.joinCode)}</span></td>
+            <td style="font-size:0.75rem; color:var(--text-muted);">${new Date(cls.createdAt).toLocaleDateString()}</td>
+            <td><button type="button" class="btn btn-danger btn-sm" data-del-class="${idx}">Delete</button></td>
+          `;
+          tbody.appendChild(tr);
+        });
+
+        tbody.querySelectorAll('[data-del-class]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const index = Number(btn.getAttribute('data-del-class'));
+            const updated = getTeacherClasses();
+            updated.splice(index, 1);
+            saveTeacherClasses(updated);
+            renderTeacherClassesTable();
+            showToast('Class removed.');
+          });
+        });
+      }
+
+      if (filterSelect) {
+        const currentVal = filterSelect.value;
+        filterSelect.innerHTML = '<option value="ALL">All Classes</option>';
+        classes.forEach(c => {
+          const opt = document.createElement('option');
+          opt.value = c.name;
+          opt.textContent = c.name;
+          filterSelect.appendChild(opt);
+        });
+        filterSelect.value = currentVal || 'ALL';
+      }
+    }
+
+    function renderTeacherMarkbookTable() {
+      const tbody = document.getElementById('teacherMarkbookTbody');
+      const filterVal = document.getElementById('teacherClassFilter').value || 'ALL';
+      if (!tbody) return;
+
+      const allRecords = getTeacherMarkbook();
+      const filtered = filterVal === 'ALL'
+        ? allRecords
+        : allRecords.filter(r => r.className.toLowerCase().includes(filterVal.toLowerCase()));
+
+      tbody.innerHTML = '';
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--text-muted);">No student records found yet. Students appear here automatically on this PC or when you import their .json save files.</td></tr>';
+        return;
+      }
+
+      filtered.forEach(rec => {
+        const solvedSet = new Set(rec.completedIds || []);
+        const worldSummary = COURSE_WORLDS.map(w => {
+          const count = w.challenges.filter(c => solvedSet.has(c.id)).length;
+          return `W${w.number}:${count}/${w.challenges.length}`;
+        }).join(' · ');
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong>${escapeHtml(rec.name)}</strong></td>
+          <td>${escapeHtml(rec.className)}</td>
+          <td><span class="badge badge-blue">${rec.xp} / ${TOTAL_XP_POSSIBLE}</span></td>
+          <td><strong>${solvedSet.size} / 36</strong></td>
+          <td style="font-family:var(--font-mono); font-size:0.72rem;">${worldSummary}</td>
+          <td style="font-size:0.75rem; color:var(--text-muted);">${rec.lastActive ? new Date(rec.lastActive).toLocaleString() : '—'}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function exportMarkbookCsv() {
+      const records = getTeacherMarkbook();
+      const allChallengeIds = [];
+      COURSE_WORLDS.forEach(w => w.challenges.forEach(c => allChallengeIds.push(c.id)));
+
+      const headers = ['Student Name', 'Class', 'Total XP', 'Solved Count', ...allChallengeIds, 'Last Active'];
+      const rows = [headers.join(',')];
+
+      records.forEach(r => {
+        const solvedSet = new Set(r.completedIds || []);
+        const cols = [
+          `"${String(r.name).replace(/"/g, '""')}"`,
+          `"${String(r.className).replace(/"/g, '""')}"`,
+          r.xp || 0,
+          solvedSet.size,
+          ...allChallengeIds.map(id => (solvedSet.has(id) ? 1 : 0)),
+          `"${r.lastActive || ''}"`
+        ];
+        rows.push(cols.join(','));
+      });
+
+      const blob = new Blob([rows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `ocr_python_quest_markbook_${new Date().toISOString().slice(0, 10)}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      showToast('Markbook CSV exported!');
+    }
+
+    function exportMarkbookJson() {
+      const records = getTeacherMarkbook();
+      const blob = new Blob([JSON.stringify(records, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `ocr_python_quest_markbook_${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      showToast('Markbook JSON exported!');
+    }
+
+    // ========================================================================
+    // INITIALIZATION & EVENT LISTENERS
+    // ========================================================================
+    document.addEventListener('DOMContentLoaded', () => {
+      loadStudentFromStorage();
+      renderCourseMap();
+      initPyodideEngine();
+
+      // Save / Load buttons
+      document.getElementById('btnDownloadSave').addEventListener('click', downloadStudentSaveFile);
+      document.getElementById('inputUploadSave').addEventListener('change', e => {
+        handleStudentSaveUpload(e.target.files[0]);
+        e.target.value = '';
+      });
+      document.getElementById('modalUploadSave').addEventListener('change', e => {
+        handleStudentSaveUpload(e.target.files[0]);
+        e.target.value = '';
+      });
+
+      const openStudentModal = () => {
+        if (activeStudent && !isGuestSession) {
+          document.getElementById('loginFullName').value = activeStudent.name;
+          document.getElementById('loginClassPin').value = activeStudent.className;
+          document.getElementById('loginStudentPin').value = activeStudent.pin;
+        } else {
+          document.getElementById('loginFullName').value = '';
+          document.getElementById('loginClassPin').value = '';
+          document.getElementById('loginStudentPin').value = '';
+        }
+        document.getElementById('studentLoginModal').classList.remove('hidden');
+      };
+
+      document.getElementById('btnStudentProfile').addEventListener('click', openStudentModal);
+      document.getElementById('btnHeroStudentLogin').addEventListener('click', openStudentModal);
+
+      document.getElementById('btnGuestMode').addEventListener('click', enterGuestMode);
+      document.getElementById('btnHeroGuestMode').addEventListener('click', enterGuestMode);
+
+      document.getElementById('btnCloseStudentModal').addEventListener('click', () => {
+        document.getElementById('studentLoginModal').classList.add('hidden');
+      });
+
+      document.getElementById('studentLoginForm').addEventListener('submit', e => {
+        e.preventDefault();
+        const fullName = document.getElementById('loginFullName').value.trim();
+        const joinInput = document.getElementById('loginClassPin').value.trim();
+        const studentPin = document.getElementById('loginStudentPin').value.trim();
+        if (!fullName) return;
+
+        const resolvedClass = resolveClassFromJoinInput(joinInput);
+        if (activeStudent && !isGuestSession && activeStudent.name.toLowerCase() === fullName.toLowerCase()) {
+          activeStudent.name = fullName;
+          activeStudent.className = resolvedClass;
+          activeStudent.pin = studentPin || activeStudent.pin;
+        } else {
+          activeStudent = createEmptyStudent(fullName, resolvedClass, studentPin);
+        }
+
+        isGuestSession = false;
+        persistStudent();
+        document.getElementById('studentLoginModal').classList.add('hidden');
+        renderCourseMap();
+        showToast(`Signed in as ${activeStudent.name} (${activeStudent.className})`);
+      });
+
+      // Hidden Staff Portal / Teacher Login
+      const openTeacherPortal = () => {
+        document.getElementById('teacherDashboardModal').classList.remove('hidden');
+        if (!teacherUnlocked) {
+          document.getElementById('teacherPinGate').classList.remove('hidden');
+          document.getElementById('teacherWorkspace').classList.add('hidden');
+          document.getElementById('teacherPinInput').value = '';
+          document.getElementById('teacherPinError').classList.add('hidden');
+        } else {
+          renderTeacherClassesTable();
+          renderTeacherMarkbookTable();
+        }
+      };
+
+      document.getElementById('btnOpenStaffPortal').addEventListener('click', openTeacherPortal);
+      document.getElementById('btnHeaderTeacherLogin').addEventListener('click', openTeacherPortal);
+      document.getElementById('btnHeroTeacherLogin').addEventListener('click', openTeacherPortal);
+
+      document.getElementById('btnCloseTeacherModal').addEventListener('click', () => {
+        document.getElementById('teacherDashboardModal').classList.add('hidden');
+      });
+
+      document.getElementById('teacherPinForm').addEventListener('submit', e => {
+        e.preventDefault();
+        const entered = document.getElementById('teacherPinInput').value.trim();
+        if (entered === TEACHER_STAFF_PIN) {
+          teacherUnlocked = true;
+          document.getElementById('teacherPinGate').classList.add('hidden');
+          document.getElementById('teacherWorkspace').classList.remove('hidden');
+          renderTeacherClassesTable();
+          renderTeacherMarkbookTable();
+          showToast('Staff Portal unlocked.');
+        } else {
+          document.getElementById('teacherPinError').classList.remove('hidden');
+        }
+      });
+
+      // Teacher Tabs
+      document.querySelectorAll('[data-teacher-tab]').forEach(tabBtn => {
+        tabBtn.addEventListener('click', () => {
+          const target = tabBtn.getAttribute('data-teacher-tab');
+          document.querySelectorAll('[data-teacher-tab]').forEach(b => b.classList.remove('btn-primary'));
+          tabBtn.classList.add('btn-primary');
+          document.getElementById('teacherTabClasses').classList.toggle('hidden', target !== 'classes');
+          document.getElementById('teacherTabMarkbook').classList.toggle('hidden', target !== 'markbook');
+          if (target === 'markbook') renderTeacherMarkbookTable();
+        });
+      });
+
+      // Teacher Create Class & Generate Join Code
+      document.getElementById('createClassForm').addEventListener('submit', e => {
+        e.preventDefault();
+        const rawName = document.getElementById('newClassName').value.trim();
+        if (!rawName) return;
+
+        const cleanPrefix = rawName.replace(/[^A-Za-z0-9]/g, '').toUpperCase().slice(0, 10) || 'CLASS';
+        const pin4 = String(Math.floor(1000 + Math.random() * 9000));
+        const checksum = computeJoinChecksum(cleanPrefix, pin4);
+        const joinCode = `${cleanPrefix}-${pin4}${checksum}`;
+
+        const classes = getTeacherClasses();
+        classes.push({
+          name: rawName,
+          pin: pin4,
+          joinCode,
+          createdAt: new Date().toISOString()
+        });
+        saveTeacherClasses(classes);
+        document.getElementById('newClassName').value = '';
+        renderTeacherClassesTable();
+        showToast(`Created ${rawName} · Join Code: ${joinCode}`);
+      });
+
+      // Teacher Sandbox Mode
+      document.getElementById('btnToggleSandbox').addEventListener('click', () => {
+        teacherSandboxMode = !teacherSandboxMode;
+        document.getElementById('sandboxStateLabel').textContent = teacherSandboxMode ? 'ON' : 'OFF';
+        renderCourseMap();
+        showToast(`Teacher Sandbox Mode ${teacherSandboxMode ? 'enabled (all 9 worlds unlocked)' : 'disabled'}.`);
+      });
+
+      // Teacher Bulk Student Save Import & Exports
+      document.getElementById('teacherBulkImportInput').addEventListener('change', async e => {
+        const files = Array.from(e.target.files || []);
+        let importedCount = 0;
+        for (const file of files) {
+          try {
+            const text = await file.text();
+            const parsed = JSON.parse(text);
+            if (parsed && typeof parsed.name === 'string') {
+              syncStudentToTeacherMarkbook(parsed);
+              importedCount++;
+            }
+          } catch (_) {}
+        }
+        e.target.value = '';
+        renderTeacherMarkbookTable();
+        showToast(`Imported ${importedCount} student progress file(s).`);
+      });
+
+      document.getElementById('teacherClassFilter').addEventListener('change', renderTeacherMarkbookTable);
+      document.getElementById('btnExportMarkbookCsv').addEventListener('click', exportMarkbookCsv);
+      document.getElementById('btnExportMarkbookJson').addEventListener('click', exportMarkbookJson);
+
+      // Workspace Controls
+      document.getElementById('btnBackToMap').addEventListener('click', () => {
+        document.getElementById('workspaceView').classList.add('hidden');
+        document.getElementById('courseMapView').classList.remove('hidden');
+        renderCourseMap();
+      });
+
+      const codeEditor = document.getElementById('codeEditor');
+      codeEditor.addEventListener('input', () => {
+        updateEditorGutter();
+        if (activeStudent && currentChallenge) {
+          activeStudent.drafts[currentChallenge.id] = codeEditor.value;
+          persistStudent();
+        }
+      });
+
+      codeEditor.addEventListener('keydown', e => {
+        if (e.key === 'Tab') {
+          e.preventDefault();
+          const start = codeEditor.selectionStart;
+          const end = codeEditor.selectionEnd;
+          codeEditor.value = codeEditor.value.substring(0, start) + '    ' + codeEditor.value.substring(end);
+          codeEditor.selectionStart = codeEditor.selectionEnd = start + 4;
+          updateEditorGutter();
+        }
+      });
+
+      document.getElementById('btnShowHint').addEventListener('click', () => {
+        if (!currentChallenge) return;
+        if (revealedHintCount < currentChallenge.hints.length) {
+          const hintBox = document.createElement('div');
+          hintBox.className = 'hint-box';
+          hintBox.innerHTML = `<strong>Hint ${revealedHintCount + 1}:</strong> ${escapeHtml(currentChallenge.hints[revealedHintCount])}`;
+          document.getElementById('wsHintsContainer').appendChild(hintBox);
+          revealedHintCount++;
+          document.getElementById('wsHintCounter').textContent = `${revealedHintCount}/${currentChallenge.hints.length}`;
+        } else {
+          showToast('All hints for this challenge are already shown.');
+        }
+      });
+
+      document.getElementById('btnResetStarter').addEventListener('click', () => {
+        if (!currentChallenge) return;
+        codeEditor.value = currentChallenge.starterCode;
+        updateEditorGutter();
+        if (activeStudent) {
+          delete activeStudent.drafts[currentChallenge.id];
+          persistStudent();
+        }
+        showToast('Starter code restored.');
+      });
+
+      document.getElementById('btnRunCode').addEventListener('click', () => {
+        executeStudentPython(codeEditor.value, false);
+      });
+
+      document.getElementById('btnCheckSubmit').addEventListener('click', () => {
+        executeStudentPython(codeEditor.value, true);
+      });
+
+      document.getElementById('btnClearConsole').addEventListener('click', () => {
+        document.getElementById('consoleOutputBox').textContent = '';
+      });
+
+      document.getElementById('btnNextChallenge').addEventListener('click', () => {
+        if (!currentWorld || !currentChallenge) return;
+        const nextPair = getNextChallengePair(currentWorld.id, currentChallenge.id);
+        if (!nextPair) return;
+        const currentXp = activeStudent ? activeStudent.xp : 0;
+        if (!teacherSandboxMode && currentXp < nextPair.world.xpRequired) {
+          showToast(`Earn ${nextPair.world.xpRequired} XP to unlock World ${nextPair.world.number}!`);
+          return;
+        }
+        openChallengeWorkspace(nextPair.world, nextPair.challenge);
+      });
+    });
+  </script>
+</body>
+</html>
