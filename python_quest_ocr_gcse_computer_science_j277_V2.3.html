@@ -1,0 +1,3636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Python Quest — OCR GCSE Computer Science (J277)</title>
+  <script async src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
+  <style>
+    :root {
+      --bg-page: #f1f5f9;
+      --bg-surface: #ffffff;
+      --bg-subtle: #f8fafc;
+      --bg-muted: #e2e8f0;
+      --text-primary: #0f172a;
+      --text-secondary: #334155;
+      --text-muted: #64748b;
+      --border-light: #e2e8f0;
+      --border-medium: #cbd5e1;
+      --accent-blue: #2563eb;
+      --accent-blue-hover: #1d4ed8;
+      --accent-blue-soft: #eff6ff;
+      --accent-blue-border: #bfdbfe;
+      --accent-emerald: #059669;
+      --accent-emerald-soft: #ecfdf5;
+      --accent-emerald-border: #a7f3d0;
+      --accent-amber: #d97706;
+      --accent-amber-soft: #fffbeb;
+      --accent-amber-border: #fde68a;
+      --accent-rose: #e11d48;
+      --accent-rose-soft: #fff1f2;
+      --accent-rose-border: #fecdd3;
+      --accent-purple: #7c3aed;
+      --accent-purple-soft: #f5f3ff;
+      --accent-purple-border: #ddd6fe;
+      --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
+      --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.08);
+      --radius-sm: 0.5rem;
+      --radius-md: 0.75rem;
+      --radius-lg: 1rem;
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      --base-font-size: 16px;
+      --letter-spacing: normal;
+      --line-height: 1.5;
+    }
+
+    body.theme-dark {
+      --bg-page: #0b1120;
+      --bg-surface: #1e293b;
+      --bg-subtle: #0f172a;
+      --bg-muted: #334155;
+      --text-primary: #f8fafc;
+      --text-secondary: #e2e8f0;
+      --text-muted: #94a3b8;
+      --border-light: #334155;
+      --border-medium: #475569;
+      --accent-blue: #3b82f6;
+      --accent-blue-hover: #2563eb;
+      --accent-blue-soft: rgba(59, 130, 246, 0.16);
+      --accent-blue-border: rgba(59, 130, 246, 0.4);
+      --accent-emerald: #10b981;
+      --accent-emerald-soft: rgba(16, 185, 129, 0.16);
+      --accent-emerald-border: rgba(16, 185, 129, 0.4);
+      --accent-amber: #f59e0b;
+      --accent-amber-soft: rgba(245, 158, 11, 0.16);
+      --accent-amber-border: rgba(245, 158, 11, 0.4);
+      --accent-rose: #fb7185;
+      --accent-rose-soft: rgba(244, 63, 94, 0.16);
+      --accent-rose-border: rgba(244, 63, 94, 0.4);
+      --accent-purple: #a78bfa;
+      --accent-purple-soft: rgba(139, 92, 246, 0.18);
+      --accent-purple-border: rgba(139, 92, 246, 0.4);
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.35);
+      --shadow-md: 0 6px 16px rgba(0, 0, 0, 0.45);
+    }
+
+    body.theme-accessible {
+      --bg-page: #fefce8;
+      --bg-surface: #ffffff;
+      --bg-subtle: #fef9c3;
+      --bg-muted: #fde047;
+      --text-primary: #000000;
+      --text-secondary: #111827;
+      --text-muted: #1f2937;
+      --border-light: #000000;
+      --border-medium: #000000;
+      --accent-blue: #0033cc;
+      --accent-blue-hover: #002299;
+      --accent-blue-soft: #dbeafe;
+      --accent-blue-border: #0033cc;
+      --accent-emerald: #065f46;
+      --accent-emerald-soft: #d1fae5;
+      --accent-emerald-border: #065f46;
+      --accent-amber: #92400e;
+      --accent-amber-soft: #fef3c7;
+      --accent-amber-border: #92400e;
+      --accent-rose: #9f1239;
+      --accent-rose-soft: #ffe4e6;
+      --accent-rose-border: #9f1239;
+      --base-font-size: 18px;
+      --letter-spacing: 0.03em;
+      --line-height: 1.7;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    html {
+      font-size: var(--base-font-size);
+    }
+
+    body {
+      margin: 0;
+      font-family: var(--font-sans);
+      background-color: var(--bg-page);
+      color: var(--text-primary);
+      letter-spacing: var(--letter-spacing);
+      line-height: var(--line-height);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* Header */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-light);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .topbar-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0.75rem 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+    }
+
+    .brand-icon {
+      width: 2.35rem;
+      height: 2.35rem;
+      border-radius: var(--radius-md);
+      background: var(--accent-blue);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1rem;
+    }
+
+    .brand-title {
+      font-weight: 800;
+      font-size: 1.05rem;
+      line-height: 1.2;
+    }
+
+    .brand-sub {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .nav-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* Buttons & Inputs */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+      padding: 0.5rem 0.85rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-medium);
+      background: var(--bg-surface);
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+    }
+
+    .btn:hover:not(:disabled) {
+      background: var(--bg-subtle);
+      border-color: var(--accent-blue);
+    }
+
+    .btn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      background: var(--accent-blue);
+      border-color: var(--accent-blue);
+      color: #ffffff;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: var(--accent-blue-hover);
+      border-color: var(--accent-blue-hover);
+    }
+
+    .btn-success {
+      background: var(--accent-emerald);
+      border-color: var(--accent-emerald);
+      color: #ffffff;
+    }
+
+    .btn-success:hover:not(:disabled) {
+      filter: brightness(0.95);
+    }
+
+    .btn-sm {
+      padding: 0.35rem 0.65rem;
+      font-size: 0.8rem;
+    }
+
+    .select-control, .input-control {
+      padding: 0.48rem 0.7rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-medium);
+      background: var(--bg-surface);
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 0.85rem;
+    }
+
+    .input-control {
+      width: 100%;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.32rem 0.65rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-light);
+      color: var(--text-secondary);
+    }
+
+    .dot {
+      width: 0.55rem;
+      height: 0.55rem;
+      border-radius: 50%;
+      background: var(--accent-amber);
+    }
+
+    .dot.ready {
+      background: var(--accent-emerald);
+    }
+
+    .dot.fallback {
+      background: var(--accent-blue);
+    }
+
+    /* Main Container */
+    .container {
+      max-width: 1280px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 1.25rem 1rem 3rem;
+      flex: 1;
+    }
+
+    .card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      padding: 1.25rem;
+    }
+
+    /* Hero Banner */
+    .hero-card {
+      margin-bottom: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .hero-top {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+
+    .hero-title {
+      margin: 0.25rem 0;
+      font-size: 1.55rem;
+      font-weight: 800;
+    }
+
+    .hero-desc {
+      margin: 0;
+      color: var(--text-secondary);
+      max-width: 68ch;
+      font-size: 0.95rem;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.22rem 0.6rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      border: 1px solid transparent;
+    }
+
+    .badge-blue {
+      background: var(--accent-blue-soft);
+      color: var(--accent-blue);
+      border-color: var(--accent-blue-border);
+    }
+
+    .badge-emerald {
+      background: var(--accent-emerald-soft);
+      color: var(--accent-emerald);
+      border-color: var(--accent-emerald-border);
+    }
+
+    .badge-amber {
+      background: var(--accent-amber-soft);
+      color: var(--accent-amber);
+      border-color: var(--accent-amber-border);
+    }
+
+    .badge-purple {
+      background: var(--accent-purple-soft);
+      color: var(--accent-purple);
+      border-color: var(--accent-purple-border);
+    }
+
+    .badge-muted {
+      background: var(--bg-subtle);
+      color: var(--text-muted);
+      border-color: var(--border-light);
+    }
+
+    .progress-wrap {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-md);
+      padding: 0.85rem 1rem;
+    }
+
+    .progress-meta {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-bottom: 0.45rem;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 0.65rem;
+      border-radius: 999px;
+      background: var(--bg-muted);
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--accent-blue);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    /* Worlds Grid */
+    .worlds-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 1.15rem;
+    }
+
+    .world-card {
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+      transition: box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+
+    .world-card.unlocked:hover {
+      box-shadow: var(--shadow-md);
+      border-color: var(--accent-blue-border);
+    }
+
+    .world-card.locked {
+      opacity: 0.8;
+    }
+
+    .world-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 0.6rem;
+    }
+
+    .world-title {
+      margin: 0.2rem 0 0;
+      font-size: 1.1rem;
+      font-weight: 800;
+    }
+
+    .world-spec {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin: 0.15rem 0 0;
+    }
+
+    .challenge-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+      margin-top: auto;
+    }
+
+    .challenge-tile {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      padding: 0.6rem 0.75rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-light);
+      background: var(--bg-subtle);
+      color: var(--text-primary);
+      text-align: left;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.85rem;
+      transition: background-color 0.15s ease, border-color 0.15s ease;
+    }
+
+    .challenge-tile:hover:not(:disabled) {
+      background: var(--accent-blue-soft);
+      border-color: var(--accent-blue-border);
+    }
+
+    .challenge-tile.solved {
+      background: var(--accent-emerald-soft);
+      border-color: var(--accent-emerald-border);
+    }
+
+    .challenge-tile:disabled {
+      cursor: not-allowed;
+      opacity: 0.65;
+    }
+
+    .tile-title {
+      font-weight: 700;
+    }
+
+    .tile-sub {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Workspace & Sandbox Layout */
+    .workspace-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      gap: 1.15rem;
+      align-items: start;
+    }
+
+    @media (max-width: 960px) {
+      .workspace-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .code-example-box {
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 0.85rem;
+      border-radius: var(--radius-md);
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      overflow-x: auto;
+      white-space: pre;
+      margin: 0.5rem 0;
+    }
+
+    .criteria-list {
+      margin: 0.5rem 0;
+      padding-left: 1.25rem;
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+    }
+
+    .criteria-list li {
+      margin-bottom: 0.3rem;
+    }
+
+    .hint-card {
+      background: var(--accent-amber-soft);
+      border: 1px solid var(--accent-amber-border);
+      color: var(--text-primary);
+      padding: 0.65rem 0.85rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem;
+      margin-top: 0.45rem;
+    }
+
+    /* Code Editor */
+    .editor-shell {
+      display: flex;
+      border: 1px solid var(--border-medium);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      background: #0f172a;
+      min-height: 270px;
+    }
+
+    .line-numbers {
+      background: #1e293b;
+      color: #64748b;
+      padding: 0.85rem 0.6rem;
+      font-family: var(--font-mono);
+      font-size: 0.88rem;
+      line-height: 1.5;
+      text-align: right;
+      user-select: none;
+      min-width: 2.5rem;
+    }
+
+    .code-textarea {
+      flex: 1;
+      background: #0f172a;
+      color: #f8fafc;
+      border: none;
+      outline: none;
+      padding: 0.85rem;
+      font-family: var(--font-mono);
+      font-size: 0.88rem;
+      line-height: 1.5;
+      resize: vertical;
+      min-height: 270px;
+      tab-size: 4;
+    }
+
+    .stdin-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.65rem;
+      padding: 0.55rem 0.75rem;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-sm);
+    }
+
+    .stdin-input {
+      flex: 1;
+      min-width: 180px;
+      padding: 0.38rem 0.6rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-medium);
+      background: var(--bg-surface);
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+    }
+
+    .console-box {
+      margin-top: 0.75rem;
+      background: #020617;
+      color: #e2e8f0;
+      border-radius: var(--radius-md);
+      padding: 0.85rem;
+      font-family: var(--font-mono);
+      font-size: 0.83rem;
+      min-height: 140px;
+      max-height: 260px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+    }
+
+    .console-line-out { color: #f8fafc; }
+    .console-line-err { color: #fda4af; }
+    .console-line-sys { color: #94a3b8; }
+    .console-line-ok { color: #6ee7b7; font-weight: 700; }
+
+    .feedback-banner {
+      margin-top: 0.75rem;
+      padding: 0.75rem 0.9rem;
+      border-radius: var(--radius-md);
+      font-size: 0.88rem;
+      font-weight: 600;
+    }
+
+    .feedback-success {
+      background: var(--accent-emerald-soft);
+      border: 1px solid var(--accent-emerald-border);
+      color: var(--accent-emerald);
+    }
+
+    .feedback-error {
+      background: var(--accent-rose-soft);
+      border: 1px solid var(--accent-rose-border);
+      color: var(--accent-rose);
+    }
+
+    /* Interactive Parsons & Drag-and-Drop Blank Activities */
+    .activity-box {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-medium);
+      border-radius: var(--radius-md);
+      padding: 0.9rem;
+      margin-bottom: 0.85rem;
+    }
+
+    .parsons-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+      margin-top: 0.5rem;
+    }
+
+    .parsons-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.6rem;
+      background: #0f172a;
+      color: #f8fafc;
+      border: 1px solid #334155;
+      border-radius: var(--radius-sm);
+      padding: 0.5rem 0.7rem;
+      font-family: var(--font-mono);
+      font-size: 0.84rem;
+      cursor: grab;
+      user-select: none;
+    }
+
+    .parsons-item.dragging {
+      opacity: 0.5;
+      border-color: var(--accent-blue);
+    }
+
+    .parsons-code {
+      white-space: pre;
+      overflow-x: auto;
+      flex: 1;
+    }
+
+    .parsons-controls {
+      display: flex;
+      gap: 0.25rem;
+      flex-shrink: 0;
+    }
+
+    .parsons-btn {
+      background: #1e293b;
+      color: #e2e8f0;
+      border: 1px solid #475569;
+      border-radius: 0.35rem;
+      padding: 0.2rem 0.45rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .parsons-btn:hover:not(:disabled) {
+      background: var(--accent-blue);
+      color: #ffffff;
+    }
+
+    .token-bank {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      padding: 0.65rem;
+      background: var(--bg-surface);
+      border: 1px dashed var(--border-medium);
+      border-radius: var(--radius-sm);
+      margin-bottom: 0.75rem;
+    }
+
+    .drag-token {
+      display: inline-flex;
+      align-items: center;
+      background: var(--accent-blue-soft);
+      color: var(--accent-blue);
+      border: 1px solid var(--accent-blue-border);
+      border-radius: 0.4rem;
+      padding: 0.3rem 0.6rem;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: grab;
+      user-select: none;
+    }
+
+    .drag-token.selected {
+      background: var(--accent-blue);
+      color: #ffffff;
+    }
+
+    .blank-code-frame {
+      background: #0f172a;
+      color: #f8fafc;
+      border-radius: var(--radius-md);
+      padding: 0.9rem;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      line-height: 2;
+      white-space: pre-wrap;
+      overflow-x: auto;
+    }
+
+    .drop-slot {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 96px;
+      min-height: 1.65rem;
+      padding: 0 0.5rem;
+      margin: 0 0.15rem;
+      background: #1e293b;
+      border: 1.5px dashed #60a5fa;
+      border-radius: 0.35rem;
+      color: #93c5fd;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      font-weight: 700;
+      vertical-align: middle;
+      cursor: pointer;
+    }
+
+    .drop-slot.filled {
+      background: #1d4ed8;
+      border-style: solid;
+      border-color: #93c5fd;
+      color: #ffffff;
+    }
+
+    .drop-slot.drag-over {
+      background: #2563eb;
+      border-color: #ffffff;
+    }
+
+    /* Modals & Tables */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.65);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      z-index: 60;
+    }
+
+    .modal-card {
+      background: var(--bg-surface);
+      color: var(--text-primary);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      width: 100%;
+      max-width: 480px;
+      padding: 1.4rem;
+    }
+
+    .form-group {
+      margin-bottom: 0.85rem;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-bottom: 0.3rem;
+      color: var(--text-secondary);
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-md);
+      margin-top: 0.75rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.84rem;
+    }
+
+    th, td {
+      padding: 0.65rem 0.75rem;
+      border-bottom: 1px solid var(--border-light);
+      text-align: left;
+    }
+
+    th {
+      background: var(--bg-subtle);
+      font-weight: 700;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 1.25rem;
+      right: 1.25rem;
+      background: #0f172a;
+      color: #ffffff;
+      padding: 0.7rem 1rem;
+      border-radius: var(--radius-md);
+      font-size: 0.85rem;
+      font-weight: 600;
+      box-shadow: var(--shadow-md);
+      z-index: 80;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="brand-icon">&gt;_</div>
+        <div>
+          <div class="brand-title">Python Quest · OCR GCSE (J277)</div>
+          <div class="brand-sub">9 Worlds · 39 Stepped Challenges · Sub-Programs &amp; Sandbox</div>
+        </div>
+      </div>
+
+      <div class="nav-actions">
+        <span class="status-pill" id="pyodideStatusPill" title="In-browser Python execution engine">
+          <span class="dot" id="pyodideDot"></span>
+          <span id="pyodideStatusText">Loading Python 3.12...</span>
+        </span>
+
+        <label for="themeSelector" class="hidden">Theme and Accessibility</label>
+        <select id="themeSelector" class="select-control" aria-label="Theme and Accessibility Mode">
+          <option value="light">☀️ Light Classroom</option>
+          <option value="dark">🌙 Dark IDE</option>
+          <option value="accessible">♿ High Contrast / Dyslexia</option>
+        </select>
+
+        <button type="button" id="btnNavHome" class="btn btn-sm">🗺️ Course Map</button>
+        <button type="button" id="btnNavSandbox" class="btn btn-sm">🧪 Sandbox</button>
+
+        <span id="sessionBadge" class="badge badge-muted">Browsing · Not Signed In</span>
+
+        <button type="button" id="btnOpenStudentLogin" class="btn btn-primary btn-sm">🎓 Student Sign In</button>
+        <button type="button" id="btnGuestMode" class="btn btn-sm">👤 Guest Mode</button>
+        <button type="button" id="btnSaveProgressFile" class="btn btn-sm hidden">💾 Save (.json)</button>
+        <button type="button" id="btnLoadProgressFile" class="btn btn-sm">📂 Load Save</button>
+        <input type="file" id="studentFileInput" accept=".json" class="hidden" />
+        <button type="button" id="btnOpenTeacherLogin" class="btn btn-sm" title="Staff Portal">🔐 Staff</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- VIEW 1: COURSE MAP -->
+    <section id="courseMapView">
+      <div id="sandboxMapBanner" class="card hidden" style="margin-bottom:1rem;background:var(--accent-purple-soft);border-color:var(--accent-purple-border);display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:0.75rem;">
+        <div>
+          <span class="badge badge-purple">🧪 Sandbox Mode Active</span>
+          <strong style="margin-left:0.5rem;">All 9 Worlds &amp; 39 Activities Unlocked for Free Practice</strong>
+          <div style="font-size:0.84rem;color:var(--text-secondary);margin-top:0.2rem;">
+            Select any challenge below to practise freely without XP locks (XP is not recorded while in Sandbox Mode).
+          </div>
+        </div>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+          <button type="button" id="btnOpenScratchpadFromMap" class="btn btn-primary btn-sm">🧪 Open Free Scratchpad</button>
+          <button type="button" id="btnExitSandboxMode" class="btn btn-sm">Exit Sandbox Mode</button>
+        </div>
+      </div>
+
+      <div class="card hero-card">
+        <div class="hero-top">
+          <div>
+            <span class="badge badge-blue">OCR GCSE Computer Science · J277/02 Programming</span>
+            <h1 class="hero-title">Master Python Step-by-Step</h1>
+            <p class="hero-desc">
+              Progress through 9 structured worlds from your first <code>print()</code> statement to sub-program Parsons puzzles,
+              drag-and-drop exam drills, file handling, and defensive design. Sign in to save progress or jump straight into Guest Mode or the Sandbox.
+            </p>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:0.5rem;">
+            <button type="button" id="heroStudentSignInBtn" class="btn btn-primary">🎓 Student Sign In</button>
+            <button type="button" id="heroGuestBtn" class="btn">👤 Continue as Guest</button>
+            <button type="button" id="heroSandboxBtn" class="btn">🧪 Practice Sandbox</button>
+          </div>
+        </div>
+
+        <div class="progress-wrap">
+          <div class="progress-meta">
+            <span id="progressSummaryLabel">0 / 39 Challenges Completed</span>
+            <span id="xpSummaryLabel">0 / 1,495 XP · Level 1 Novice</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" id="overallProgressBar"></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="worldsGrid" class="worlds-grid"></div>
+    </section>
+
+    <!-- VIEW 2: CHALLENGE WORKSPACE -->
+    <section id="challengeWorkspaceView" class="hidden">
+      <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:0.75rem;margin-bottom:1rem;">
+        <button type="button" id="btnBackToMap" class="btn">← Back to Course Map</button>
+        <div style="display:flex;flex-wrap:wrap;gap:0.5rem;align-items:center;">
+          <button type="button" id="btnResetStarter" class="btn btn-sm">↺ Reset Activity</button>
+          <button type="button" id="btnNextChallenge" class="btn btn-primary btn-sm">Next Challenge →</button>
+        </div>
+      </div>
+
+      <div class="workspace-grid">
+        <!-- Left Column: Briefing, Worked Example, Criteria, Hints -->
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+            <span id="wsWorldTag" class="badge badge-blue">World 1</span>
+            <span id="wsXpBadge" class="badge badge-amber">+25 XP</span>
+          </div>
+
+          <div id="world7QuickSwitcher" class="hidden" style="margin-top:0.65rem;padding:0.65rem 0.75rem;background:var(--accent-blue-soft);border:1px solid var(--accent-blue-border);border-radius:var(--radius-sm);">
+            <label for="world7ActivitySelect" style="display:block;font-size:0.78rem;font-weight:800;color:var(--accent-blue);margin-bottom:0.3rem;">
+              📚 World 7 Sub-Programs &amp; Functions Activity Menu:
+            </label>
+            <select id="world7ActivitySelect" class="select-control" style="width:100%;font-weight:600;"></select>
+          </div>
+
+          <h2 id="wsChallengeTitle" style="margin:0.45rem 0;">Challenge Title</h2>
+          <p id="wsStoryText" style="color:var(--text-secondary);font-size:0.92rem;margin:0 0 0.85rem;"></p>
+
+          <div style="font-weight:700;font-size:0.85rem;">📘 Worked Example / Reference Pattern</div>
+          <pre id="wsExampleCode" class="code-example-box"></pre>
+
+          <div style="font-weight:700;font-size:0.85rem;margin-top:0.85rem;">✅ Success Criteria</div>
+          <ul id="wsCriteriaList" class="criteria-list"></ul>
+
+          <div style="margin-top:0.9rem;">
+            <button type="button" id="btnRevealHint" class="btn btn-sm">💡 Reveal Hint</button>
+            <div id="hintsContainer" class="hidden"></div>
+          </div>
+        </div>
+
+        <!-- Right Column: Interactive Activity / Editor & Console -->
+        <div class="card">
+          <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:0.5rem;margin-bottom:0.6rem;">
+            <strong id="wsEditorHeaderLabel" style="font-size:0.9rem;">Python 3 Editor (main.py)</strong>
+            <div style="display:flex;gap:0.5rem;">
+              <button type="button" id="btnRunCode" class="btn btn-sm">▶ Run Code</button>
+              <button type="button" id="btnSubmitCode" class="btn btn-sm btn-success">✓ Check &amp; Submit</button>
+            </div>
+          </div>
+
+          <!-- Interactive Activity Container (Parsons / Drag & Drop Blanks) -->
+          <div id="interactiveActivityPanel" class="hidden"></div>
+
+          <!-- Standard Code Editor -->
+          <div id="standardEditorContainer">
+            <div class="editor-shell">
+              <div id="lineNumbers" class="line-numbers">1</div>
+              <textarea id="codeEditor" class="code-textarea" spellcheck="false" autocomplete="off" autocapitalize="off"></textarea>
+            </div>
+
+            <div class="stdin-bar">
+              <label for="stdinInputField" style="font-size:0.78rem;font-weight:700;color:var(--text-secondary);">
+                Test <code>input()</code> values (separate lines with <code>\n</code>):
+              </label>
+              <input id="stdinInputField" type="text" class="stdin-input" placeholder="e.g. 14\n28" />
+            </div>
+          </div>
+
+          <div id="feedbackBanner" class="feedback-banner hidden"></div>
+
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.85rem;">
+            <strong style="font-size:0.84rem;">Console Output</strong>
+            <button type="button" id="btnClearConsole" class="btn btn-sm">Clear</button>
+          </div>
+          <div id="consoleOutput" class="console-box"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 3: SANDBOX FREE PRACTICE PLAYGROUND -->
+    <section id="sandboxView" class="hidden">
+      <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:0.75rem;margin-bottom:1rem;">
+        <button type="button" id="btnSandboxBack" class="btn">← Back to Course Map</button>
+        <div style="display:flex;flex-wrap:wrap;gap:0.5rem;align-items:center;">
+          <label for="sandboxTemplateSelect" style="font-size:0.84rem;font-weight:700;">Topic Starter:</label>
+          <select id="sandboxTemplateSelect" class="select-control"></select>
+          <button type="button" id="btnDownloadPy" class="btn btn-sm">⬇ Download .py</button>
+        </div>
+      </div>
+
+      <div class="workspace-grid">
+        <div class="card">
+          <span class="badge badge-purple">Free Practice Playground</span>
+          <h2 id="sandboxTopicTitle" style="margin:0.45rem 0;">OCR Python Sandbox</h2>
+          <p id="sandboxTopicDesc" style="color:var(--text-secondary);font-size:0.9rem;">
+            Experiment freely with Python 3 without XP locks or automated grading. Choose any OCR J277 topic template above to load starter examples and syntax notes.
+          </p>
+          <div style="font-weight:700;font-size:0.85rem;margin-top:0.75rem;">📌 OCR J277 Quick Syntax Reference</div>
+          <pre id="sandboxSyntaxRef" class="code-example-box"></pre>
+        </div>
+
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;margin-bottom:0.6rem;">
+            <strong style="font-size:0.9rem;">Sandbox Editor (sandbox.py)</strong>
+            <div style="display:flex;gap:0.5rem;">
+              <button type="button" id="btnSandboxRun" class="btn btn-primary btn-sm">▶ Run Sandbox Code</button>
+              <button type="button" id="btnSandboxClear" class="btn btn-sm">Clear Console</button>
+            </div>
+          </div>
+
+          <div class="editor-shell">
+            <div id="sandboxLineNumbers" class="line-numbers">1</div>
+            <textarea id="sandboxEditor" class="code-textarea" spellcheck="false" autocomplete="off" autocapitalize="off"></textarea>
+          </div>
+
+          <div class="stdin-bar">
+            <label for="sandboxStdinInput" style="font-size:0.78rem;font-weight:700;color:var(--text-secondary);">
+              Simulated <code>input()</code> queue (separate lines with <code>\n</code>):
+            </label>
+            <input id="sandboxStdinInput" type="text" class="stdin-input" placeholder="e.g. Alex\n15" />
+          </div>
+
+          <div style="margin-top:0.85rem;"><strong style="font-size:0.84rem;">Sandbox Console Output</strong></div>
+          <div id="sandboxConsoleOutput" class="console-box"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 4: TEACHER / STAFF PORTAL -->
+    <section id="teacherPortalView" class="hidden">
+      <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:0.75rem;margin-bottom:1rem;">
+        <div>
+          <span class="badge badge-purple">Staff Portal · OCR J277</span>
+          <h2 style="margin:0.25rem 0 0;">Class PIN Manager &amp; Student Progress Markbook</h2>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:0.5rem;">
+          <button type="button" id="btnToggleSandboxUnlock" class="btn btn-sm">🔓 Teacher Unlock All Worlds: OFF</button>
+          <button type="button" id="btnTeacherImportSaves" class="btn btn-sm">📥 Bulk Import Student .json</button>
+          <input type="file" id="teacherBulkFileInput" accept=".json" multiple class="hidden" />
+          <button type="button" id="btnExportCsv" class="btn btn-primary btn-sm">📊 Export CSV Markbook</button>
+          <button type="button" id="btnTeacherExit" class="btn btn-sm">← Exit Portal</button>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:1.15rem;">
+        <h3 style="margin-top:0;">Create Class &amp; Generate Join PIN</h3>
+        <form id="createClassForm" style="display:flex;flex-wrap:wrap;gap:0.65rem;align-items:flex-end;">
+          <div style="flex:1;min-width:200px;">
+            <label class="form-label" for="newClassNameInput">Class / Teaching Group Name</label>
+            <input id="newClassNameInput" class="input-control" placeholder="e.g. 10X/Cs1" required />
+          </div>
+          <button type="submit" class="btn btn-primary">+ Generate Class PIN</button>
+        </form>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Class Name</th>
+                <th>Local 4-Digit PIN</th>
+                <th>Portable Join Code (Cross-PC)</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="teacherClassesTbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:0.5rem;">
+          <h3 style="margin:0;">Student Markbook</h3>
+          <select id="teacherClassFilter" class="select-control">
+            <option value="ALL">All Classes</option>
+          </select>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Student Name</th>
+                <th>Class</th>
+                <th>XP Earned</th>
+                <th>Completed</th>
+                <th>Last Active</th>
+              </tr>
+            </thead>
+            <tbody id="teacherMarkbookTbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- STUDENT SIGN-IN MODAL -->
+  <div id="studentLoginModal" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;">
+        <h3 style="margin:0;">🎓 Student Sign In</h3>
+        <button type="button" id="btnCloseStudentModal" class="btn btn-sm">✕</button>
+      </div>
+      <p style="font-size:0.85rem;color:var(--text-secondary);margin-top:0;">
+        Enter your name and your teacher's Class PIN or Join Code so your XP and progress are saved.
+      </p>
+      <form id="studentLoginForm">
+        <div class="form-group">
+          <label class="form-label" for="studentNameInput">Full Name</label>
+          <input id="studentNameInput" class="input-control" placeholder="e.g. Jamie Taylor" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="studentClassJoinInput">Class Name, 4-Digit Class PIN, or Join Code</label>
+          <input id="studentClassJoinInput" class="input-control" placeholder="e.g. 10X/Cs1 or 4821" required />
+        </div>
+        <div style="display:flex;justify-content:flex-end;gap:0.5rem;margin-top:1rem;">
+          <button type="button" id="btnCancelStudentModal" class="btn">Cancel</button>
+          <button type="submit" class="btn btn-primary">Start Session</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- TEACHER PIN MODAL -->
+  <div id="teacherPinModal" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;">
+        <h3 style="margin:0;">🔐 Staff Portal Access</h3>
+        <button type="button" id="btnCloseTeacherModal" class="btn btn-sm">✕</button>
+      </div>
+      <form id="teacherPinForm">
+        <div class="form-group">
+          <label class="form-label" for="teacherPinInput">Enter Staff PIN</label>
+          <input id="teacherPinInput" type="password" inputmode="numeric" class="input-control" placeholder="••••" required />
+        </div>
+        <div id="teacherPinError" class="feedback-banner feedback-error hidden" style="margin-bottom:0.75rem;">
+          Incorrect staff PIN.
+        </div>
+        <div style="display:flex;justify-content:flex-end;gap:0.5rem;">
+          <button type="button" id="btnCancelTeacherModal" class="btn">Cancel</button>
+          <button type="submit" class="btn btn-primary">Unlock Portal</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="toastBanner" class="toast hidden"></div>
+
+  <script>
+    const TEACHER_STAFF_PIN = '7826';
+    const STORAGE_KEYS = {
+      ACTIVE_STUDENT: 'pq_ocr_active_student_v3',
+      CLASSES: 'pq_ocr_classes_v3',
+      MARKBOOK: 'pq_ocr_markbook_v3',
+      THEME: 'pq_ocr_theme_v3'
+    };
+
+    const SANDBOX_TEMPLATES = [
+      {
+        id: 'blank',
+        name: '0. Blank Scratchpad',
+        desc: 'An empty Python 3 scratchpad for your own algorithms, revision tests, or experiments.',
+        ref: '# Input / Output\nname = input("Name: ")\nage = int(input("Age: "))\nprint(f"{name} is {age}")',
+        code: '# Write any Python 3 code below and click Run!\nprint("Hello OCR Computer Science!")\n'
+      },
+      {
+        id: 'io_math',
+        name: '1. Variables, Casting & DIV/MOD',
+        desc: 'Practise int()/float() casting, integer division (//), and remainder modulus (%).',
+        ref: 'quotient = 17 // 5   # 3\nremainder = 17 % 5   # 2\nrounded = round(3.14159, 2)',
+        code: 'mins = 135\nhours = mins // 60\nrem_mins = mins % 60\nprint(f"{mins} mins = {hours}h {rem_mins}m")\n'
+      },
+      {
+        id: 'selection',
+        name: '2. Selection & Boolean Logic',
+        desc: 'Test if / elif / else branching with comparison and Boolean operators (and, or, not).',
+        ref: 'if score >= 80:\n    grade = "Distinction"\nelif score >= 50:\n    grade = "Pass"\nelse:\n    grade = "Refer"',
+        code: 'score = 72\nattendance = 94\nif score >= 70 and attendance >= 90:\n    print("Merit Award")\nelse:\n    print("Standard Award")\n'
+      },
+      {
+        id: 'loops',
+        name: '3. Iteration (for & while loops)',
+        desc: 'Practise count-controlled range() loops and condition-controlled while loops.',
+        ref: 'for i in range(1, 6):\n    print(i)\n\nwhile x < 10:\n    x += 1',
+        code: 'total = 0\nfor num in range(1, 11):\n    total += num\nprint("Sum 1..10 =", total)\n'
+      },
+      {
+        id: 'strings',
+        name: '4. String Manipulation & Slicing',
+        desc: 'Practise len(), .upper(), .lower(), .strip(), substring slicing [start:end], and character loops.',
+        ref: 's = "Computing"\nprint(len(s), s[0:4], s[-3:], s.upper())',
+        code: 'word = "Algorithm"\nprint("Length:", len(word))\nprint("First 4:", word[:4])\nprint("Reversed:", word[::-1])\n'
+      },
+      {
+        id: 'lists_2d',
+        name: '5. Lists & 2D Arrays',
+        desc: 'Practise 1D list traversal, linear search, and 2D list indexing grid[row][col].',
+        ref: 'grid = [[10, 20], [30, 40]]\nprint(grid[1][0])  # 30',
+        code: 'marks = [\n    ["Ava", 18, 20],\n    ["Ben", 14, 19]\n]\nfor row in marks:\n    print(row[0], "total:", row[1] + row[2])\n'
+      },
+      {
+        id: 'subprograms',
+        name: '6. Sub-Programs (Procedures & Functions)',
+        desc: 'Practise def, parameters, local variables, and returning values vs printing.',
+        ref: 'def area(w, h):\n    return w * h\n\nresult = area(4, 5)',
+        code: 'def calc_total(price, qty, discount=0):\n    subtotal = price * qty\n    return round(subtotal - discount, 2)\n\nprint("Total: £", calc_total(12.50, 3, 5.00))\n'
+      },
+      {
+        id: 'files',
+        name: '7. File Handling & CSV Records',
+        desc: 'Write, append, and read files inside the browser virtual filesystem.',
+        ref: 'with open("data.txt", "w") as f:\n    f.write("Line 1\\n")\nwith open("data.txt", "r") as f:\n    print(f.read())',
+        code: 'with open("scores.csv", "w") as f:\n    f.write("Maya,48\\nLiam,52\\n")\n\nwith open("scores.csv", "r") as f:\n    for line in f:\n        name, pts = line.strip().split(",")\n        print(name, "->", pts)\n'
+      },
+      {
+        id: 'robust',
+        name: '8. Robust Validation (J277 2.3)',
+        desc: 'Test try/except ValueError catching and range/length validation loops.',
+        ref: 'try:\n    val = int("42")\nexcept ValueError:\n    print("Not an integer")',
+        code: 'def check_code(code):\n    code = code.strip()\n    if len(code) == 5 and code.isalnum():\n        return True\n    return False\n\nprint("AB123:", check_code("AB123"))\nprint("A!2:", check_code("A!2"))\n'
+      }
+    ];
+
+    const COURSE_WORLDS = [
+      {
+        id: 'w1',
+        number: 1,
+        title: 'First Steps',
+        spec: 'J277 2.2.1 · Output, Variables & String Joining',
+        description: 'Build confidence with print(), variables, string concatenation, and syntax debugging.',
+        unlockXp: 0,
+        challenges: [
+          {
+            id: 'w1_c1',
+            title: '1.1 First Output',
+            xp: 25,
+            story: 'Every program starts with output. Use Python\'s print() function to display an exact two-line welcome banner.',
+            example: 'print("System Online")\nprint("Ready")',
+            criteria: [
+              'Print "Welcome to Python Quest" on the first line.',
+              'Print "OCR GCSE J277" on the second line.'
+            ],
+            hints: [
+              'Use two separate print("...") statements.',
+              'Check exact spelling and capital letters.'
+            ],
+            starterCode: '# Print the two welcome lines below\n',
+            defaultStdin: '',
+            testScript: `
+out = _run_with_inputs([])
+assert out == ["Welcome to Python Quest", "OCR GCSE J277"], f"Expected ['Welcome to Python Quest', 'OCR GCSE J277'], got {out}"
+`
+          },
+          {
+            id: 'w1_c2',
+            title: '1.2 Named Boxes (Variables)',
+            xp: 25,
+            story: 'Variables store data in memory using meaningful identifiers. Store a hero name and starting level, then output them.',
+            example: 'city = "Bath"\npopulation = 94000\nprint(city)\nprint(population)',
+            criteria: [
+              'Create a variable hero_name set to "Ada".',
+              'Create a variable start_level set to 1.',
+              'Print hero_name on line 1 and start_level on line 2.'
+            ],
+            hints: [
+              'Strings need speech marks ("Ada"), integers do not (1).',
+              'Use print(hero_name) without quotes around the variable name.'
+            ],
+            starterCode: '# Create hero_name and start_level, then print both\n',
+            defaultStdin: '',
+            testScript: `
+out = _run_with_inputs([])
+assert _ns.get("hero_name") == "Ada", "Variable hero_name must equal 'Ada'."
+assert _ns.get("start_level") == 1, "Variable start_level must equal 1."
+assert out == ["Ada", "1"], f"Expected ['Ada', '1'], got {out}"
+`
+          },
+          {
+            id: 'w1_c3',
+            title: '1.3 Joining Strings',
+            xp: 25,
+            story: 'Combine string variables with + (concatenation), remembering to include spaces where needed.',
+            example: 'first = "Alan"\nlast = "Turing"\nprint(first + " " + last)',
+            criteria: [
+              'Create first_name = "Grace" and surname = "Hopper".',
+              'Output "Pioneer: Grace Hopper" on a single line.'
+            ],
+            hints: [
+              'Join strings with + and include spaces: "Pioneer: " + first_name + " " + surname.'
+            ],
+            starterCode: 'first_name = "Grace"\nsurname = "Hopper"\n# Print "Pioneer: Grace Hopper"\n',
+            defaultStdin: '',
+            testScript: `
+out = _run_with_inputs([])
+assert out == ["Pioneer: Grace Hopper"], f"Expected ['Pioneer: Grace Hopper'], got {out}"
+`
+          },
+          {
+            id: 'w1_c4',
+            title: '1.4 Spot & Fix: Boot Sequence',
+            xp: 25,
+            story: 'This short program has three syntax/logic bugs. Repair it so it outputs the exact status report.',
+            example: 'status = "OK"\nprint("Status: " + status)',
+            criteria: [
+              'Fix the missing speech marks, variable name typo, and integer concatenation.',
+              'Output "User: Kai" on line 1 and "Points: 50" on line 2.'
+            ],
+            hints: [
+              'Wrap Kai in quotes: user = "Kai".',
+              'Convert points to string with str(points) when using +.'
+            ],
+            starterCode: 'user = Kai\npoints = 50\nprint("User: " + usr)\nprint("Points: " + points)\n',
+            defaultStdin: '',
+            testScript: `
+out = _run_with_inputs([])
+assert out == ["User: Kai", "Points: 50"], f"Expected ['User: Kai', 'Points: 50'], got {out}"
+`
+          }
+        ]
+      },
+      {
+        id: 'w2',
+        number: 2,
+        title: 'Data Types & Arithmetic',
+        spec: 'J277 2.2.1 · Casting, DIV (//), MOD (%) & Rounding',
+        description: 'Read user inputs, cast between str, int, and float, and apply OCR arithmetic operators.',
+        unlockXp: 80,
+        challenges: [
+          {
+            id: 'w2_c1',
+            title: '2.1 Input & Integer Casting',
+            xp: 30,
+            story: 'input() always returns a string. Cast two whole-number inputs using int() and output their sum.',
+            example: 'a = int(input())\nb = int(input())\nprint(a + b)',
+            criteria: [
+              'Read two integers using input() and int().',
+              'Print their total sum.'
+            ],
+            hints: [
+              'Use num1 = int(input()) and num2 = int(input()).',
+              'Print num1 + num2.'
+            ],
+            starterCode: '# Read two integers and print their sum\n',
+            defaultStdin: '14\n28',
+            testScript: `
+assert _run_with_inputs(["14", "28"]) == ["42"], "14 + 28 should output 42."
+assert _run_with_inputs(["5", "9"]) == ["14"], "5 + 9 should output 14."
+`
+          },
+          {
+            id: 'w2_c2',
+            title: '2.2 Quotient (DIV //) & Remainder (MOD %)',
+            xp: 30,
+            story: 'OCR exams frequently test integer division (//) and modulus (%). Convert total minutes into full hours and remaining minutes.',
+            example: 'hours = 145 // 60\nmins = 145 % 60\nprint(hours)\nprint(mins)',
+            criteria: [
+              'Read total_mins as an integer.',
+              'Print full hours on line 1 using // 60.',
+              'Print leftover minutes on line 2 using % 60.'
+            ],
+            hints: [
+              'Use // for whole division and % for remainder.'
+            ],
+            starterCode: 'total_mins = int(input())\n# Print hours then remaining minutes\n',
+            defaultStdin: '145',
+            testScript: `
+assert _run_with_inputs(["145"]) == ["2", "25"], "145 mins should output 2 then 25."
+assert _run_with_inputs(["60"]) == ["1", "0"], "60 mins should output 1 then 0."
+`
+          },
+          {
+            id: 'w2_c3',
+            title: '2.3 Floating Point & Rounding',
+            xp: 30,
+            story: 'Read a meal bill as a float, add a 15% service charge (* 1.15), and round the result to 2 decimal places.',
+            example: 'price = float(input())\ntotal = round(price * 1.2, 2)\nprint(total)',
+            criteria: [
+              'Read bill using float(input()).',
+              'Multiply by 1.15 and round to 2 decimal places using round(..., 2).'
+            ],
+            hints: [
+              'Use total = round(bill * 1.15, 2) and print(total).'
+            ],
+            starterCode: 'bill = float(input())\n# Add 15% and round to 2 decimal places\n',
+            defaultStdin: '24.60',
+            testScript: `
+out1 = _run_with_inputs(["24.60"])
+assert out1 in [["28.29"]], f"For 24.60 expected ['28.29'], got {out1}"
+out2 = _run_with_inputs(["40.00"])
+assert out2 in [["46.0"], ["46.00"]], f"For 40.00 expected ['46.0'] or ['46.00'], got {out2}"
+`
+          },
+          {
+            id: 'w2_c4',
+            title: '2.4 Exam Scenario: Sweet Bags',
+            xp: 35,
+            story: 'A shop has N sweets and packs them into bags of 8. Read N (int), print how many full bags can be made, and how many sweets are left over.',
+            example: 'bags = sweets // 8\nleft = sweets % 8',
+            criteria: [
+              'Read sweets = int(input()).',
+              'Print full bags on line 1 and leftover sweets on line 2.'
+            ],
+            hints: [
+              'Full bags = sweets // 8, leftover = sweets % 8.'
+            ],
+            starterCode: 'sweets = int(input())\n',
+            defaultStdin: '35',
+            testScript: `
+assert _run_with_inputs(["35"]) == ["4", "3"], "35 sweets should give 4 bags and 3 left."
+assert _run_with_inputs(["16"]) == ["2", "0"], "16 sweets should give 2 bags and 0 left."
+`
+          }
+        ]
+      },
+      {
+        id: 'w3',
+        number: 3,
+        title: 'Selection & Boolean Logic',
+        spec: 'J277 2.2.1 · if, elif, else & Boolean Operators',
+        description: 'Control program flow using comparisons, multi-branch elif chains, and and/or gates.',
+        unlockXp: 180,
+        challenges: [
+          {
+            id: 'w3_c1',
+            title: '3.1 Pass or Fail (if / else)',
+            xp: 35,
+            story: 'Read an exam mark (integer). Print "Pass" if the mark is 50 or more, otherwise print "Fail".',
+            example: 'if mark >= 50:\n    print("Pass")\nelse:\n    print("Fail")',
+            criteria: [
+              'Read mark = int(input()).',
+              'Print "Pass" for >= 50 (including boundary 50) and "Fail" otherwise.'
+            ],
+            hints: [
+              'Make sure you use >= 50 so 50 counts as a Pass.'
+            ],
+            starterCode: 'mark = int(input())\n',
+            defaultStdin: '50',
+            testScript: `
+assert _run_with_inputs(["50"]) == ["Pass"], "Boundary 50 must output Pass."
+assert _run_with_inputs(["49"]) == ["Fail"], "49 must output Fail."
+assert _run_with_inputs(["85"]) == ["Pass"], "85 must output Pass."
+`
+          },
+          {
+            id: 'w3_c2',
+            title: '3.2 Grade Classifier (elif)',
+            xp: 35,
+            story: 'Classify a percentage score: >= 80 prints "Grade 9", >= 60 prints "Grade 7", >= 40 prints "Grade 4", else prints "U".',
+            example: 'if s >= 80:\n    print("Grade 9")\nelif s >= 60:\n    print("Grade 7")',
+            criteria: [
+              'Read score = int(input()).',
+              'Output "Grade 9", "Grade 7", "Grade 4", or "U" accurately.'
+            ],
+            hints: [
+              'Check highest thresholds first with if / elif / elif / else.'
+            ],
+            starterCode: 'score = int(input())\n',
+            defaultStdin: '65',
+            testScript: `
+assert _run_with_inputs(["80"]) == ["Grade 9"]
+assert _run_with_inputs(["65"]) == ["Grade 7"]
+assert _run_with_inputs(["40"]) == ["Grade 4"]
+assert _run_with_inputs(["39"]) == ["U"]
+`
+          },
+          {
+            id: 'w3_c3',
+            title: '3.3 Theme Park Ride Gate (and / or)',
+            xp: 40,
+            story: 'A rider can board if height >= 140 AND age >= 10. Read height (int) then age (int), printing "Allowed" or "Denied".',
+            example: 'if height >= 140 and age >= 10:\n    print("Allowed")',
+            criteria: [
+              'Read height = int(input()) and age = int(input()).',
+              'Print "Allowed" only when both conditions hold; otherwise "Denied".'
+            ],
+            hints: [
+              'Combine both comparisons using the lowercase keyword and.'
+            ],
+            starterCode: 'height = int(input())\nage = int(input())\n',
+            defaultStdin: '145\n11',
+            testScript: `
+assert _run_with_inputs(["145", "11"]) == ["Allowed"]
+assert _run_with_inputs(["145", "9"]) == ["Denied"]
+assert _run_with_inputs(["135", "12"]) == ["Denied"]
+`
+          },
+          {
+            id: 'w3_c4',
+            title: '3.4 Delivery Fee Logic',
+            xp: 40,
+            story: 'Orders >= £30 get "Free Delivery". Orders < £30 cost "£3.99 Delivery", unless VIP status input is "Y" which also gives "Free Delivery".',
+            example: 'if total >= 30 or vip == "Y":\n    print("Free Delivery")',
+            criteria: [
+              'Read total = float(input()) and vip = input().',
+              'Print "Free Delivery" or "£3.99 Delivery".'
+            ],
+            hints: [
+              'Use or between total >= 30 and vip == "Y".'
+            ],
+            starterCode: 'total = float(input())\nvip = input()\n',
+            defaultStdin: '18.50\nY',
+            testScript: `
+assert _run_with_inputs(["30", "N"]) == ["Free Delivery"]
+assert _run_with_inputs(["18.50", "Y"]) == ["Free Delivery"]
+assert _run_with_inputs(["18.50", "N"]) == ["£3.99 Delivery"]
+`
+          }
+        ]
+      },
+      {
+        id: 'w4',
+        number: 4,
+        title: 'Iteration & Loops',
+        spec: 'J277 2.2.1 · Count-Controlled (for) & Condition-Controlled (while)',
+        description: 'Automate repetition with range(), running total accumulators, and sentinel while loops.',
+        unlockXp: 300,
+        challenges: [
+          {
+            id: 'w4_c1',
+            title: '4.1 Times Table Generator (for)',
+            xp: 35,
+            story: 'Read an integer n and print the first 5 multiples of n (from n*1 up to n*5), one per line.',
+            example: 'for i in range(1, 6):\n    print(n * i)',
+            criteria: [
+              'Read n = int(input()).',
+              'Use a for loop with range(1, 6) to print n*1 through n*5.'
+            ],
+            hints: [
+              'Remember range(1, 6) generates 1, 2, 3, 4, 5.'
+            ],
+            starterCode: 'n = int(input())\n',
+            defaultStdin: '4',
+            testScript: `
+assert _run_with_inputs(["4"]) == ["4", "8", "12", "16", "20"]
+assert _run_with_inputs(["7"]) == ["7", "14", "21", "28", "35"]
+`
+          },
+          {
+            id: 'w4_c2',
+            title: '4.2 Running Total Accumulator',
+            xp: 40,
+            story: 'Read 4 integers in a loop, add them into a total variable, and print the final sum once after the loop finishes.',
+            example: 'total = 0\nfor i in range(4):\n    total += int(input())\nprint(total)',
+            criteria: [
+              'Initialise total = 0 before the loop.',
+              'Read 4 integers inside a loop and print total at the end.'
+            ],
+            hints: [
+              'Keep print(total) unindented so it runs once after the loop.'
+            ],
+            starterCode: 'total = 0\n# Loop 4 times to read and add numbers\n',
+            defaultStdin: '10\n20\n5\n15',
+            testScript: `
+assert _run_with_inputs(["10", "20", "5", "15"]) == ["50"]
+assert _run_with_inputs(["1", "2", "3", "4"]) == ["10"]
+`
+          },
+          {
+            id: 'w4_c3',
+            title: '4.3 Sentinel While Loop',
+            xp: 40,
+            story: 'Keep reading integers and adding them to a sum until the user enters 0 (the sentinel value). Then print the total.',
+            example: 'num = int(input())\nwhile num != 0:\n    total += num\n    num = int(input())',
+            criteria: [
+              'Stop reading when 0 is entered.',
+              'Print the sum of all numbers entered before 0.'
+            ],
+            hints: [
+              'Read the first number before the while num != 0: loop, and read the next number at the bottom of the loop.'
+            ],
+            starterCode: 'total = 0\n',
+            defaultStdin: '6\n4\n10\n0',
+            testScript: `
+assert _run_with_inputs(["6", "4", "10", "0"]) == ["20"]
+assert _run_with_inputs(["0"]) == ["0"]
+`
+          },
+          {
+            id: 'w4_c4',
+            title: '4.4 Password Retry Counter',
+            xp: 45,
+            story: 'Keep reading password guesses until "python123" is entered. Print "Unlocked" followed by the number of attempts taken on line 2.',
+            example: 'attempts = 1\nguess = input()\nwhile guess != "python123":\n    attempts += 1\n    guess = input()',
+            criteria: [
+              'Count every guess including the successful one.',
+              'Print "Unlocked" on line 1 and the attempt count on line 2.'
+            ],
+            hints: [
+              'Start attempts = 1 before the loop, incrementing by 1 for each wrong guess.'
+            ],
+            starterCode: '# Count attempts until "python123" is entered\n',
+            defaultStdin: 'admin\n1234\npython123',
+            testScript: `
+assert _run_with_inputs(["admin", "1234", "python123"]) == ["Unlocked", "3"]
+assert _run_with_inputs(["python123"]) == ["Unlocked", "1"]
+`
+          }
+        ]
+      },
+      {
+        id: 'w5',
+        number: 5,
+        title: 'String Manipulation',
+        spec: 'J277 2.2.3 · Length, Slicing, Case & Traversal',
+        description: 'Inspect and transform text with len(), .upper(), slicing [a:b], and character loops.',
+        unlockXp: 440,
+        challenges: [
+          {
+            id: 'w5_c1',
+            title: '5.1 Username Generator (Slicing)',
+            xp: 40,
+            story: 'Read a first name and a surname. Create a username from the first 3 letters of the surname + first 2 letters of the first name, all lowercase.',
+            example: 'code = (surname[:3] + first[:2]).lower()',
+            criteria: [
+              'Read first = input() and surname = input().',
+              'Print surname[:3] + first[:2] in lowercase.'
+            ],
+            hints: [
+              'Use [:3] for the first 3 characters and .lower() to make lowercase.'
+            ],
+            starterCode: 'first = input()\nsurname = input()\n',
+            defaultStdin: 'Maya\nPatel',
+            testScript: `
+assert _run_with_inputs(["Maya", "Patel"]) == ["patma"]
+assert _run_with_inputs(["Liam", "OConnor"]) == ["ocoli"]
+`
+          },
+          {
+            id: 'w5_c2',
+            title: '5.2 Vowel Counter',
+            xp: 40,
+            story: 'Read a word and count how many vowels (a, e, i, o, u — uppercase or lowercase) it contains.',
+            example: 'for ch in word.lower():\n    if ch in "aeiou":\n        count += 1',
+            criteria: [
+              'Read word = input().',
+              'Print the integer count of vowels.'
+            ],
+            hints: [
+              'Convert word.lower() first so uppercase vowels are counted too.'
+            ],
+            starterCode: 'word = input()\n',
+            defaultStdin: 'Education',
+            testScript: `
+assert _run_with_inputs(["Education"]) == ["5"]
+assert _run_with_inputs(["rhythm"]) == ["0"]
+`
+          },
+          {
+            id: 'w5_c3',
+            title: '5.3 Palindrome Checker',
+            xp: 45,
+            story: 'Read a word, ignore spaces and case, and print "Palindrome" if it reads the same backwards, else "Not Palindrome".',
+            example: 'clean = text.replace(" ", "").lower()\nif clean == clean[::-1]:',
+            criteria: [
+              'Handle mixed case and spaces (e.g. "Race car").',
+              'Output "Palindrome" or "Not Palindrome".'
+            ],
+            hints: [
+              'Use text.replace(" ", "").lower() and compare with [::-1].'
+            ],
+            starterCode: 'text = input()\n',
+            defaultStdin: 'Race car',
+            testScript: `
+assert _run_with_inputs(["Race car"]) == ["Palindrome"]
+assert _run_with_inputs(["Python"]) == ["Not Palindrome"]
+`
+          },
+          {
+            id: 'w5_c4',
+            title: '5.4 Postcode Formatter',
+            xp: 45,
+            story: 'Read a messy postcode (e.g. "  sn13 0ab "), strip outer spaces, make uppercase, and print its total character length on line 2.',
+            example: 'clean = raw.strip().upper()\nprint(clean)\nprint(len(clean))',
+            criteria: [
+              'Print cleaned uppercase postcode on line 1.',
+              'Print len(clean) on line 2.'
+            ],
+            hints: [
+              'Chain .strip().upper() on the input string.'
+            ],
+            starterCode: 'raw = input()\n',
+            defaultStdin: '  sn13 0ab ',
+            testScript: `
+assert _run_with_inputs(["  sn13 0ab "]) == ["SN13 0AB", "8"]
+`
+          }
+        ]
+      },
+      {
+        id: 'w6',
+        number: 6,
+        title: 'Lists & 2D Arrays',
+        spec: 'J277 2.2.2 · 1D Lists, Linear Search & 2D Indexing',
+        description: 'Store collections, implement OCR linear search, find maximum values, and navigate 2D grids.',
+        unlockXp: 590,
+        challenges: [
+          {
+            id: 'w6_c1',
+            title: '6.1 Building & Summing a List',
+            xp: 40,
+            story: 'Read 3 integers into a list using .append(), then print the list length on line 1 and the sum of its items on line 2.',
+            example: 'nums = []\nnums.append(int(input()))',
+            criteria: [
+              'Append 3 input integers into a list.',
+              'Print len(nums) then sum(nums).'
+            ],
+            hints: [
+              'Use a loop range(3) with nums.append(int(input())).'
+            ],
+            starterCode: 'nums = []\n',
+            defaultStdin: '12\n8\n20',
+            testScript: `
+assert _run_with_inputs(["12", "8", "20"]) == ["3", "40"]
+`
+          },
+          {
+            id: 'w6_c2',
+            title: '6.2 OCR Linear Search',
+            xp: 45,
+            story: 'Given the list items = ["CPU", "RAM", "ROM", "SSD", "GPU"], read a target string and print its index if found, or "Not Found".',
+            example: 'found = -1\nfor i in range(len(items)):\n    if items[i] == target:\n        found = i',
+            criteria: [
+              'Search items = ["CPU", "RAM", "ROM", "SSD", "GPU"] for input target.',
+              'Print the zero-based index if found, otherwise "Not Found".'
+            ],
+            hints: [
+              'Loop with for i in range(len(items)): and check items[i] == target.'
+            ],
+            starterCode: 'items = ["CPU", "RAM", "ROM", "SSD", "GPU"]\ntarget = input()\n',
+            defaultStdin: 'SSD',
+            testScript: `
+assert _run_with_inputs(["SSD"]) == ["3"]
+assert _run_with_inputs(["CPU"]) == ["0"]
+assert _run_with_inputs(["HDD"]) == ["Not Found"]
+`
+          },
+          {
+            id: 'w6_c3',
+            title: '6.3 2D Array Student Grid',
+            xp: 45,
+            story: 'Given grid = [["Noah", 42], ["Zara", 49], ["Leo", 38]], print the name of the student with the highest score.',
+            example: 'best_name = grid[0][0]\nbest_score = grid[0][1]',
+            criteria: [
+              'Inspect all rows in grid.',
+              'Print "Zara" (the student with the highest score).'
+            ],
+            hints: [
+              'Each row has name at row[0] and score at row[1].'
+            ],
+            starterCode: 'grid = [["Noah", 42], ["Zara", 49], ["Leo", 38]]\n# Find and print the top scorer\'s name\n',
+            defaultStdin: '',
+            testScript: `
+assert _run_with_inputs([]) == ["Zara"]
+`
+          },
+          {
+            id: 'w6_c4',
+            title: '6.4 2D Grid Totaliser',
+            xp: 50,
+            story: 'Calculate and print the grand total of all integers in matrix = [[2, 4, 6], [1, 3, 5], [10, 20, 30]].',
+            example: 'for row in matrix:\n    for val in row:\n        total += val',
+            criteria: [
+              'Use nested loops to sum every number in matrix.',
+              'Print 81.'
+            ],
+            hints: [
+              'Outer loop iterates rows, inner loop iterates values in each row.'
+            ],
+            starterCode: 'matrix = [[2, 4, 6], [1, 3, 5], [10, 20, 30]]\n',
+            defaultStdin: '',
+            testScript: `
+assert _run_with_inputs([]) == ["81"]
+`
+          }
+        ]
+      },
+      {
+        id: 'w7',
+        number: 7,
+        title: 'Sub-Programs, Functions & Scope',
+        spec: 'J277 2.2.3 · Procedures, Basic Functions, Parsons & Scenarios',
+        description: 'Build step-by-step mastery of sub-programs—from simple 1-parameter functions, Parsons ordering, and drag-and-drop blanks to OCR Paper 2 scenarios.',
+        unlockXp: 770,
+        challenges: [
+          {
+            id: 'w7_c1',
+            title: '7.1 Open Code: Simple Multiplier Function (Scenario: Café Loyalty)',
+            xp: 30,
+            story: 'Scenario: A school café awards 10 loyalty points per £1 spent. Write a simple function calc_points(pounds) that multiplies pounds by 10 and returns the result. Then call it with 4 and print the returned points.',
+            example: '# Basic 1-parameter return function:\ndef double_number(n):\n    answer = n * 2\n    return answer\n\nresult = double_number(6)\nprint(result)   # Outputs 12',
+            criteria: [
+              'Define calc_points(pounds) returning pounds * 10.',
+              'Call calc_points(4) in the main program and print the result (40).'
+            ],
+            hints: [
+              'Inside calc_points(pounds): write return pounds * 10.',
+              'Outside the function, write print(calc_points(4)).'
+            ],
+            starterCode: '# Define calc_points(pounds) below\n\n\n# Call calc_points(4) and print the result\n',
+            defaultStdin: '',
+            testScript: `
+out = _run_with_inputs([])
+fn = _ns.get("calc_points")
+assert callable(fn), "Function calc_points(pounds) must be defined."
+assert fn(4) == 40, f"calc_points(4) should return 40, got {fn(4)}"
+assert fn(7) == 70, f"calc_points(7) should return 70, got {fn(7)}"
+assert out == ["40"], f"Expected printed output ['40'], got {out}"
+`
+          },
+          {
+            id: 'w7_c2',
+            title: '7.2 Parsons Problem: Simple Temperature Converter Function',
+            xp: 30,
+            activityType: 'parsons',
+            story: 'Scenario: A weather station converts Celsius into Fahrenheit using F = (C * 1.8) + 32. Arrange the 5 scrambled lines in the right order (watching indentation!) so the function defines, returns, and outputs 68.0.',
+            example: 'def add_ten(x):\n    y = x + 10\n    return y\n\nval = add_ten(5)\nprint(val)',
+            criteria: [
+              'Place def to_fahrenheit(celsius): on line 1.',
+              'Indent both the calculation and return statement inside the function.',
+              'Store to_fahrenheit(20) in temp_f and print it (68.0).'
+            ],
+            hints: [
+              'The def line always comes first, followed by its two indented lines.',
+              'return f must come BEFORE temp_f = to_fahrenheit(20).'
+            ],
+            parsonsLines: [
+              '    return f',
+              'print(temp_f)',
+              'def to_fahrenheit(celsius):',
+              'temp_f = to_fahrenheit(20)',
+              '    f = (celsius * 1.8) + 32'
+            ],
+            starterCode: '',
+            defaultStdin: '',
+            testScript: `
+out = _run_with_inputs([])
+fn = _ns.get("to_fahrenheit")
+assert callable(fn), "Function to_fahrenheit must be defined."
+assert fn(20) == 68.0, "to_fahrenheit(20) should return 68.0."
+assert out == ["68.0"], f"Expected ['68.0'], got {out}"
+`
+          },
+          {
+            id: 'w7_c3',
+            title: '7.3 Drag & Drop Blanks: Basic Rectangle Area Function',
+            xp: 30,
+            activityType: 'blanks',
+            story: 'Scenario: A garden planner needs a reusable function to calculate lawn area (width × height). Drag or click the tokens into the 4 blanks to complete the function and print the area of a 5m by 3m lawn.',
+            example: 'def perimeter(w, h):\n    p = (w + h) * 2\n    return p\n\nprint(perimeter(4, 2))',
+            criteria: [
+              'Use def to start the function definition.',
+              'Multiply width and height inside the function and return area.',
+              'Call rect_area(5, 3) to output 15.'
+            ],
+            hints: [
+              'Blank 1 starts the function definition with def.',
+              'Blank 3 sends the calculated value back using return.'
+            ],
+            blankTokens: ['def', 'height', 'return', 'rect_area'],
+            blankTemplate:
+              '{{0}} rect_area(width, {{1}}):\n' +
+              '    area = width * {{1}}\n' +
+              '    {{2}} area\n\n' +
+              'lawn = {{3}}(5, 3)\n' +
+              'print(lawn)',
+            starterCode: '',
+            defaultStdin: '',
+            testScript: `
+out = _run_with_inputs([])
+fn = _ns.get("rect_area")
+assert callable(fn), "Function rect_area must be defined."
+assert fn(5, 3) == 15, "rect_area(5, 3) should return 15."
+assert out == ["15"], f"Expected ['15'], got {out}"
+`
+          },
+          {
+            id: 'w7_c4',
+            title: '7.4 Open Code: String Greeting Function (Scenario: Helpdesk)',
+            xp: 35,
+            story: 'Scenario: An IT helpdesk system formats welcome tags for new students. Write a function make_badge(name, year_group) that returns "Year " + str(year_group) + ": " + name. Call it with ("Amira", 10) and print the result.',
+            example: 'def format_team(city, num):\n    msg = city + " Team #" + str(num)\n    return msg\n\nprint(format_team("Bath", 2))',
+            criteria: [
+              'Define make_badge(name, year_group) returning "Year <year_group>: <name>".',
+              'Use return (do NOT print inside make_badge).',
+              'Call make_badge("Amira", 10) and print the returned string.'
+            ],
+            hints: [
+              'Convert year_group using str(year_group) when concatenating strings.',
+              'Example return line: return "Year " + str(year_group) + ": " + name'
+            ],
+            starterCode: '# Write make_badge(name, year_group) below\n\n\n# Call make_badge("Amira", 10) and print it\n',
+            defaultStdin: '',
+            testScript: `
+out = _run_with_inputs([])
+fn = _ns.get("make_badge")
+assert callable(fn), "Function make_badge(name, year_group) must be defined."
+assert fn("Amira", 10) == "Year 10: Amira", f"Expected 'Year 10: Amira', got {fn('Amira', 10)!r}"
+assert fn("Leo", 11) == "Year 11: Leo"
+assert out == ["Year 10: Amira"], f"Expected ['Year 10: Amira'], got {out}"
+`
+          },
+          {
+            id: 'w7_c5',
+            title: '7.5 Parsons Problem: Simple Minutes-to-Seconds Function',
+            xp: 30,
+            activityType: 'parsons',
+            story: 'Scenario: A video editor converts clip length in minutes into total seconds (minutes * 60). Reorder the 5 scrambled lines so the function returns 180 when called with 3.',
+            example: 'def hours_to_mins(h):\n    m = h * 60\n    return m\n\nprint(hours_to_mins(2))',
+            criteria: [
+              'Start with def to_seconds(minutes): at the top.',
+              'Indent secs = minutes * 60 and return secs inside the function.',
+              'Call to_seconds(3) and print total_secs (outputs 180).'
+            ],
+            hints: [
+              'Function definitions always come before function calls.',
+              'return secs must be indented by 4 spaces inside to_seconds.'
+            ],
+            parsonsLines: [
+              '    return secs',
+              'print(total_secs)',
+              'def to_seconds(minutes):',
+              'total_secs = to_seconds(3)',
+              '    secs = minutes * 60'
+            ],
+            starterCode: '',
+            defaultStdin: '',
+            testScript: `
+out = _run_with_inputs([])
+fn = _ns.get("to_seconds")
+assert callable(fn), "Function to_seconds must be defined."
+assert fn(3) == 180, "to_seconds(3) should return 180."
+assert out == ["180"], f"Expected ['180'], got {out}"
+`
+          },
+          {
+            id: 'w7_c6',
+            title: '7.6 Drag & Drop Blanks: Simple Fuel Cost Function',
+            xp: 35,
+            activityType: 'blanks',
+            story: 'Scenario: A delivery van uses £0.18 of fuel per mile. Drag or click the 4 tokens into the blanks to complete fuel_cost(miles) and print the cost for a 50-mile journey.',
+            example: 'def ticket_total(qty):\n    cost = qty * 4.5\n    return cost\n\nprint(ticket_total(3))',
+            criteria: [
+              'Complete the parameter miles and function keyword def.',
+              'Return total from fuel_cost(miles).',
+              'Call fuel_cost(50) and print the returned value (9.0).'
+            ],
+            hints: [
+              'Blank 1 starts the function with def.',
+              'Blank 3 returns total back to the main program.'
+            ],
+            blankTokens: ['def', 'miles', 'return', 'fuel_cost'],
+            blankTemplate:
+              '{{0}} fuel_cost({{1}}):\n' +
+              '    total = {{1}} * 0.18\n' +
+              '    {{2}} total\n\n' +
+              'trip = {{3}}(50)\n' +
+              'print(trip)',
+            starterCode: '',
+            defaultStdin: '',
+            testScript: `
+out = _run_with_inputs([])
+fn = _ns.get("fuel_cost")
+assert callable(fn), "Function fuel_cost must be defined."
+assert round(fn(50), 2) == 9.0, "fuel_cost(50) should return 9.0."
+assert out == ["9.0"], f"Expected ['9.0'], got {out}"
+`
+          },
+          {
+            id: 'w7_c7',
+            title: '7.7 Open Code: Simple Max-of-Two Function (Scenario: Game High Score)',
+            xp: 35,
+            story: 'Scenario: An arcade game compares a player\'s Round 1 score and Round 2 score and keeps whichever is higher. Write a function best_score(round1, round2) that returns the larger of the two numbers (do NOT use built-in max() — practise using if/else and return!).',
+            example: 'def smaller(a, b):\n    if a < b:\n        return a\n    else:\n        return b\n\nprint(smaller(14, 9))',
+            criteria: [
+              'Define best_score(round1, round2) using an if/else comparison.',
+              'Return the higher score (and handle equal scores cleanly).',
+              'Call best_score(42, 67) in the main program and print the result (67).'
+            ],
+            hints: [
+              'Use if round1 >= round2: return round1 else: return round2.',
+              'Remember to print(best_score(42, 67)) outside the function.'
+            ],
+            starterCode: '# Define best_score(round1, round2) below\n\n\n# Call best_score(42, 67) and print the result\n',
+            defaultStdin: '',
+            testScript: `
+out = _run_with_inputs([])
+fn = _ns.get("best_score")
+assert callable(fn), "Function best_score(round1, round2) must be defined."
+assert fn(42, 67) == 67, "best_score(42, 67) should return 67."
+assert fn(90, 55) == 90, "best_score(90, 55) should return 90."
+assert fn(30, 30) == 30, "best_score(30, 30) should return 30."
+assert out == ["67"], f"Expected ['67'], got {out}"
+`
+          },
+          {
+            id: 'w7_c8',
+            title: '7.8 Drag & Drop Blanks: Simple Even-Number Checker (Boolean Function)',
+            xp: 35,
+            activityType: 'blanks',
+            story: 'Scenario: A raffle system checks if a ticket number is even using the MOD (%) operator. Fill the 4 blanks so is_even(num) returns True for even numbers and False for odd numbers.',
+            example: 'def is_multiple_of_five(n):\n    if n % 5 == 0:\n        return True\n    return False',
+            criteria: [
+              'Check num % 2 == 0 inside the if condition.',
+              'Return True when divisible by 2, and False otherwise.',
+              'Call is_even(14) and print True.'
+            ],
+            hints: [
+              'Use % (MOD) to check the remainder when dividing by 2.',
+              'Boolean values in Python are capitalised: True and False.'
+            ],
+            blankTokens: ['num', 'True', 'False', 'is_even'],
+            blankTemplate:
+              'def is_even({{0}}):\n' +
+              '    if {{0}} % 2 == 0:\n' +
+              '        return {{1}}\n' +
+              '    return {{2}}\n\n' +
+              'print({{3}}(14))',
+            starterCode: '',
+            defaultStdin: '',
+            testScript: `
+out = _run_with_inputs([])
+fn = _ns.get("is_even")
+assert callable(fn), "Function is_even must be defined."
+assert fn(14) is True, "is_even(14) should return True."
+assert fn(9) is False, "is_even(9) should return False."
+assert out == ["True"], f"Expected ['True'], got {out}"
+`
+          },
+          {
+            id: 'w7_c9',
+            title: '7.9 Procedures vs Functions (Scenario: Till Receipt)',
+            xp: 35,
+            story: 'Exam Tip: A PROCEDURE performs an action (such as printing a formatted receipt line) and does NOT return a value. Parameters passed into arguments give procedures reusable data.',
+            example: '# Procedure definition with 2 parameters\ndef display_score(player, points):\n    print("[" + player + "] Score: " + str(points))\n\n# Calling the procedure twice with arguments\ndisplay_score("Maya", 45)\ndisplay_score("Liam", 60)',
+            criteria: [
+              'Define a procedure show_receipt(item, price) that prints "Item: " + item + " | £" + str(price).',
+              'Call show_receipt("Keyboard", 25) on line 1 of output.',
+              'Call show_receipt("Mouse", 12) on line 2 of output.'
+            ],
+            hints: [
+              'Start with def show_receipt(item, price): and indent the print() line by 4 spaces.',
+              'Convert price using str(price) when joining strings with +.',
+              'Call show_receipt("Keyboard", 25) and show_receipt("Mouse", 12) outside the def block.'
+            ],
+            starterCode: '# Define procedure show_receipt(item, price) below\n\n\n# Call show_receipt twice for "Keyboard" (25) and "Mouse" (12)\n',
+            defaultStdin: '',
+            testScript: `
+out = _run_with_inputs([])
+assert callable(_ns.get("show_receipt")), "Procedure 'show_receipt' must be defined."
+assert out == ["Item: Keyboard | £25", "Item: Mouse | £12"], f"Expected ['Item: Keyboard | £25', 'Item: Mouse | £12'], got {out}"
+_cap = []
+_ns["show_receipt"]("Monitor", 140)
+assert _cap == ["Item: Monitor | £140"], "Calling show_receipt('Monitor', 140) must print 'Item: Monitor | £140'."
+`
+          },
+          {
+            id: 'w7_c10',
+            title: '7.10 Parsons Problem: Reorder a Discount Function',
+            xp: 40,
+            activityType: 'parsons',
+            story: 'Scenario: An online store calculates sale prices after a percentage discount. Arrange the scrambled lines into the exact working order (including indentation!) to calculate and print a discounted price of 60.0.',
+            example: '# Structure of a Python function:\ndef double_value(num):      # 1. Header with parameter\n    ans = num * 2           # 2. Indented body\n    return ans              # 3. Return result\n\nres = double_value(9)       # 4. Call & store result\nprint(res)                  # 5. Output stored result',
+            criteria: [
+              'Place def calc_discount(price, percent): at the top.',
+              'Indent the saving calculation and return statement inside the function.',
+              'Call calc_discount(80, 25) in the main program, store in final_price, and print it (outputs 60.0).'
+            ],
+            hints: [
+              'Function definitions (def ...) must appear BEFORE the main program calls them.',
+              'return final must be indented inside the function, and comes BEFORE calling the function.'
+            ],
+            parsonsLines: [
+              '    final = price - saving',
+              'print(final_price)',
+              'def calc_discount(price, percent):',
+              '    return final',
+              'final_price = calc_discount(80, 25)',
+              '    saving = price * (percent / 100)'
+            ],
+            starterCode: '',
+            defaultStdin: '',
+            testScript: `
+out = _run_with_inputs([])
+assert callable(_ns.get("calc_discount")), "Function calc_discount must be defined."
+assert _ns["calc_discount"](80, 25) == 60.0, "calc_discount(80, 25) should return 60.0."
+assert out == ["60.0"], f"Expected output ['60.0'], got {out}"
+`
+          },
+          {
+            id: 'w7_c11',
+            title: '7.11 Drag & Drop Blanks: Parameters, Return & Local Scope',
+            xp: 40,
+            activityType: 'blanks',
+            story: 'Mock Exam Fixer: A common exam mistake is using print() inside a function instead of return, or forgetting parameters. Drag (or click) the correct Python tokens into the 5 blanks below to complete the shipping cost function.',
+            example: '# Passing data IN via parameters and OUT via return:\ndef add_tax(amount):\n    total = amount + 5\n    return total\n\nbill = add_tax(20)   # Captures returned value 25',
+            criteria: [
+              'Use def to declare the function with parameters weight and is_express.',
+              'Use return to pass the calculated shipping fee back to the caller.',
+              'Capture the returned value in delivery_fee when calling shipping_cost(4, True).'
+            ],
+            hints: [
+              'Every subroutine definition in Python begins with the keyword def.',
+              'To send a value back from a function to the main program, use return (not print).'
+            ],
+            blankTokens: ['def', 'weight', 'return', 'shipping_cost', 'delivery_fee'],
+            blankTemplate:
+              '{{0}} shipping_cost({{1}}, is_express):\n' +
+              '    cost = {{1}} * 2\n' +
+              '    if is_express:\n' +
+              '        cost = cost + 5\n' +
+              '    {{2}} cost\n\n' +
+              '{{4}} = {{3}}(4, True)\n' +
+              'print({{4}})',
+            starterCode: '',
+            defaultStdin: '',
+            testScript: `
+out = _run_with_inputs([])
+assert callable(_ns.get("shipping_cost")), "Function shipping_cost must be defined."
+assert _ns["shipping_cost"](4, True) == 13, "shipping_cost(4, True) should return 13."
+assert _ns["shipping_cost"](3, False) == 6, "shipping_cost(3, False) should return 6."
+assert out == ["13"], f"Expected ['13'], got {out}"
+`
+          },
+          {
+            id: 'w7_c12',
+            title: '7.12 Parsons Problem: Boolean PIN Validator Function',
+            xp: 45,
+            activityType: 'parsons',
+            story: 'Scenario: A banking app checks whether a user PIN is valid before allowing login. Reorder the lines below (watching 4-space and 8-space indentation) to build is_valid_pin(pin) returning True for 4 digits and False otherwise.',
+            example: 'def is_positive(x):\n    if x > 0:\n        return True\n    return False\n\nprint(is_positive(5))',
+            criteria: [
+              'Define is_valid_pin(pin) at the top.',
+              'Check both len(pin) == 4 and pin.isdigit() inside an indented if statement.',
+              'Return True when valid, otherwise return False, then print is_valid_pin("4821").'
+            ],
+            hints: [
+              'Notice the indentation levels: 4 spaces for lines inside def, and 8 spaces for return True inside if.',
+              'return False should be indented by 4 spaces (aligned with if, not inside if).'
+            ],
+            parsonsLines: [
+              '        return True',
+              'print(is_valid_pin("4821"))',
+              '    if len(pin) == 4 and pin.isdigit():',
+              'def is_valid_pin(pin):',
+              '    return False'
+            ],
+            starterCode: '',
+            defaultStdin: '',
+            testScript: `
+out = _run_with_inputs([])
+fn = _ns.get("is_valid_pin")
+assert callable(fn), "Function is_valid_pin must be defined."
+assert fn("4821") is True, "'4821' should return True."
+assert fn("123") is False, "'123' should return False."
+assert fn("12a4") is False, "'12a4' should return False."
+assert out == ["True"], f"Expected ['True'], got {out}"
+`
+          },
+          {
+            id: 'w7_c13',
+            title: '7.13 Drag & Drop Blanks: Modular Decomposition (Function Calling Function)',
+            xp: 45,
+            activityType: 'blanks',
+            story: 'Scenario: Exam software breaks grading into two small sub-programs: calc_percentage(score, total) and get_grade(score, total). Fill the 5 blanks so get_grade calls calc_percentage and returns "Pass" (>= 50%) or "Fail".',
+            example: 'def half(x):\n    return x / 2\n\ndef show_half(n):\n    h = half(n)     # Calling helper function\n    return h',
+            criteria: [
+              'Define calc_percentage(score, total) returning (score / total) * 100.',
+              'Inside get_grade(score, total), call calc_percentage(score, total) and store in pct.',
+              'Return "Pass" when pct >= 50, else return "Fail".'
+            ],
+            hints: [
+              'The first function needs to return the percentage calculation.',
+              'Inside get_grade, pass score and total into calc_percentage(score, total).'
+            ],
+            blankTokens: ['return', 'calc_percentage', 'pct', 'get_grade', 'else'],
+            blankTemplate:
+              'def calc_percentage(score, total):\n' +
+              '    {{0}} (score / total) * 100\n\n' +
+              'def {{3}}(score, total):\n' +
+              '    {{2}} = {{1}}(score, total)\n' +
+              '    if {{2}} >= 50:\n' +
+              '        return "Pass"\n' +
+              '    {{4}}:\n' +
+              '        return "Fail"\n\n' +
+              'print({{3}}(32, 40))',
+            starterCode: '',
+            defaultStdin: '',
+            testScript: `
+out = _run_with_inputs([])
+assert _ns["calc_percentage"](30, 60) == 50.0
+assert _ns["get_grade"](32, 40) == "Pass"
+assert _ns["get_grade"](18, 40) == "Fail"
+assert out == ["Pass"], f"Expected ['Pass'], got {out}"
+`
+          },
+          {
+            id: 'w7_c14',
+            title: '7.14 Mini Assessment 1: Car Park Fee Function (OCR Scenario)',
+            xp: 55,
+            story: 'OCR Paper 2 Scenario (6 Marks): A smart car park charges £2.50 per hour for standard vehicles, or £1.50 per hour for electric vehicles (EVs). Stays of more than 5 hours receive a flat £2.00 loyalty discount off the total. Write a function calculate_parking(hours, is_ev) that returns the final fee (do NOT print inside the function).',
+            example: '# Example function structure:\ndef bike_hire(hours, is_member):\n    rate = 3.0 if is_member else 5.0\n    total = hours * rate\n    if hours > 4:\n        total = total - 1.5\n    return round(total, 2)',
+            criteria: [
+              'Define calculate_parking(hours, is_ev) using exact parameter names.',
+              'Use £1.50/hour when is_ev is True, and £2.50/hour when is_ev is False.',
+              'If hours > 5, subtract £2.00 from the total.',
+              'Return the final numeric fee rounded to 2 decimal places (do NOT just print it).'
+            ],
+            hints: [
+              'Set rate = 1.5 if is_ev else 2.5, then total = hours * rate.',
+              'Check if hours > 5: (strictly greater than 5, so 5 hours gets NO discount).',
+              'End the function with return round(total, 2).'
+            ],
+            starterCode: 'def calculate_parking(hours, is_ev):\n    # Write your OCR Paper 2 solution below and return the fee\n    pass\n',
+            defaultStdin: '',
+            testScript: `
+fn = _ns.get("calculate_parking")
+assert callable(fn), "Function calculate_parking(hours, is_ev) must be defined."
+assert fn(3, False) == 7.5, f"3 hrs non-EV should return 7.5, got {fn(3, False)}"
+assert fn(3, True) == 4.5, f"3 hrs EV should return 4.5, got {fn(3, True)}"
+assert fn(5, False) == 12.5, f"Boundary 5 hrs non-EV should NOT get discount (expected 12.5), got {fn(5, False)}"
+assert fn(6, False) == 13.0, f"6 hrs non-EV should get £2 discount (expected 13.0), got {fn(6, False)}"
+assert fn(6, True) == 7.0, f"6 hrs EV should get £2 discount (expected 7.0), got {fn(6, True)}"
+`
+          },
+          {
+            id: 'w7_c15',
+            title: '7.15 Mini Assessment 2: Modular Quiz Scorer (Functions + Lists)',
+            xp: 60,
+            story: 'OCR Paper 2 Scenario (8 Marks): An automated revision system compares a list of student answers against a list of correct answers. Write two sub-programs: (1) a function count_correct(student_ans, model_ans) that returns how many matching answers are in the same positions, and (2) a procedure print_summary(name, score, total) that outputs "<name> scored <score>/<total>".',
+            example: '# Comparing two lists of equal length:\ndef count_matches(a, b):\n    matches = 0\n    for i in range(len(a)):\n        if a[i] == b[i]:\n            matches += 1\n    return matches',
+            criteria: [
+              'Function count_correct(student_ans, model_ans) compares elements index-by-index (case-insensitive) and returns the integer count.',
+              'Procedure print_summary(name, score, total) prints "<name> scored <score>/<total>".',
+              'Both sub-programs work independently when tested with unseen lists.'
+            ],
+            hints: [
+              'Inside count_correct, loop for i in range(len(model_ans)): and compare student_ans[i].upper() == model_ans[i].upper().',
+              'Remember count_correct MUST return an integer, while print_summary MUST print the formatted string.'
+            ],
+            starterCode: 'def count_correct(student_ans, model_ans):\n    # Return number of matching answers\n    pass\n\ndef print_summary(name, score, total):\n    # Print "<name> scored <score>/<total>"\n    pass\n',
+            defaultStdin: '',
+            testScript: `
+cc = _ns.get("count_correct")
+ps = _ns.get("print_summary")
+assert callable(cc), "Function count_correct(student_ans, model_ans) must be defined."
+assert callable(ps), "Procedure print_summary(name, score, total) must be defined."
+assert cc(["A", "B", "C", "D"], ["A", "C", "C", "D"]) == 3, "Expected 3 matching answers."
+assert cc(["a", "b", "c"], ["A", "B", "C"]) == 3, "Comparison should handle lowercase/uppercase."
+assert cc(["X", "Y"], ["A", "B"]) == 0, "Expected 0 matches."
+_cap = []
+ps("Sam", 3, 4)
+assert _cap == ["Sam scored 3/4"], f"print_summary('Sam', 3, 4) should print 'Sam scored 3/4', got {_cap}"
+`
+          }
+        ]
+      },
+      {
+        id: 'w8',
+        number: 8,
+        title: 'File Handling & Records',
+        spec: 'J277 2.2.3 · open(), read(), write(), append() & CSV',
+        description: 'Persist data to external text and CSV files using Python file operations.',
+        unlockXp: 1050,
+        challenges: [
+          {
+            id: 'w8_c1',
+            title: '8.1 Write & Read a Text File',
+            xp: 45,
+            story: 'Create a file named "notes.txt" in write mode ("w"), write "OCR Python" into it, close it, then read it back and print its contents.',
+            example: 'f = open("log.txt", "w")\nf.write("Saved")\nf.close()',
+            criteria: [
+              'Write "OCR Python" to "notes.txt".',
+              'Read back from "notes.txt" and print the contents.'
+            ],
+            hints: [
+              'Use with open("notes.txt", "w") as f: f.write("OCR Python").'
+            ],
+            starterCode: '# Write "OCR Python" to notes.txt, then read and print it\n',
+            defaultStdin: '',
+            testScript: `
+out = _run_with_inputs([])
+assert out == ["OCR Python"], f"Expected ['OCR Python'], got {out}"
+`
+          },
+          {
+            id: 'w8_c2',
+            title: '8.2 Appending Log Entries',
+            xp: 45,
+            story: 'Write "Boot\\n" to "events.txt" using "w", then append "Login\\n" using "a", and finally print the stripped lines.',
+            example: 'with open("events.txt", "a") as f:\n    f.write("Login\\n")',
+            criteria: [
+              'Create "events.txt" with "Boot" then append "Login".',
+              'Print "Boot" on line 1 and "Login" on line 2.'
+            ],
+            hints: [
+              'Loop through the file lines and use print(line.strip()).'
+            ],
+            starterCode: '# Write Boot, append Login, and print both lines\n',
+            defaultStdin: '',
+            testScript: `
+assert _run_with_inputs([]) == ["Boot", "Login"]
+`
+          },
+          {
+            id: 'w8_c3',
+            title: '8.3 Parsing CSV Scores',
+            xp: 50,
+            story: 'Write "Ella,45\\nOwen,52\\n" to "results.csv", then read it back, split each row by ",", and print only names with scores >= 50.',
+            example: 'name, score = line.strip().split(",")\nif int(score) >= 50:\n    print(name)',
+            criteria: [
+              'Write the two CSV rows to "results.csv".',
+              'Read and parse each row, printing "Owen".'
+            ],
+            hints: [
+              'Remember score from split(",") is a string, so cast with int(score).'
+            ],
+            starterCode: '# Write results.csv and print names scoring >= 50\n',
+            defaultStdin: '',
+            testScript: `
+assert _run_with_inputs([]) == ["Owen"]
+`
+          },
+          {
+            id: 'w8_c4',
+            title: '8.4 High-Score Updater',
+            xp: 50,
+            story: 'Write "120" to "highscore.txt". Read a new score from input(); if it is higher than the stored score, overwrite "highscore.txt" and print the new high score.',
+            example: 'if new_score > old_score:\n    with open("highscore.txt", "w") as f:\n        f.write(str(new_score))',
+            criteria: [
+              'Initialise "highscore.txt" with "120".',
+              'Compare input integer against file value and print the higher score.'
+            ],
+            hints: [
+              'Read the stored string and cast to int() before comparing.'
+            ],
+            starterCode: 'with open("highscore.txt", "w") as f:\n    f.write("120")\n\nnew_score = int(input())\n',
+            defaultStdin: '155',
+            testScript: `
+assert _run_with_inputs(["155"]) == ["155"]
+assert _run_with_inputs(["95"]) == ["120"]
+`
+          }
+        ]
+      },
+      {
+        id: 'w9',
+        number: 9,
+        title: 'Robust Programming (J277 2.3)',
+        spec: 'J277 2.3 · Validation, Authentication & Testing',
+        description: 'Build defensive programs with type/range/format checks, login lockouts, and boundary handling.',
+        unlockXp: 1230,
+        challenges: [
+          {
+            id: 'w9_c1',
+            title: '9.1 Type & Range Validation Loop',
+            xp: 45,
+            story: 'Keep prompting for a student age until a valid integer between 11 and 18 (inclusive) is entered. Catch non-integers using try/except ValueError, then print "Accepted: <age>".',
+            example: 'while True:\n    try:\n        age = int(input())\n        if 11 <= age <= 18:\n            break\n    except ValueError:\n        pass',
+            criteria: [
+              'Reject non-numeric strings without crashing.',
+              'Reject integers outside 11..18.',
+              'Print "Accepted: <age>" once valid.'
+            ],
+            hints: [
+              'Wrap int(input()) inside try: ... except ValueError:.'
+            ],
+            starterCode: '# Loop until a valid integer age (11..18) is entered\n',
+            defaultStdin: 'abc\n5\n22\n15',
+            testScript: `
+assert _run_with_inputs(["abc", "5", "22", "15"]) == ["Accepted: 15"]
+assert _run_with_inputs(["11"]) == ["Accepted: 11"]
+assert _run_with_inputs(["18"]) == ["Accepted: 18"]
+`
+          },
+          {
+            id: 'w9_c2',
+            title: '9.2 Presence, Length & Format Validator',
+            xp: 45,
+            story: 'Write a function validate_username(username) that strips outer spaces and returns True only if length is 4..12 characters and all characters are alphanumeric (.isalnum()).',
+            example: 'def check(u):\n    u = u.strip()\n    return 4 <= len(u) <= 12 and u.isalnum()',
+            criteria: [
+              'Define validate_username(username).',
+              'Return True for valid usernames and False for empty, short, long, or symbol-containing strings.'
+            ],
+            hints: [
+              'Use u = username.strip() first, then check 4 <= len(u) <= 12 and u.isalnum().'
+            ],
+            starterCode: 'def validate_username(username):\n    pass\n',
+            defaultStdin: '',
+            testScript: `
+fn = _ns.get("validate_username")
+assert callable(fn)
+assert fn("  Alex99 ") is True
+assert fn("ab") is False
+assert fn("user_name!") is False
+assert fn("") is False
+`
+          },
+          {
+            id: 'w9_c3',
+            title: '9.3 Authentication & 3-Attempt Lockout',
+            xp: 50,
+            story: 'Define constants VALID_USER = "admin", VALID_PASS = "Secure9", MAX_ATTEMPTS = 3. Read username and password pairs up to 3 times; print "Access Granted" on match or "Account Locked" after 3 failures.',
+            example: 'VALID_USER = "admin"\nVALID_PASS = "Secure9"\nMAX_ATTEMPTS = 3',
+            criteria: [
+              'Use UPPER_SNAKE_CASE constants VALID_USER, VALID_PASS, MAX_ATTEMPTS.',
+              'Grant access immediately if credentials match within 3 attempts; otherwise print "Account Locked".'
+            ],
+            hints: [
+              'Use a for loop over range(MAX_ATTEMPTS) reading user then pwd each turn.'
+            ],
+            starterCode: 'VALID_USER = "admin"\nVALID_PASS = "Secure9"\nMAX_ATTEMPTS = 3\n',
+            defaultStdin: 'admin\nwrong1\nadmin\nwrong2\nadmin\nSecure9',
+            testScript: `
+assert _run_with_inputs(["admin", "Secure9"]) == ["Access Granted"]
+assert _run_with_inputs(["admin", "w1", "admin", "w2", "admin", "Secure9"]) == ["Access Granted"]
+assert _run_with_inputs(["a", "1", "b", "2", "c", "3"]) == ["Account Locked"]
+`
+          },
+          {
+            id: 'w9_c4',
+            title: '9.4 Defensive Ticket Pricing & Boundary Testing',
+            xp: 50,
+            story: 'Write calculate_ticket_price(age, is_student): raise ValueError("Invalid age") if age is not an int (excluding bool) or outside 0..120. Ages < 5 return 0.0; ages 5..17 or is_student return 6.5; ages >= 65 return 7.0; adults return 12.0.',
+            example: 'if type(age) is not int or age < 0 or age > 120:\n    raise ValueError("Invalid age")',
+            criteria: [
+              'Raise ValueError("Invalid age") for negative, >120, string, or boolean ages.',
+              'Return exact prices across all age boundaries (0, 4, 5, 17, 18, 64, 65, 120).'
+            ],
+            hints: [
+              'Check type(age) is not int (note: in Python isinstance(True, int) is True, so type(age) is not int safely rejects booleans!).'
+            ],
+            starterCode: 'def calculate_ticket_price(age, is_student):\n    pass\n',
+            defaultStdin: '',
+            testScript: `
+fn = _ns.get("calculate_ticket_price")
+assert callable(fn)
+assert fn(4, False) == 0.0
+assert fn(5, False) == 6.5
+assert fn(17, False) == 6.5
+assert fn(22, True) == 6.5
+assert fn(22, False) == 12.0
+assert fn(65, False) == 7.0
+for bad in [-1, 121, "ten", True]:
+    raised = False
+    try:
+        fn(bad, False)
+    except ValueError:
+        raised = True
+    assert raised, f"Expected ValueError for {bad!r}"
+`
+          }
+        ]
+      }
+    ];
+
+    const ALL_CHALLENGES = COURSE_WORLDS.flatMap(w => w.challenges);
+    const TOTAL_COURSE_XP = ALL_CHALLENGES.reduce((sum, ch) => sum + ch.xp, 0);
+
+    // Application State
+    let pyodideInstance = null;
+    let pyodideReady = false;
+    let activeStudent = null;
+    let isGuestMode = false;
+    let isSandboxMode = false;
+    let teacherUnlockedAll = false;
+    let currentWorldId = null;
+    let currentChallengeId = null;
+    let currentParsonsOrder = [];
+    let currentBlankSlots = [];
+    let selectedBlankToken = null;
+    const virtualFileSystem = {};
+
+    function showToast(msg) {
+      const el = document.getElementById('toastBanner');
+      if (!el) return;
+      el.textContent = msg;
+      el.classList.remove('hidden');
+      clearTimeout(el._timer);
+      el._timer = setTimeout(() => el.classList.add('hidden'), 3200);
+    }
+
+    function applyTheme(theme) {
+      document.body.classList.remove('theme-dark', 'theme-accessible');
+      if (theme === 'dark') document.body.classList.add('theme-dark');
+      if (theme === 'accessible') document.body.classList.add('theme-accessible');
+      const sel = document.getElementById('themeSelector');
+      if (sel) sel.value = theme;
+      try {
+        localStorage.setItem(STORAGE_KEYS.THEME, theme);
+      } catch (e) {}
+    }
+
+    function createEmptyStudent(name, className) {
+      return {
+        id: 'stu_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
+        name: name.trim(),
+        className: className.trim(),
+        xp: 0,
+        completedIds: [],
+        drafts: {},
+        lastActive: new Date().toLocaleString()
+      };
+    }
+
+    function saveStudentToStorage() {
+      if (!activeStudent || isGuestMode) return;
+      activeStudent.lastActive = new Date().toLocaleString();
+      try {
+        localStorage.setItem(STORAGE_KEYS.ACTIVE_STUDENT, JSON.stringify(activeStudent));
+        const rawMb = localStorage.getItem(STORAGE_KEYS.MARKBOOK);
+        const mb = rawMb ? JSON.parse(rawMb) : [];
+        const idx = mb.findIndex(s => s.id === activeStudent.id || (s.name === activeStudent.name && s.className === activeStudent.className));
+        if (idx >= 0) mb[idx] = activeStudent;
+        else mb.push(activeStudent);
+        localStorage.setItem(STORAGE_KEYS.MARKBOOK, JSON.stringify(mb));
+      } catch (e) {}
+    }
+
+    function loadClassesFromStorage() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEYS.CLASSES);
+        return raw ? JSON.parse(raw) : [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function saveClassesToStorage(classes) {
+      try {
+        localStorage.setItem(STORAGE_KEYS.CLASSES, JSON.stringify(classes));
+      } catch (e) {}
+    }
+
+    function resolveClassName(inputStr) {
+      const clean = inputStr.trim();
+      const classes = loadClassesFromStorage();
+      const byPin = classes.find(c => c.pin === clean || c.joinCode.toUpperCase() === clean.toUpperCase());
+      if (byPin) return byPin.name;
+      if (clean.includes('-')) {
+        const prefix = clean.split('-')[0].trim();
+        if (prefix) return prefix;
+      }
+      return clean;
+    }
+
+    function getCompletedSet() {
+      if (activeStudent && Array.isArray(activeStudent.completedIds)) {
+        return new Set(activeStudent.completedIds);
+      }
+      return new Set();
+    }
+
+    function getCurrentXp() {
+      if (activeStudent) return activeStudent.xp || 0;
+      return 0;
+    }
+
+    function updateHeaderAndProgress() {
+      const badge = document.getElementById('sessionBadge');
+      const saveBtn = document.getElementById('btnSaveProgressFile');
+      const sandboxBanner = document.getElementById('sandboxMapBanner');
+
+      if (sandboxBanner) {
+        sandboxBanner.classList.toggle('hidden', !isSandboxMode);
+      }
+
+      if (isSandboxMode) {
+        badge.className = 'badge badge-purple';
+        badge.textContent = '🧪 Sandbox Mode (All Unlocked)';
+        saveBtn.classList.add('hidden');
+      } else if (activeStudent && !isGuestMode) {
+        badge.className = 'badge badge-emerald';
+        badge.textContent = `🎓 ${activeStudent.name} (${activeStudent.className})`;
+        saveBtn.classList.remove('hidden');
+      } else if (isGuestMode) {
+        badge.className = 'badge badge-amber';
+        badge.textContent = '👤 Guest Mode (Unsaved)';
+        saveBtn.classList.add('hidden');
+      } else {
+        badge.className = 'badge badge-muted';
+        badge.textContent = 'Browsing · Not Signed In';
+        saveBtn.classList.add('hidden');
+      }
+
+      const completedCount = getCompletedSet().size;
+      const totalCount = ALL_CHALLENGES.length;
+      const xp = getCurrentXp();
+      const level = Math.floor(xp / 150) + 1;
+      const pct = Math.min(100, Math.round((xp / TOTAL_COURSE_XP) * 100));
+
+      document.getElementById('progressSummaryLabel').textContent = `${completedCount} / ${totalCount} Challenges Completed`;
+      document.getElementById('xpSummaryLabel').textContent = `${xp} / ${TOTAL_COURSE_XP} XP · Level ${level}`;
+      document.getElementById('overallProgressBar').style.width = `${pct}%`;
+    }
+
+    function showOnlyView(viewId) {
+      ['courseMapView', 'challengeWorkspaceView', 'sandboxView', 'teacherPortalView'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.toggle('hidden', id !== viewId);
+      });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function renderCourseMap() {
+      updateHeaderAndProgress();
+      const grid = document.getElementById('worldsGrid');
+      if (!grid) return;
+      grid.innerHTML = '';
+
+      const currentXp = getCurrentXp();
+      const completedSet = getCompletedSet();
+
+      COURSE_WORLDS.forEach(world => {
+        const isUnlocked = isSandboxMode || teacherUnlockedAll || currentXp >= world.unlockXp;
+        const solvedInWorld = world.challenges.filter(c => completedSet.has(c.id)).length;
+
+        const card = document.createElement('div');
+        card.className = `card world-card ${isUnlocked ? 'unlocked' : 'locked'}`;
+        card.innerHTML = `
+          <div class="world-header">
+            <div>
+              <span class="badge ${isUnlocked ? 'badge-blue' : 'badge-muted'}">World ${world.number}</span>
+              <h3 class="world-title">${world.title}</h3>
+              <p class="world-spec">${world.spec}</p>
+            </div>
+            <span class="badge ${solvedInWorld === world.challenges.length ? 'badge-emerald' : 'badge-muted'}">
+              ${solvedInWorld}/${world.challenges.length}
+            </span>
+          </div>
+          <p style="margin:0;font-size:0.86rem;color:var(--text-secondary);">${world.description}</p>
+          ${
+            world.id === 'w7'
+              ? `<div style="background:var(--accent-blue-soft);border:1px solid var(--accent-blue-border);border-radius:var(--radius-sm);padding:0.55rem 0.65rem;">
+                  <label for="cardSelect_w7" style="display:block;font-size:0.75rem;font-weight:800;color:var(--accent-blue);margin-bottom:0.25rem;">
+                    Jump to World 7 Activity (7.1 – 7.15):
+                  </label>
+                  <select id="cardSelect_w7" class="select-control" style="width:100%;font-size:0.8rem;font-weight:600;" ${isUnlocked ? '' : 'disabled'}>
+                    <option value="">${isUnlocked ? 'Select 7.1, 7.2, 7.3...' : `Unlocks at ${world.unlockXp} XP`}</option>
+                    ${world.challenges
+                      .map(ch => {
+                        const tag =
+                          ch.activityType === 'parsons'
+                            ? '[Parsons]'
+                            : ch.activityType === 'blanks'
+                              ? '[Drag & Drop]'
+                              : ch.title.includes('Mini Assessment')
+                                ? '[Assessment]'
+                                : '[Open Code]';
+                        return `<option value="${ch.id}">${completedSet.has(ch.id) ? '✅ ' : ''}${ch.title} ${tag}</option>`;
+                      })
+                      .join('')}
+                  </select>
+                </div>`
+              : ''
+          }
+          <div class="challenge-list"></div>
+        `;
+
+        if (world.id === 'w7' && isUnlocked) {
+          const cardDrop = card.querySelector('#cardSelect_w7');
+          if (cardDrop) {
+            cardDrop.addEventListener('change', e => {
+              if (e.target.value) openChallengeWorkspace('w7', e.target.value);
+            });
+          }
+        }
+
+        const listEl = card.querySelector('.challenge-list');
+        world.challenges.forEach(ch => {
+          const isSolved = completedSet.has(ch.id);
+          const typeTag =
+            ch.activityType === 'parsons'
+              ? '🧩 Parsons Problem'
+              : ch.activityType === 'blanks'
+                ? '🧲 Drag & Drop Blanks'
+                : ch.title.includes('Mini Assessment')
+                  ? '📝 Mini Assessment'
+                  : '💻 Coding Task';
+
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = `challenge-tile ${isSolved ? 'solved' : ''}`;
+          btn.disabled = !isUnlocked;
+          btn.innerHTML = `
+            <div>
+              <div class="tile-title">${isSolved ? '✅ ' : isUnlocked ? '▶ ' : '🔒 '}${ch.title}</div>
+              <div class="tile-sub">${isUnlocked ? `${typeTag} · Click to open` : `Unlocks at ${world.unlockXp} XP`}</div>
+            </div>
+            <span class="badge ${isSolved ? 'badge-emerald' : 'badge-amber'}">+${ch.xp} XP</span>
+          `;
+          if (isUnlocked) {
+            btn.addEventListener('click', () => openChallengeWorkspace(world.id, ch.id));
+          }
+          listEl.appendChild(btn);
+        });
+
+        grid.appendChild(card);
+      });
+    }
+
+    function updateLineNumbers(textareaId = 'codeEditor', lineNumbersId = 'lineNumbers') {
+      const ta = document.getElementById(textareaId);
+      const ln = document.getElementById(lineNumbersId);
+      if (!ta || !ln) return;
+      const lines = ta.value.split('\n').length;
+      ln.innerHTML = Array.from({ length: lines }, (_, i) => i + 1).join('<br>');
+    }
+
+    function clearConsole(boxId = 'consoleOutput') {
+      const box = document.getElementById(boxId);
+      if (box) box.innerHTML = '';
+    }
+
+    function appendConsole(text, type = 'out', boxId = 'consoleOutput') {
+      const box = document.getElementById(boxId);
+      if (!box) return;
+      const line = document.createElement('div');
+      line.className =
+        type === 'err'
+          ? 'console-line-err'
+          : type === 'sys'
+            ? 'console-line-sys'
+            : type === 'ok'
+              ? 'console-line-ok'
+              : 'console-line-out';
+      line.textContent = text;
+      box.appendChild(line);
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function assembleInteractiveCode(challenge) {
+      if (challenge.activityType === 'parsons') {
+        return currentParsonsOrder.join('\n') + '\n';
+      }
+      if (challenge.activityType === 'blanks') {
+        return challenge.blankTemplate.replace(/\{\{(\d+)\}\}/g, (_, idx) => {
+          const val = currentBlankSlots[Number(idx)];
+          return val ? val : '___';
+        });
+      }
+      return '';
+    }
+
+    function syncInteractiveToEditor(challenge) {
+      const editor = document.getElementById('codeEditor');
+      if (!editor) return;
+      editor.value = assembleInteractiveCode(challenge);
+      updateLineNumbers();
+    }
+
+    function renderParsonsActivity(challenge, panel) {
+      panel.innerHTML = `
+        <div class="activity-box">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;margin-bottom:0.35rem;">
+            <strong style="font-size:0.88rem;">🧩 Parsons Puzzle: Drag lines or use ↑ / ↓ arrows to reorder</strong>
+            <button type="button" id="btnShuffleParsons" class="btn btn-sm">🔀 Reset Order</button>
+          </div>
+          <div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:0.5rem;">
+            Watch Python indentation! Lines inside <code>def</code> or <code>if</code> must sit beneath their header.
+          </div>
+          <div id="parsonsSortableList" class="parsons-list"></div>
+        </div>
+      `;
+
+      const listEl = panel.querySelector('#parsonsSortableList');
+      let dragSrcIndex = null;
+
+      const drawList = () => {
+        listEl.innerHTML = '';
+        currentParsonsOrder.forEach((lineText, idx) => {
+          const row = document.createElement('div');
+          row.className = 'parsons-item';
+          row.draggable = true;
+          row.innerHTML = `
+            <span style="color:#64748b;font-weight:700;">☰</span>
+            <code class="parsons-code"></code>
+            <div class="parsons-controls">
+              <button type="button" class="parsons-btn" data-dir="-1" title="Move Up" ${idx === 0 ? 'disabled' : ''}>↑</button>
+              <button type="button" class="parsons-btn" data-dir="1" title="Move Down" ${idx === currentParsonsOrder.length - 1 ? 'disabled' : ''}>↓</button>
+            </div>
+          `;
+          row.querySelector('.parsons-code').textContent = lineText;
+
+          row.querySelectorAll('.parsons-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+              const dir = Number(btn.getAttribute('data-dir'));
+              const targetIdx = idx + dir;
+              if (targetIdx >= 0 && targetIdx < currentParsonsOrder.length) {
+                const temp = currentParsonsOrder[idx];
+                currentParsonsOrder[idx] = currentParsonsOrder[targetIdx];
+                currentParsonsOrder[targetIdx] = temp;
+                syncInteractiveToEditor(challenge);
+                drawList();
+              }
+            });
+          });
+
+          row.addEventListener('dragstart', () => {
+            dragSrcIndex = idx;
+            row.classList.add('dragging');
+          });
+          row.addEventListener('dragend', () => row.classList.remove('dragging'));
+          row.addEventListener('dragover', e => e.preventDefault());
+          row.addEventListener('drop', e => {
+            e.preventDefault();
+            if (dragSrcIndex !== null && dragSrcIndex !== idx) {
+              const moved = currentParsonsOrder.splice(dragSrcIndex, 1)[0];
+              currentParsonsOrder.splice(idx, 0, moved);
+              syncInteractiveToEditor(challenge);
+              drawList();
+            }
+          });
+
+          listEl.appendChild(row);
+        });
+      };
+
+      panel.querySelector('#btnShuffleParsons')?.addEventListener('click', () => {
+        currentParsonsOrder = [...challenge.parsonsLines];
+        syncInteractiveToEditor(challenge);
+        drawList();
+      });
+
+      drawList();
+      syncInteractiveToEditor(challenge);
+    }
+
+    function renderBlanksActivity(challenge, panel) {
+      const slotMatches = [...challenge.blankTemplate.matchAll(/\{\{(\d+)\}\}/g)];
+      const maxSlotIdx = slotMatches.reduce((m, match) => Math.max(m, Number(match[1])), -1);
+      if (currentBlankSlots.length !== maxSlotIdx + 1) {
+        currentBlankSlots = new Array(maxSlotIdx + 1).fill('');
+      }
+      selectedBlankToken = null;
+
+      panel.innerHTML = `
+        <div class="activity-box">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;margin-bottom:0.35rem;">
+            <strong style="font-size:0.88rem;">🧲 Drag a token into each blank (or click a token, then click a blank)</strong>
+            <button type="button" id="btnClearAllBlanks" class="btn btn-sm">↺ Clear Blanks</button>
+          </div>
+          <div id="blankTokenBank" class="token-bank"></div>
+          <div id="blankCodeCanvas" class="blank-code-frame"></div>
+        </div>
+      `;
+
+      const bankEl = panel.querySelector('#blankTokenBank');
+      const canvasEl = panel.querySelector('#blankCodeCanvas');
+
+      const drawBlanks = () => {
+        bankEl.innerHTML = '';
+        challenge.blankTokens.forEach(tok => {
+          const chip = document.createElement('span');
+          chip.className = `drag-token ${selectedBlankToken === tok ? 'selected' : ''}`;
+          chip.draggable = true;
+          chip.textContent = tok;
+
+          chip.addEventListener('dragstart', e => {
+            e.dataTransfer.setData('text/plain', tok);
+            selectedBlankToken = tok;
+          });
+          chip.addEventListener('click', () => {
+            selectedBlankToken = selectedBlankToken === tok ? null : tok;
+            drawBlanks();
+          });
+          bankEl.appendChild(chip);
+        });
+
+        canvasEl.innerHTML = '';
+        const parts = challenge.blankTemplate.split(/(\{\{\d+\}\})/g);
+        parts.forEach(part => {
+          const m = part.match(/^\{\{(\d+)\}\}$/);
+          if (!m) {
+            canvasEl.appendChild(document.createTextNode(part));
+          } else {
+            const slotIdx = Number(m[1]);
+            const val = currentBlankSlots[slotIdx];
+            const slot = document.createElement('span');
+            slot.className = `drop-slot ${val ? 'filled' : ''}`;
+            slot.textContent = val || `[ Blank ${slotIdx + 1} ]`;
+            slot.title = val ? 'Click to clear or drop a new token' : 'Drop token here or click to place selected token';
+
+            slot.addEventListener('dragover', e => {
+              e.preventDefault();
+              slot.classList.add('drag-over');
+            });
+            slot.addEventListener('dragleave', () => slot.classList.remove('drag-over'));
+            slot.addEventListener('drop', e => {
+              e.preventDefault();
+              slot.classList.remove('drag-over');
+              const dropped = e.dataTransfer.getData('text/plain') || selectedBlankToken;
+              if (dropped) {
+                currentBlankSlots[slotIdx] = dropped;
+                selectedBlankToken = null;
+                syncInteractiveToEditor(challenge);
+                drawBlanks();
+              }
+            });
+            slot.addEventListener('click', () => {
+              if (selectedBlankToken) {
+                currentBlankSlots[slotIdx] = selectedBlankToken;
+                selectedBlankToken = null;
+              } else if (currentBlankSlots[slotIdx]) {
+                currentBlankSlots[slotIdx] = '';
+              }
+              syncInteractiveToEditor(challenge);
+              drawBlanks();
+            });
+
+            canvasEl.appendChild(slot);
+          }
+        });
+      };
+
+      panel.querySelector('#btnClearAllBlanks')?.addEventListener('click', () => {
+        currentBlankSlots = new Array(maxSlotIdx + 1).fill('');
+        selectedBlankToken = null;
+        syncInteractiveToEditor(challenge);
+        drawBlanks();
+      });
+
+      drawBlanks();
+      syncInteractiveToEditor(challenge);
+    }
+
+    function openChallengeWorkspace(worldId, challengeId) {
+      const world = COURSE_WORLDS.find(w => w.id === worldId);
+      const challenge = ALL_CHALLENGES.find(c => c.id === challengeId);
+      if (!world || !challenge) return;
+
+      currentWorldId = worldId;
+      currentChallengeId = challengeId;
+
+      showOnlyView('challengeWorkspaceView');
+
+      document.getElementById('wsWorldTag').textContent = `World ${world.number}: ${world.title} · ${world.spec}`;
+      document.getElementById('wsChallengeTitle').textContent = challenge.title;
+      document.getElementById('wsXpBadge').textContent = `+${challenge.xp} XP`;
+      document.getElementById('wsStoryText').textContent = challenge.story;
+      document.getElementById('wsExampleCode').textContent = challenge.example;
+
+      const criteriaList = document.getElementById('wsCriteriaList');
+      criteriaList.innerHTML = '';
+      (challenge.criteria || []).forEach(c => {
+        const li = document.createElement('li');
+        li.textContent = c;
+        criteriaList.appendChild(li);
+      });
+
+      const hintsContainer = document.getElementById('hintsContainer');
+      hintsContainer.innerHTML = '';
+      hintsContainer.classList.add('hidden');
+
+      const interactivePanel = document.getElementById('interactiveActivityPanel');
+      const editorHeader = document.getElementById('wsEditorHeaderLabel');
+      const codeEditor = document.getElementById('codeEditor');
+
+      if (challenge.activityType === 'parsons') {
+        interactivePanel.classList.remove('hidden');
+        editorHeader.textContent = 'Live Python Preview (Updated from Parsons Order)';
+        codeEditor.readOnly = true;
+        currentParsonsOrder = [...challenge.parsonsLines];
+        renderParsonsActivity(challenge, interactivePanel);
+      } else if (challenge.activityType === 'blanks') {
+        interactivePanel.classList.remove('hidden');
+        editorHeader.textContent = 'Live Python Preview (Updated from Filled Blanks)';
+        codeEditor.readOnly = true;
+        currentBlankSlots = [];
+        renderBlanksActivity(challenge, interactivePanel);
+      } else {
+        interactivePanel.classList.add('hidden');
+        interactivePanel.innerHTML = '';
+        editorHeader.textContent = 'Python 3 Editor (main.py)';
+        codeEditor.readOnly = false;
+        const savedDraft = activeStudent && !isGuestMode && activeStudent.drafts ? activeStudent.drafts[challenge.id] : null;
+        codeEditor.value = savedDraft || challenge.starterCode || '';
+        updateLineNumbers();
+      }
+
+      const w7Switcher = document.getElementById('world7QuickSwitcher');
+      const w7Select = document.getElementById('world7ActivitySelect');
+      if (w7Switcher && w7Select) {
+        if (world.id === 'w7') {
+          w7Switcher.classList.remove('hidden');
+          const solvedSet = getCompletedSet();
+          w7Select.innerHTML = '';
+          world.challenges.forEach(item => {
+            const opt = document.createElement('option');
+            opt.value = item.id;
+            const kindLabel =
+              item.activityType === 'parsons'
+                ? '[Parsons]'
+                : item.activityType === 'blanks'
+                  ? '[Drag & Drop]'
+                  : item.title.includes('Mini Assessment')
+                    ? '[Assessment]'
+                    : '[Open Code]';
+            opt.textContent = `${solvedSet.has(item.id) ? '✅ ' : ''}${item.title} ${kindLabel} (+${item.xp} XP)`;
+            if (item.id === challenge.id) opt.selected = true;
+            w7Select.appendChild(opt);
+          });
+        } else {
+          w7Switcher.classList.add('hidden');
+        }
+      }
+
+      document.getElementById('stdinInputField').value = challenge.defaultStdin || '';
+      document.getElementById('feedbackBanner').classList.add('hidden');
+
+      clearConsole();
+      appendConsole('Ready. Click "Run Code" to test or "Check & Submit" to earn XP.', 'system');
+    }
+
+    // Pyodide Initialization
+    async function initPyodideEngine() {
+      const dot = document.getElementById('pyodideDot');
+      const label = document.getElementById('pyodideStatusText');
+      let attempts = 0;
+
+      const waitForGlobal = () =>
+        new Promise(resolve => {
+          const check = () => {
+            if (typeof loadPyodide === 'function') return resolve(true);
+            attempts += 1;
+            if (attempts > 35) return resolve(false);
+            setTimeout(check, 250);
+          };
+          check();
+        });
+
+      const hasLoader = await waitForGlobal();
+      if (!hasLoader) {
+        dot.className = 'dot fallback';
+        label.textContent = 'Offline Python Mode';
+        return;
+      }
+
+      try {
+        pyodideInstance = await loadPyodide({
+          indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.26.4/full/'
+        });
+        pyodideReady = true;
+        dot.className = 'dot ready';
+        label.textContent = 'Python 3.12 Ready';
+      } catch (err) {
+        dot.className = 'dot fallback';
+        label.textContent = 'Offline Python Mode';
+      }
+    }
+
+    function parseStdinLines(raw) {
+      if (!raw) return [];
+      return raw.replace(/\\n/g, '\n').split('\n');
+    }
+
+    async function executePythonCode(studentCode, stdinLines = [], testScript = null) {
+      if (pyodideReady && pyodideInstance) {
+        pyodideInstance.globals.set('_student_code', studentCode);
+        pyodideInstance.globals.set('_initial_inputs', pyodideInstance.toPy(stdinLines));
+        pyodideInstance.globals.set('_test_code', testScript || '');
+
+        const harness = `
+import sys, builtins
+
+_cap = []
+_ns = {}
+
+def _custom_print(*args, sep=' ', end='\\n', **kwargs):
+    text = sep.join(str(a) for a in args)
+    for line in text.splitlines() or ['']:
+        _cap.append(line)
+
+def _run_with_inputs(inp_list):
+    global _cap, _ns
+    _cap = []
+    _ns = {}
+    _queue = list(inp_list)
+    def _mock_input(prompt=''):
+        if not _queue:
+            raise EOFError("Program asked for input(), but no more input values were provided.")
+        return str(_queue.pop(0))
+    _ns['print'] = _custom_print
+    _ns['input'] = _mock_input
+    exec(_student_code, _ns)
+    return list(_cap)
+
+_result_lines = []
+_passed = True
+_err_msg = ""
+
+try:
+    if _test_code.strip():
+        exec(_test_code, globals())
+    else:
+        _result_lines = _run_with_inputs(list(_initial_inputs))
+except Exception as e:
+    _passed = False
+    _err_msg = f"{type(e).__name__}: {e}"
+
+(_passed, _result_lines, _err_msg)
+`;
+        const resProxy = await pyodideInstance.runPythonAsync(harness);
+        const [passed, outLines, errMsg] = resProxy.toJs();
+        resProxy.destroy();
+        return { passed, output: Array.from(outLines), error: errMsg };
+      }
+
+      // Offline / Sandboxed Preview Fallback Evaluator
+      return {
+        passed: false,
+        output: [],
+        error:
+          'Pyodide CDN is blocked in this sandboxed preview. Download this .html file and open it in Chrome/Edge to execute full Python 3.12!'
+      };
+    }
+
+    async function handleRunCode(isSubmit) {
+      const challenge = ALL_CHALLENGES.find(c => c.id === currentChallengeId);
+      if (!challenge) return;
+
+      const editor = document.getElementById('codeEditor');
+      const code = editor.value;
+      const stdinLines = parseStdinLines(document.getElementById('stdinInputField').value);
+      const feedbackEl = document.getElementById('feedbackBanner');
+
+      if (activeStudent && !isGuestMode && !challenge.activityType) {
+        activeStudent.drafts[challenge.id] = code;
+        saveStudentToStorage();
+      }
+
+      clearConsole();
+      appendConsole(isSubmit ? 'Running automated OCR test suite...' : 'Running program...', 'sys');
+
+      const res = await executePythonCode(code, stdinLines, isSubmit ? challenge.testScript : null);
+
+      if (!isSubmit) {
+        if (res.error) {
+          appendConsole(res.error, 'err');
+        } else {
+          if (res.output.length === 0) appendConsole('(Program finished with no output)', 'sys');
+          res.output.forEach(line => appendConsole(line, 'out'));
+        }
+        return;
+      }
+
+      if (res.passed) {
+        appendConsole('All automated OCR checks passed!', 'ok');
+        feedbackEl.className = 'feedback-banner feedback-success';
+
+        const completedSet = getCompletedSet();
+        if (!completedSet.has(challenge.id)) {
+          if (isSandboxMode) {
+            feedbackEl.textContent = `🎉 Challenge Complete! (Sandbox Mode — Exit Sandbox & Sign In to record XP.)`;
+          } else if (activeStudent && !isGuestMode) {
+            activeStudent.completedIds.push(challenge.id);
+            activeStudent.xp += challenge.xp;
+            saveStudentToStorage();
+            feedbackEl.textContent = `🎉 Challenge Complete! +${challenge.xp} XP saved to your profile.`;
+          } else {
+            feedbackEl.textContent = `🎉 Challenge Complete! (+${challenge.xp} XP — Sign in to save XP across sessions.)`;
+          }
+        } else {
+          feedbackEl.textContent = `✅ Already completed! All tests continue to pass.`;
+        }
+        feedbackEl.classList.remove('hidden');
+        updateHeaderAndProgress();
+      } else {
+        appendConsole(res.error || 'Assertion failed.', 'err');
+        feedbackEl.className = 'feedback-banner feedback-error';
+        feedbackEl.textContent = `❌ Not quite yet: ${res.error}`;
+        feedbackEl.classList.remove('hidden');
+      }
+    }
+
+    // Sandbox View Logic
+    function initSandboxView() {
+      const select = document.getElementById('sandboxTemplateSelect');
+      select.innerHTML = '';
+      SANDBOX_TEMPLATES.forEach(t => {
+        const opt = document.createElement('option');
+        opt.value = t.id;
+        opt.textContent = t.name;
+        select.appendChild(opt);
+      });
+
+      const loadTemplate = id => {
+        const tpl = SANDBOX_TEMPLATES.find(t => t.id === id) || SANDBOX_TEMPLATES[0];
+        document.getElementById('sandboxTopicTitle').textContent = tpl.name;
+        document.getElementById('sandboxTopicDesc').textContent = tpl.desc;
+        document.getElementById('sandboxSyntaxRef').textContent = tpl.ref;
+        document.getElementById('sandboxEditor').value = tpl.code;
+        updateLineNumbers('sandboxEditor', 'sandboxLineNumbers');
+        clearConsole('sandboxConsoleOutput');
+        appendConsole('Sandbox ready. Edit the code and click Run Sandbox Code.', 'sys', 'sandboxConsoleOutput');
+      };
+
+      select.addEventListener('change', () => loadTemplate(select.value));
+      loadTemplate(SANDBOX_TEMPLATES[0].id);
+
+      document.getElementById('btnSandboxRun').addEventListener('click', async () => {
+        const code = document.getElementById('sandboxEditor').value;
+        const stdin = parseStdinLines(document.getElementById('sandboxStdinInput').value);
+        clearConsole('sandboxConsoleOutput');
+        appendConsole('Executing sandbox script...', 'sys', 'sandboxConsoleOutput');
+        const res = await executePythonCode(code, stdin, null);
+        if (res.error) {
+          appendConsole(res.error, 'err', 'sandboxConsoleOutput');
+        } else {
+          if (res.output.length === 0) appendConsole('(No console output)', 'sys', 'sandboxConsoleOutput');
+          res.output.forEach(line => appendConsole(line, 'out', 'sandboxConsoleOutput'));
+        }
+      });
+
+      document.getElementById('btnSandboxClear').addEventListener('click', () => clearConsole('sandboxConsoleOutput'));
+
+      document.getElementById('btnDownloadPy').addEventListener('click', () => {
+        const blob = new Blob([document.getElementById('sandboxEditor').value], { type: 'text/x-python' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'ocr_python_sandbox.py';
+        a.click();
+        URL.revokeObjectURL(url);
+      });
+    }
+
+    // Teacher Portal Logic
+    function renderTeacherPortal() {
+      const classes = loadClassesFromStorage();
+      const tbody = document.getElementById('teacherClassesTbody');
+      const filterSel = document.getElementById('teacherClassFilter');
+      tbody.innerHTML = '';
+
+      const currentFilter = filterSel.value;
+      filterSel.innerHTML = '<option value="ALL">All Classes</option>';
+
+      classes.forEach(cls => {
+        const opt = document.createElement('option');
+        opt.value = cls.name;
+        opt.textContent = cls.name;
+        filterSel.appendChild(opt);
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong>${cls.name}</strong></td>
+          <td><code>${cls.pin}</code></td>
+          <td><code>${cls.joinCode}</code></td>
+          <td><button type="button" class="btn btn-sm" data-del-id="${cls.id}">Remove</button></td>
+        `;
+        tr.querySelector('button').addEventListener('click', () => {
+          saveClassesToStorage(classes.filter(c => c.id !== cls.id));
+          renderTeacherPortal();
+        });
+        tbody.appendChild(tr);
+      });
+
+      if (classes.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" style="color:var(--text-muted);">No classes created yet.</td></tr>';
+      }
+
+      if ([...filterSel.options].some(o => o.value === currentFilter)) {
+        filterSel.value = currentFilter;
+      }
+
+      let mb = [];
+      try {
+        mb = JSON.parse(localStorage.getItem(STORAGE_KEYS.MARKBOOK) || '[]');
+      } catch (e) {}
+
+      const filtered = filterSel.value === 'ALL' ? mb : mb.filter(s => s.className === filterSel.value);
+      const mbBody = document.getElementById('teacherMarkbookTbody');
+      mbBody.innerHTML = '';
+
+      filtered.forEach(stu => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong>${stu.name}</strong></td>
+          <td>${stu.className}</td>
+          <td>${stu.xp || 0} XP</td>
+          <td>${(stu.completedIds || []).length} / ${ALL_CHALLENGES.length}</td>
+          <td>${stu.lastActive || '—'}</td>
+        `;
+        mbBody.appendChild(tr);
+      });
+
+      if (filtered.length === 0) {
+        mbBody.innerHTML = '<tr><td colspan="5" style="color:var(--text-muted);">No student records yet. Import student .json files or have students sign in on this device.</td></tr>';
+      }
+    }
+
+    function attachTabIndentHandler(textareaId, lineNumbersId) {
+      const ta = document.getElementById(textareaId);
+      if (!ta) return;
+      ta.addEventListener('input', () => updateLineNumbers(textareaId, lineNumbersId));
+      ta.addEventListener('keydown', e => {
+        if (e.key === 'Tab') {
+          e.preventDefault();
+          const start = ta.selectionStart;
+          const end = ta.selectionEnd;
+          ta.value = ta.value.substring(0, start) + '    ' + ta.value.substring(end);
+          ta.selectionStart = ta.selectionEnd = start + 4;
+          updateLineNumbers(textareaId, lineNumbersId);
+        }
+      });
+    }
+
+    // Boot Application
+    document.addEventListener('DOMContentLoaded', () => {
+      try {
+        const savedTheme = localStorage.getItem(STORAGE_KEYS.THEME) || 'light';
+        applyTheme(savedTheme);
+        const savedStu = localStorage.getItem(STORAGE_KEYS.ACTIVE_STUDENT);
+        if (savedStu) activeStudent = JSON.parse(savedStu);
+      } catch (e) {}
+
+      document.getElementById('themeSelector').addEventListener('change', e => applyTheme(e.target.value));
+
+      document.getElementById('world7ActivitySelect').addEventListener('change', e => {
+        if (e.target.value) openChallengeWorkspace('w7', e.target.value);
+      });
+
+      // Navigation
+      document.getElementById('btnNavHome').addEventListener('click', () => {
+        renderCourseMap();
+        showOnlyView('courseMapView');
+      });
+      document.getElementById('btnBackToMap').addEventListener('click', () => {
+        renderCourseMap();
+        showOnlyView('courseMapView');
+      });
+      const enterSandboxMode = () => {
+        isSandboxMode = true;
+        updateHeaderAndProgress();
+        showOnlyView('sandboxView');
+        showToast('Sandbox Mode active — use Course Map anytime to jump into any activity.');
+      };
+      document.getElementById('btnNavSandbox').addEventListener('click', enterSandboxMode);
+      document.getElementById('heroSandboxBtn').addEventListener('click', enterSandboxMode);
+      document.getElementById('btnOpenScratchpadFromMap').addEventListener('click', () => showOnlyView('sandboxView'));
+      document.getElementById('btnExitSandboxMode').addEventListener('click', () => {
+        isSandboxMode = false;
+        renderCourseMap();
+        showToast('Exited Sandbox Mode — standard XP progression restored.');
+      });
+      document.getElementById('btnSandboxBack').addEventListener('click', () => {
+        renderCourseMap();
+        showOnlyView('courseMapView');
+      });
+
+      // Guest Mode
+      const activateGuest = () => {
+        activeStudent = null;
+        isGuestMode = true;
+        isSandboxMode = false;
+        renderCourseMap();
+        showToast('Guest Mode active — progress will not be saved.');
+      };
+      document.getElementById('btnGuestMode').addEventListener('click', activateGuest);
+      document.getElementById('heroGuestBtn').addEventListener('click', activateGuest);
+
+      // Student Login Modal
+      const openStuModal = () => document.getElementById('studentLoginModal').classList.remove('hidden');
+      const closeStuModal = () => document.getElementById('studentLoginModal').classList.add('hidden');
+      document.getElementById('btnOpenStudentLogin').addEventListener('click', openStuModal);
+      document.getElementById('heroStudentSignInBtn').addEventListener('click', openStuModal);
+      document.getElementById('btnCloseStudentModal').addEventListener('click', closeStuModal);
+      document.getElementById('btnCancelStudentModal').addEventListener('click', closeStuModal);
+
+      document.getElementById('studentLoginForm').addEventListener('submit', e => {
+        e.preventDefault();
+        const name = document.getElementById('studentNameInput').value;
+        const joinRaw = document.getElementById('studentClassJoinInput').value;
+        const resolvedClass = resolveClassName(joinRaw);
+        activeStudent = createEmptyStudent(name, resolvedClass);
+        isGuestMode = false;
+        isSandboxMode = false;
+        saveStudentToStorage();
+        closeStuModal();
+        renderCourseMap();
+        showToast(`Signed in as ${activeStudent.name} (${activeStudent.className})`);
+      });
+
+      // Save & Load Student JSON
+      document.getElementById('btnSaveProgressFile').addEventListener('click', () => {
+        if (!activeStudent || isGuestMode) return;
+        const blob = new Blob([JSON.stringify(activeStudent, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${activeStudent.name.replace(/\s+/g, '_')}_PythonQuest.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast('Save file downloaded!');
+      });
+
+      document.getElementById('btnLoadProgressFile').addEventListener('click', () => {
+        document.getElementById('studentFileInput').click();
+      });
+
+      document.getElementById('studentFileInput').addEventListener('change', e => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = ev => {
+          try {
+            const parsed = JSON.parse(ev.target.result);
+            if (parsed && parsed.name && Array.isArray(parsed.completedIds)) {
+              activeStudent = parsed;
+              isGuestMode = false;
+              saveStudentToStorage();
+              renderCourseMap();
+              showToast(`Loaded save for ${activeStudent.name} (${activeStudent.xp} XP)`);
+            } else {
+              showToast('Invalid student save file.');
+            }
+          } catch (err) {
+            showToast('Could not read save file.');
+          }
+        };
+        reader.readAsText(file);
+        e.target.value = '';
+      });
+
+      // Workspace Controls
+      attachTabIndentHandler('codeEditor', 'lineNumbers');
+      attachTabIndentHandler('sandboxEditor', 'sandboxLineNumbers');
+
+      document.getElementById('btnRunCode').addEventListener('click', () => handleRunCode(false));
+      document.getElementById('btnSubmitCode').addEventListener('click', () => handleRunCode(true));
+      document.getElementById('btnClearConsole').addEventListener('click', () => clearConsole());
+
+      document.getElementById('btnResetStarter').addEventListener('click', () => {
+        const challenge = ALL_CHALLENGES.find(c => c.id === currentChallengeId);
+        if (!challenge) return;
+        const interactivePanel = document.getElementById('interactiveActivityPanel');
+        if (challenge.activityType === 'parsons') {
+          currentParsonsOrder = [...challenge.parsonsLines];
+          renderParsonsActivity(challenge, interactivePanel);
+        } else if (challenge.activityType === 'blanks') {
+          currentBlankSlots = [];
+          renderBlanksActivity(challenge, interactivePanel);
+        } else {
+          document.getElementById('codeEditor').value = challenge.starterCode;
+          updateLineNumbers();
+        }
+        clearConsole();
+        appendConsole('Activity reset.', 'sys');
+      });
+
+      document.getElementById('btnRevealHint').addEventListener('click', () => {
+        const challenge = ALL_CHALLENGES.find(c => c.id === currentChallengeId);
+        const box = document.getElementById('hintsContainer');
+        if (!challenge || !box) return;
+        box.classList.remove('hidden');
+        const shownCount = box.children.length;
+        if (shownCount < challenge.hints.length) {
+          const div = document.createElement('div');
+          div.className = 'hint-card';
+          div.textContent = `Hint ${shownCount + 1}: ${challenge.hints[shownCount]}`;
+          box.appendChild(div);
+        }
+      });
+
+      document.getElementById('btnNextChallenge').addEventListener('click', () => {
+        const idx = ALL_CHALLENGES.findIndex(c => c.id === currentChallengeId);
+        if (idx >= 0 && idx + 1 < ALL_CHALLENGES.length) {
+          const nextCh = ALL_CHALLENGES[idx + 1];
+          const nextWorld = COURSE_WORLDS.find(w => w.challenges.some(c => c.id === nextCh.id));
+          if (nextWorld) openChallengeWorkspace(nextWorld.id, nextCh.id);
+        } else {
+          renderCourseMap();
+          showOnlyView('courseMapView');
+          showToast('You have reached the end of the course!');
+        }
+      });
+
+      // Teacher Portal
+      const openTeacherModal = () => {
+        document.getElementById('teacherPinError').classList.add('hidden');
+        document.getElementById('teacherPinInput').value = '';
+        document.getElementById('teacherPinModal').classList.remove('hidden');
+      };
+      const closeTeacherModal = () => document.getElementById('teacherPinModal').classList.add('hidden');
+
+      document.getElementById('btnOpenTeacherLogin').addEventListener('click', openTeacherModal);
+      document.getElementById('btnCloseTeacherModal').addEventListener('click', closeTeacherModal);
+      document.getElementById('btnCancelTeacherModal').addEventListener('click', closeTeacherModal);
+
+      document.getElementById('teacherPinForm').addEventListener('submit', e => {
+        e.preventDefault();
+        const pin = document.getElementById('teacherPinInput').value.trim();
+        if (pin === TEACHER_STAFF_PIN) {
+          closeTeacherModal();
+          renderTeacherPortal();
+          showOnlyView('teacherPortalView');
+        } else {
+          document.getElementById('teacherPinError').classList.remove('hidden');
+        }
+      });
+
+      document.getElementById('btnTeacherExit').addEventListener('click', () => {
+        renderCourseMap();
+        showOnlyView('courseMapView');
+      });
+
+      document.getElementById('btnToggleSandboxUnlock').addEventListener('click', e => {
+        teacherUnlockedAll = !teacherUnlockedAll;
+        e.target.textContent = `🔓 Teacher Unlock All Worlds: ${teacherUnlockedAll ? 'ON' : 'OFF'}`;
+        renderCourseMap();
+        showToast(teacherUnlockedAll ? 'All 9 worlds unlocked for teacher testing.' : 'Standard XP progression restored.');
+      });
+
+      document.getElementById('createClassForm').addEventListener('submit', e => {
+        e.preventDefault();
+        const nameInput = document.getElementById('newClassNameInput');
+        const className = nameInput.value.trim();
+        if (!className) return;
+        const classes = loadClassesFromStorage();
+        const pin = String(Math.floor(1000 + Math.random() * 9000));
+        const cleanPrefix = className.replace(/[^a-zA-Z0-9]/g, '').toUpperCase() || 'CLASS';
+        const joinCode = `${cleanPrefix}-${pin}`;
+        classes.push({ id: 'cls_' + Date.now(), name: className, pin, joinCode });
+        saveClassesToStorage(classes);
+        nameInput.value = '';
+        renderTeacherPortal();
+        showToast(`Created ${className} (PIN: ${pin})`);
+      });
+
+      document.getElementById('teacherClassFilter').addEventListener('change', renderTeacherPortal);
+
+      document.getElementById('btnTeacherImportSaves').addEventListener('click', () => {
+        document.getElementById('teacherBulkFileInput').click();
+      });
+
+      document.getElementById('teacherBulkFileInput').addEventListener('change', async e => {
+        const files = Array.from(e.target.files || []);
+        if (!files.length) return;
+        let mb = [];
+        try {
+          mb = JSON.parse(localStorage.getItem(STORAGE_KEYS.MARKBOOK) || '[]');
+        } catch (err) {}
+
+        for (const f of files) {
+          try {
+            const text = await f.text();
+            const parsed = JSON.parse(text);
+            if (parsed && parsed.name && Array.isArray(parsed.completedIds)) {
+              const idx = mb.findIndex(s => s.id === parsed.id || (s.name === parsed.name && s.className === parsed.className));
+              if (idx >= 0) mb[idx] = parsed;
+              else mb.push(parsed);
+            }
+          } catch (err) {}
+        }
+
+        localStorage.setItem(STORAGE_KEYS.MARKBOOK, JSON.stringify(mb));
+        renderTeacherPortal();
+        showToast(`Imported ${files.length} student file(s).`);
+        e.target.value = '';
+      });
+
+      document.getElementById('btnExportCsv').addEventListener('click', () => {
+        let mb = [];
+        try {
+          mb = JSON.parse(localStorage.getItem(STORAGE_KEYS.MARKBOOK) || '[]');
+        } catch (err) {}
+        const headers = ['Student Name', 'Class', 'XP', 'Completed Count', ...ALL_CHALLENGES.map(c => c.id)];
+        const rows = [headers.join(',')];
+        mb.forEach(s => {
+          const set = new Set(s.completedIds || []);
+          const row = [
+            `"${(s.name || '').replace(/"/g, '""')}"`,
+            `"${(s.className || '').replace(/"/g, '""')}"`,
+            s.xp || 0,
+            set.size,
+            ...ALL_CHALLENGES.map(c => (set.has(c.id) ? '1' : '0'))
+          ];
+          rows.push(row.join(','));
+        });
+        const blob = new Blob([rows.join('\n')], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'OCR_J277_PythonQuest_Markbook.csv';
+        a.click();
+        URL.revokeObjectURL(url);
+      });
+
+      // Initialize Views & Pyodide
+      initSandboxView();
+      renderCourseMap();
+      initPyodideEngine();
+    });
+  </script>
+</body>
+</html>
